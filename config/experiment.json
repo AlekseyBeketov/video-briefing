@@ -1,0 +1,20 @@
+{
+  "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+  "video_id": "DvSwvJVens8",
+  "variant": "baoyu",
+  "summary_language": "ru",
+  "source_language_policy": "original_then_available",
+  "llm": {
+    "provider": "ollama",
+    "base_url": "http://127.0.0.1:11434",
+    "model": "gemma4:31b-cloud",
+    "cloud_backed": true,
+    "temperature": 0
+  },
+  "cache_mode": "cold_then_warm",
+  "allow_description_only": false,
+  "allow_cookies": false,
+  "allow_proxy": false,
+  "allow_paid_fallback": false,
+  "status": "provisional-design-not-yet-runnable"
+}
