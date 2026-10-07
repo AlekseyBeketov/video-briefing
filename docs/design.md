@@ -8,22 +8,22 @@ A. Existing Baoyu (`/Users/alexbeketov/.hermes/skills/media/baoyu-youtube-transc
 B. steipete/summarize — extraction-only JSON/timestamps; его самостоятельный LLM-summary не использовать в основной apples-to-apples оценке. npm требует Node24+, текущий Node22 не подходит. Проверить standalone macOS release и project-local install.
 C. Необязательный третий: local ASR через yt-dlp + whisper.cpp, если captions отсутствуют/ошибочны или если проверяется независимый audio источник. Если ASR не нужен/непрактичен, допустим third captions extractor youtube-transcript-api. Выбор и причина фиксируются до сравнительных запусков; одновременно не делать C и D.
 
-MVP поддерживает YouTube и локальный timed transcript; другие платформы только при реальном backend support. Gemini/vision — расширение, не обещание реализованного доступа. Не нужны frontend/MCP/vector DB.
+Текущий CLI поддерживает YouTube URL/video ID через три extractor adapter и сохраняет их timed transcript. Импорт локального timed transcript пока не реализован и не считается поддержанной командой. Другие платформы, Gemini/vision — расширения, не обещание реализованного доступа. Не нужны frontend/MCP/vector DB.
 
 ## Структура
 Python CLI и common typed artifact schema; backend adapters через безопасные subprocess/HTTP без shell=True. Закреплённые зависимости в pyproject.toml/uv.lock. Project-local tools under .tools, persistent evidence under data (gitignored), tracked experiment configs/reports/prompts/tests/skill. Если существующий проект другого стека существенно проще — ADR до изменения контракта, а не лишняя перепись.
 
-Предлагаемые modules: src/video_briefing/{cli,models,store,validation,retrieval,llm,briefing,benchmark}.py; adapters/{baoyu,summarize,asr_or_captions}.py. Все публичные команды должны иметь --help и стабильный JSON output при --json.
+Предлагаемые modules: src/video_briefing/{cli,models,store,validation,retrieval,llm,briefing,benchmark}.py; adapters/{baoyu,summarize,asr_or_captions}.py. Все команды имеют --help; `doctor`, `extract`, `ask`, `benchmark` выводят JSON, а `brief --json` включает структурированный brief, citations и model metadata.
 
 ## Единый evidence bundle
-Video identity: validated platform + exact id DvSwvJVens8, original URL, original language, extraction variant/version. Cache key не зависит от title и summary language.
+Video identity: validated platform + exact id DvSwvJVens8, original URL, identified source language, extraction variant/version. Cache key не зависит от title и summary language; persistent cache требует полного serialized raw source и запрещает overwrite при изменении hash.
 Segments: id, text, start_seconds, duration_seconds, optional source_speaker with certainty; raw original saved unchanged. Metadata: title/channel/duration/fetched_at/source_type/manual-or-auto/language/extractor_version/content_hash/coverage/warnings. Transcript needs nonempty text AND valid numeric timestamps. Description-only source must fail loudly.
 Normalized timing нельзя выдавать за forced alignment; Baoyu sentence timestamps пропорциональные — цитирование по raw snippets. Несколько участников без evidence attribution остаются unnamed.
 Generated briefing includes claims/evidence segment ids. Follow-up answers contain citation references resolved to actual source intervals, and a distinction between author statement and inference.
 
 ## Pipeline
 validate URL → choose adapter → timed source → verify/provenance → immutable file bundle → chunk full source when needed → common LLM brief → validate cited segment ids → render concise Russian output.
-Q&A: open artifact → search FULL transcript using terms/aliases + context windows (or full text within limits) → common LLM grounded answer → validate evidence → render. Negative answers require search of full source; partial-context miss ≠ never said. No automatic re-extraction on follow-up.
+Q&A: open artifact → search saved transcript using terms/aliases + context windows → common LLM grounded claims → validate cited IDs → render only cited claim text. Search miss is not proof of absence from full video; unknown answer stays qualified. No automatic re-extraction on follow-up.
 
 ## Model path
 Available local Ollama endpoint http://127.0.0.1:11434 has gemma4:31b-cloud. This model is CLOUD-backed, not offline. Use one fixed explicitly recorded model/settings/prompt hash across extractor comparisons if real smoke succeeds; never pull another model or add API keys automatically. Inference is plain API, not nested autonomous agents. If unavailable, document provider blocker; a manual agent evidence-reading result may be separately labelled but cannot replace scripted benchmark/model logs.

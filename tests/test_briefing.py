@@ -1,5 +1,6 @@
-from video_briefing.briefing import brief_bundle, render_brief
+from video_briefing.briefing import _normalize_inline_gist_citations, brief_bundle, render_brief
 from video_briefing.models import EvidenceBundle, TranscriptSegment
+from video_briefing.validation import validate_citations
 
 
 class FakeLLM:
@@ -42,3 +43,24 @@ def test_brief_repairs_model_citations_using_only_retrieved_source_ids():
     result, _ = brief_bundle(bundle, llm)
     assert llm.calls == 2
     assert result["topics"][0]["evidence"][0]["id"] == "s00001"
+
+
+def test_gist_evidence_ids_are_validated():
+    bundle = EvidenceBundle("youtube", "DvSwvJVens8", "https://youtube.com/watch?v=DvSwvJVens8", "ru", "fixture", "captions", "1", [TranscriptSegment("s00001", "Текст", 0, 1)], "a" * 64)
+    assert validate_citations({"gist_evidence": ["s99999"]}, bundle) == ["s99999"]
+
+
+def test_inline_citations_are_normalized_for_each_claim_type():
+    result = {
+        "gist": "Summary [s00001]", "gist_evidence": [],
+        "topics": [{"text": "Topic [s00001]", "evidence": []}],
+        "useful_ideas": [{"text": "Idea [s00001]", "evidence": [], "kind": "source"}],
+        "emphases": [{"text": "Emphasis [s00001]", "evidence": []}],
+        "caveats": [{"text": "Caveat [s00001]", "evidence": []}],
+    }
+    _normalize_inline_gist_citations(result)
+    assert result["gist"] == "Summary"
+    assert result["gist_evidence"] == ["s00001"]
+    for section in ("topics", "useful_ideas", "emphases", "caveats"):
+        assert "[" not in result[section][0]["text"]
+        assert result[section][0]["evidence"] == ["s00001"]

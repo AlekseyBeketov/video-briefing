@@ -1,0 +1,133 @@
+{
+  "review_date": "2026-10-07",
+  "reviewer_task": "t_9c90bf74",
+  "implementer_task": "t_57ebfc61",
+  "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
+  "spec_status": "FAIL",
+  "quality_status": "REQUEST_CHANGES",
+  "project_ready": false,
+  "summary": "Research comparison is complete with actual OpenResearch runs and honest negative/partial outcomes, but the full project acceptance remains unmet. G01-G06 were independently checked against source; this review adds cache immutability and stale-output findings.",
+  "findings": [
+    {
+      "id": "CR-01",
+      "severity": "HIGH",
+      "requirement": "Robust structured generation, grounded validation, and durable diagnostics/progress",
+      "evidence": [
+        {"file": "src/video_briefing/validation.py", "lines": "71-87", "detail": "Brief claim validation and citation checks; gist_evidence is not scanned by validate_citations."},
+        {"file": "src/video_briefing/briefing.py", "lines": "69-115", "detail": "Only unknown IDs trigger repair; missing evidence and malformed provider output fail without durable partial outputs."},
+        {"file": "src/video_briefing/benchmark.py", "lines": "68-94", "detail": "Run outputs are returned only after briefing and every fixed question finish."},
+        {"file": "src/video_briefing/llm.py", "lines": "45-67", "detail": "JSON mode is requested but malformed content raises; no bounded response repair or per-phase persistence."},
+        {"file": "reports/spec-review.md", "lines": "48-56", "detail": "Independent run records actual failures for missing evidence and malformed provider JSON."}
+      ],
+      "fix": "Add fail-closed bounded schema/response handling without inventing evidence. Persist effective configuration, source/model/phase/question identity, valid intermediate artifacts, and diagnostics before later phases can fail.",
+      "acceptance_test": "Regression tests cover malformed/fenced/partial JSON, missing evidence, and failure on a late question; run artifacts preserve phase, question id, settings, source hash, partial valid results, and the exact failure. Do not alter frozen experiment history."
+    },
+    {
+      "id": "CR-02",
+      "severity": "HIGH",
+      "requirement": "Full-source grounded follow-up with coherent retrieval and honest unknown answers",
+      "evidence": [
+        {"file": "src/video_briefing/retrieval.py", "lines": "47-78", "detail": "Sparse token ranking returns at most 12 matches with radius 1; no coherent/full-source negative-answer verification."},
+        {"file": "src/video_briefing/qa.py", "lines": "20-25", "detail": "Only retrieved excerpts are sent to the model; empty retrieval directly abstains."},
+        {"file": "reports/spec-review.md", "lines": "58-64", "detail": "Fixed questions miss numeric, contextual, API, and late recommendation evidence present in the full source."}
+      ],
+      "fix": "Use source-aware coherent windows and improved recall for numbers, aliases, translated queries, limitations, and late-source evidence. Distinguish retrieval miss from full-source absence.",
+      "acceptance_test": "Frozen eight-question regression checks required evidence recall and grounded answers for 5.1B, context caveats, conditional final recommendation, API/NAS distinctions; unknown claims must not be inferred from incomplete windows."
+    },
+    {
+      "id": "CR-03",
+      "severity": "HIGH",
+      "requirement": "Original-language track selection/provenance and explicit output-language policy",
+      "evidence": [
+        {"file": "src/video_briefing/adapters/summarize.py", "lines": "41-79,83-99", "detail": "Unknown source language becomes und and warns, but the bundle remains usable; requested language does not enforce selected track."},
+        {"file": "src/video_briefing/benchmark.py", "lines": "48-65", "detail": "Extraction language is requested but actual language mismatch is not gated before analysis."},
+        {"file": "reports/comparison.md", "lines": "27-30,44", "detail": "Actual B run had und/English-dominant transcript and content distortions; it is not an original-RU comparator."}
+      ],
+      "fix": "Separate source language from summary language, preserve actual track provenance/raw extractor output, and fail as non-comparable or explicitly label fallback when language/track cannot be verified.",
+      "acceptance_test": "Fixtures reject or explicitly mark und/mismatched-language extraction before benchmark analysis; verify Russian output independently and ensure no ASR/auth/cookie fallback is introduced."
+    },
+    {
+      "id": "CR-04",
+      "severity": "HIGH",
+      "requirement": "Citation validity, factual support, attribution, and author-statement/inference separation",
+      "evidence": [
+        {"file": "src/video_briefing/validation.py", "lines": "54-87", "detail": "Citation scanner handles evidence/segment_ids but not gist_evidence; briefing validator checks presence but not semantic support."},
+        {"file": "src/video_briefing/briefing.py", "lines": "107-129,145-165", "detail": "Missing gist citations are copied from topic evidence; caveats are uncited and render_brief drops useful_ideas.kind."},
+        {"file": "src/video_briefing/qa.py", "lines": "29-46", "detail": "Factual answer prose can remain while empty claims cause abstained=true."},
+        {"file": "reports/comparison.md", "lines": "52-54,74", "detail": "Actual baseline had valid-looking IDs but unsupported attribution/caveat and cited-context mismatch; ID existence alone is insufficient."}
+      ],
+      "fix": "Validate every citation field, remove unrelated gist-citation derivation, preserve source/inference labels, cite caveats, and reject or safely replace unsupported answer prose and unsupported speaker identity.",
+      "acceptance_test": "Tests cover unknown gist IDs, empty claims with factual prose, caveat evidence, conservative unnamed-speaker policy, source/inference rendering, and citation-to-claim context review."
+    },
+    {
+      "id": "CR-05",
+      "severity": "MEDIUM",
+      "requirement": "Honest cold/warm and per-call model/usage/prompt/retrieval measurements",
+      "evidence": [
+        {"file": "src/video_briefing/benchmark.py", "lines": "45-94", "detail": "extract_cold is only wrapper miss time; warm reuse is a boolean, not measured warm Q&A or extraction."},
+        {"file": "src/video_briefing/briefing.py", "lines": "69-80,132-141", "detail": "Only current last_response metadata is returned; QA calls/chunks/synthesis usage and dynamic prompt identity are omitted."},
+        {"file": "src/video_briefing/llm.py", "lines": "45-67", "detail": "Provider response metadata is overwritten on each call."},
+        {"file": "reports/spec-review.md", "lines": "86-92", "detail": "Research audit documents uncertain upstream cache, incomplete usage, missing setup/partial-progress measurements, and runtime QA prompt drift."}
+      ],
+      "fix": "Rename or directly measure cache states; record every inference call's requested/returned model, usage and prompt/retrieval/version identity, effective configuration, and explicit missing metrics.",
+      "acceptance_test": "Multi-call regression verifies aggregate or explicitly incomplete usage and prompt/config metadata. Bounded live cached-Q&A smoke confirms exact source hash and instrumented zero extractor/non-LLM network calls; cost remains not measured unless actually captured."
+    },
+    {
+      "id": "CR-06",
+      "severity": "MEDIUM",
+      "requirement": "Documented CLI input/JSON surface, reproducible setup, and actionable diagnostics",
+      "evidence": [
+        {"file": "docs/design.md", "lines": "11,16,20-21", "detail": "Design promises local timed-transcript input and JSON output for all public commands."},
+        {"file": "src/video_briefing/cli.py", "lines": "21-63,110-126,144-149", "detail": "CLI only exposes YouTube URL commands; no common --json/local transcript mode; doctor uses a fixed external Baoyu path and checks existence only."},
+        {"file": "scripts/setup-tools.sh", "lines": "7-24", "detail": "Sets up Bun and summarize locally; Baoyu remains an external dependency."}
+      ],
+      "fix": "Align docs with supported behavior or implement local timed transcript and stable JSON output. Make doctor/setup verify concrete versions and clearly diagnose missing external Baoyu source/runtime.",
+      "acceptance_test": "CLI help covers every documented command and JSON shape; a synthetic local timed-transcript fixture runs without network; doctor tests missing and mismatched tool versions and provides actionable errors."
+    },
+    {
+      "id": "CR-07",
+      "severity": "MEDIUM",
+      "requirement": "Immutable raw evidence/cache identity",
+      "evidence": [
+        {"file": "src/video_briefing/store.py", "lines": "25-36,38-52", "detail": "save atomically overwrites the same platform/video/language/variant cache paths without checking prior source hash."},
+        {"file": "tests/test_store.py", "lines": "11-18", "detail": "Test asserts that a second save with the same key replaces first source content."},
+        {"file": "docs/design.md", "lines": "18-21,24-26", "detail": "Design requires immutable raw evidence and stable identity."}
+      ],
+      "fix": "Make source snapshots write-once or content-versioned; changed raw hash for an existing identity must cause an explicit conflict/new snapshot, never silent replacement.",
+      "acceptance_test": "Save changed content under same logical identity and verify original snapshot/hash remains readable, conflict/new version is explicit, and both entries have independently verified metadata and source hashes."
+    },
+    {
+      "id": "CR-08",
+      "severity": "MEDIUM",
+      "requirement": "Extraction freshness and target provenance",
+      "evidence": [
+        {"file": "src/video_briefing/adapters/baoyu.py", "lines": "24-40", "detail": "Output directory is reused and newest transcript-raw.json is selected after process success without proving it was produced by this invocation."}
+      ],
+      "fix": "Use a unique invocation output directory or compare pre/post outputs and require a newly verified raw file plus matching target metadata.",
+      "acceptance_test": "Pre-existing stale raw JSON with a successful subprocess that writes no new file must fail; newly emitted matching-target output must pass."
+    }
+  ],
+  "verification": {
+    "commands": [
+      {"command": "uv run --frozen pytest", "result": "28 passed in 0.09s"},
+      {"command": "uv run --frozen python -m compileall -q src tests", "result": "exit 0"},
+      {"command": "uv run --frozen video-briefing --help", "result": "exit 0; doctor/extract/brief/ask/benchmark shown; local transcript and general --json missing"},
+      {"command": "uv run --frozen video-briefing benchmark --help", "result": "exit 0"},
+      {"command": "uv run --frozen video-briefing doctor", "result": "exit 0; Python 3.13.14, Ollama reachable, extractor files present"},
+      {"command": "uv run --frozen video-briefing ask 'https://www.youtube.com/watch?v=DvSwvJVens8' 'Какую рекомендацию по NAS и какие функции Mini Scloud уже доступны или обещаны?' --variant captions_api", "result": "exit 0; returned claims with segment IDs and timestamps from cached evidence; this was not a new extraction or formal experiment"},
+      {"command": "git diff --check", "result": "exit 0"},
+      {"command": "git ls-files data artifacts", "result": "empty"},
+      {"command": "git check-ignore -v <private bundle/source.raw/reference raw transcript>", "result": "all checked raw-source paths ignored"}
+    ],
+    "orx_runs_relaunched": false,
+    "reason": "Frozen experiment branches are preserved; C answerless-attempt cap was reached. Actual run IDs/results and limitations were audited from reports/comparison.md, reports/comparison.json, reports/spec-review.md, and docs/research/openresearch-manifest.json.",
+    "git_status": "Only pre-existing untracked .codegraph/; untouched.",
+    "remote": "Pre-existing origin observed; not modified and no push/fetch performed.",
+    "report_files_created": ["reports/code-review.md", "reports/review-findings.json"]
+  },
+  "non_blocking_notes": [
+    "Valid segment IDs/timestamps do not prove that a citation supports its claim.",
+    "Comparison is a single-video case study with common-mode captions bias and no independent audio/visual truth check.",
+    "Reusable canonical/default skill deployment and final project audit remain downstream work, not approved by this review."
+  ]
+}

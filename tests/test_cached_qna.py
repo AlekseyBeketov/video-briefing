@@ -1,3 +1,5 @@
+import hashlib
+
 from video_briefing import cli
 from video_briefing.models import EvidenceBundle, TranscriptSegment
 from video_briefing.store import ArtifactStore
@@ -5,7 +7,8 @@ from video_briefing.store import ArtifactStore
 
 def test_cached_question_lookup_never_invokes_extractor(tmp_path, monkeypatch):
     store = ArtifactStore(tmp_path)
-    bundle = EvidenceBundle("youtube", "DvSwvJVens8", "https://youtube.com/watch?v=DvSwvJVens8", "ru", "baoyu", "auto-captions", "1", [TranscriptSegment("s00001", "Текст сохранённого источника", 0, 2)], "a" * 64)
+    raw = "Текст сохранённого источника"
+    bundle = EvidenceBundle("youtube", "DvSwvJVens8", "https://www.youtube.com/watch?v=DvSwvJVens8", "ru", "baoyu", "auto-captions", "1", [TranscriptSegment("s00001", raw, 0, 2)], hashlib.sha256(raw.encode()).hexdigest(), raw_text=raw)
     store.save(bundle)
 
     def fail_if_called(*args, **kwargs):

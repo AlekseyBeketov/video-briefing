@@ -24,15 +24,29 @@ class ArtifactStore:
 
     def save(self, bundle: EvidenceBundle) -> EvidenceBundle:
         validate_bundle(bundle)
+        if bundle.raw_text is None:
+            raise ValueError("immutable cache requires the complete serialized raw source")
         key = self.key(bundle.platform, bundle.video_id, bundle.language, bundle.variant)
+        bundle_path = self.bundle_path(key)
+        existing = self.load(bundle.platform, bundle.video_id, bundle.language, bundle.variant)
+        if existing is not None:
+            if existing.raw_sha256 != bundle.raw_sha256:
+                raise ValueError(
+                    "immutable cache identity conflict: source hash changed; choose an explicit new identity"
+                )
+            return existing
+        if bundle_path.exists():
+            raise ValueError("immutable cache identity conflict: existing bundle is invalid; refusing overwrite")
         if bundle.raw_text is not None:
-            raw_path = self.bundle_path(key).with_name("source.raw")
+            raw_path = bundle_path.with_name("source.raw")
+            if raw_path.exists() and hashlib.sha256(raw_path.read_bytes()).hexdigest() != bundle.raw_sha256:
+                raise ValueError("immutable cache identity conflict: existing raw source hash differs")
             self._atomic_bytes(raw_path, bundle.raw_text.encode("utf-8"))
         document = bundle.to_dict()
         canonical = json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
         document["store_sha256"] = hashlib.sha256(canonical).hexdigest()
         payload = json.dumps(document, ensure_ascii=False, sort_keys=True, indent=2).encode("utf-8")
-        self._atomic_bytes(self.bundle_path(key), payload)
+        self._atomic_bytes(bundle_path, payload)
         return bundle
 
     def find(self, video_id: str, variant: str, *, language: str | None = None) -> EvidenceBundle | None:

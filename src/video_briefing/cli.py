@@ -3,8 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
+import subprocess
 import sys
+import time
+from importlib.metadata import PackageNotFoundError, version as package_version
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -14,6 +16,8 @@ from .llm import OllamaClient
 from .qa import answer_question
 from .store import ArtifactStore
 from .validation import parse_video_url
+
+BAOYU_DIR = Path(os.environ.get("VIDEO_BRIEFING_BAOYU", Path.home() / ".hermes/skills/media/baoyu-youtube-transcript")).expanduser()
 
 DEFAULT_STORE = Path("artifacts/private/evidence")
 
@@ -35,12 +39,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     brief = subparsers.add_parser("brief", help="Create a Russian briefing from cached or newly extracted evidence")
     _add_video_options(brief)
+    brief.add_argument("--json", action="store_true", help="Emit structured JSON including citations and model metadata")
     brief.set_defaults(handler=_brief)
 
     ask = subparsers.add_parser("ask", help="Answer a question from saved transcript evidence without re-extraction")
     ask.add_argument("url")
     ask.add_argument("question")
     ask.add_argument("--variant", choices=("baoyu", "summarize", "captions_api"), required=True)
+    ask.add_argument("--languages", default="ru", help="Source language required for cache lookup (default: ru)")
     ask.add_argument("--store", type=Path, default=DEFAULT_STORE)
     ask.add_argument("--config", default="config/experiment.json")
     ask.set_defaults(handler=_ask)
@@ -80,6 +86,17 @@ def _llm(config: dict) -> OllamaClient:
     )
 
 
+def _tool_version(path: Path) -> dict:
+    if not path.is_file():
+        return {"available": False, "path": str(path)}
+    try:
+        result = subprocess.run([str(path), "--version"], capture_output=True, text=True, timeout=15, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"available": False, "path": str(path), "error": f"{type(exc).__name__}: {exc}"}
+    return {"available": result.returncode == 0, "path": str(path),
+            "version": (result.stdout.strip() or result.stderr.strip()), "exit_code": result.returncode}
+
+
 def _run_extractor(url: str, variant: str, languages: str, store: ArtifactStore):
     platform, video_id, _ = parse_video_url(url)
     if variant == "baoyu":
@@ -114,7 +131,11 @@ def _doctor(args: argparse.Namespace) -> int:
         "version": __version__,
         "python": sys.version.split()[0],
         "ollama": {"base_url": settings.get("base_url", "http://127.0.0.1:11434"), "model": settings.get("model", "gemma4:31b-cloud"), "cloud_backed": settings.get("cloud_backed", True)},
-        "extractors": {"baoyu_skill": Path("/Users/alexbeketov/.hermes/skills/media/baoyu-youtube-transcript/scripts/main.ts").is_file(), "bun": bool(os.environ.get("VIDEO_BRIEFING_BUN") or Path(".tools/bun/node_modules/.bin/bun").is_file()), "summarize_binary": bool(os.environ.get("VIDEO_BRIEFING_SUMMARIZE") or Path(".tools/summarize/summarize").is_file())},
+        "extractors": {
+            "baoyu_skill": {"available": (BAOYU_DIR / "scripts/main.ts").is_file(), "path": str(BAOYU_DIR / "scripts/main.ts")},
+            "bun": _tool_version(Path(os.environ.get("VIDEO_BRIEFING_BUN", ".tools/bun/node_modules/.bin/bun")).expanduser()),
+            "summarize": _tool_version(Path(os.environ.get("VIDEO_BRIEFING_SUMMARIZE", ".tools/summarize/summarize")).expanduser()),
+        },
     }
     try:
         with urlopen(f"{report['ollama']['base_url'].rstrip('/')}/api/tags", timeout=5):
@@ -122,8 +143,12 @@ def _doctor(args: argparse.Namespace) -> int:
     except Exception as exc:
         report["ollama"]["reachable"] = False
         report["ollama"]["error"] = str(exc)
+    try:
+        report["extractors"]["captions_api"] = {"available": True, "version": package_version("youtube-transcript-api")}
+    except PackageNotFoundError:
+        report["extractors"]["captions_api"] = {"available": False, "error": "Install project dependencies with `uv sync --frozen`"}
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 0 if report["ollama"]["reachable"] else 2
+    return 0 if report["ollama"]["reachable"] and report["extractors"]["captions_api"]["available"] else 2
 
 
 def _extract_command(args: argparse.Namespace) -> int:
@@ -135,16 +160,35 @@ def _extract_command(args: argparse.Namespace) -> int:
 def _brief(args: argparse.Namespace) -> int:
     config, _ = _load_config(args.config)
     bundle = _get_bundle(args.url, args.variant, args.languages, ArtifactStore(args.store), extract_if_missing=True)
-    result, metadata = brief_bundle(bundle, _llm(config))
+    llm = _llm(config)
+    started = time.perf_counter()
+    result, metadata = brief_bundle(bundle, llm)
+    metadata["elapsed_seconds"] = time.perf_counter() - started
+    metadata["inference_calls"] = list(llm.responses)
+    metadata["usage_complete"] = all(call.get("prompt_tokens") is not None and call.get("completion_tokens") is not None for call in llm.responses)
     result["model"] = metadata
-    print(render_brief(result))
+    if args.json:
+        print(json.dumps({"briefing": result, "model": metadata, "markdown": render_brief(result)}, ensure_ascii=False, indent=2))
+    else:
+        print(render_brief(result))
     return 0
 
 
 def _ask(args: argparse.Namespace) -> int:
     config, _ = _load_config(args.config)
-    bundle = _get_bundle(args.url, args.variant, "ru", ArtifactStore(args.store), extract_if_missing=False)
-    result = answer_question(bundle, args.question, _llm(config))
+    bundle = _get_bundle(args.url, args.variant, args.languages, ArtifactStore(args.store), extract_if_missing=False)
+    llm = _llm(config)
+    started = time.perf_counter()
+    result = answer_question(bundle, args.question, llm)
+    result.update({
+        "source": {"video_id": bundle.video_id, "language": bundle.language, "variant": bundle.variant,
+                   "source_sha256": bundle.raw_sha256, "segments": len(bundle.segments),
+                   "extractor_version": bundle.extractor_version},
+        "model": {"requested_model": llm.model, "returned_model": llm.last_response.get("model"),
+                  "cloud_backed": llm.model.endswith("-cloud"), "inference_calls": llm.responses,
+                  "usage_complete": all(call.get("prompt_tokens") is not None and call.get("completion_tokens") is not None for call in llm.responses)},
+        "elapsed_seconds": time.perf_counter() - started,
+    })
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
@@ -152,8 +196,9 @@ def _ask(args: argparse.Namespace) -> int:
 def _benchmark(args: argparse.Namespace) -> int:
     from .benchmark import load_config, run_benchmark, write_run
     config = load_config(args.config)
-    result = run_benchmark(config, root=args.root.resolve(), artifact_root=args.artifact_root.resolve())
-    paths = write_run(result, args.output_dir.resolve())
+    output_dir = args.output_dir.resolve()
+    result = run_benchmark(config, root=args.root.resolve(), artifact_root=args.artifact_root.resolve(), progress_dir=output_dir)
+    paths = write_run(result, output_dir)
     print(json.dumps({"status": result["metrics"]["status"], "variant": result["metrics"]["variant"], "source_sha256": result["metrics"]["source_sha256"], "paths": {name: str(path) for name, path in paths.items()}}, ensure_ascii=False, indent=2))
     return 0
 

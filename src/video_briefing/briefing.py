@@ -5,7 +5,7 @@ import json
 import re
 from copy import deepcopy
 from pathlib import Path
-from typing import Iterable
+from typing import Callable
 
 from .llm import JsonLLM
 from .models import EvidenceBundle
@@ -22,7 +22,7 @@ BRIEF_SCHEMA = {
         "topics": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1}}, "required": ["text", "evidence"], "additionalProperties": False}},
         "useful_ideas": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1}, "kind": {"type": "string", "enum": ["source", "inference"]}}, "required": ["text", "evidence", "kind"], "additionalProperties": False}},
         "emphases": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1}}, "required": ["text", "evidence"], "additionalProperties": False}},
-        "caveats": {"type": "array", "items": {"type": "string"}},
+        "caveats": {"type": "array", "items": {"type": "object", "properties": {"text": {"type": "string"}, "evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1}}, "required": ["text", "evidence"], "additionalProperties": False}},
     },
     "required": ["gist", "gist_evidence", "topics", "useful_ideas", "emphases", "caveats"],
     "additionalProperties": False,
@@ -30,23 +30,31 @@ BRIEF_SCHEMA = {
 
 
 def _normalize_inline_gist_citations(result: dict) -> None:
-    if result.get("gist_evidence") or not isinstance(result.get("gist"), str):
-        return
-    cited: list[str] = []
+    def strip(text: str) -> tuple[str, list[str]]:
+        cited: list[str] = []
 
-    def move_inline_citation(match: re.Match[str]) -> str:
-        cited.extend(re.findall(r"[A-Za-z][A-Za-z0-9_-]*\d+", match.group(1)))
-        return ""
+        def remove(match: re.Match[str]) -> str:
+            cited.extend(re.findall(r"[A-Za-z][A-Za-z0-9_-]*\d+", match.group(1)))
+            return ""
 
-    result["gist"] = re.sub(r"\[([^\]]+)\]", move_inline_citation, result["gist"]).strip()
-    result["gist_evidence"] = list(dict.fromkeys(cited))
+        cleaned = re.sub(r"\[([A-Za-z][A-Za-z0-9_,\s-]*\d[A-Za-z0-9_,\s-]*)\]", remove, text)
+        return cleaned.strip(), list(dict.fromkeys(cited))
+
+    if isinstance(result.get("gist"), str):
+        result["gist"], inline_ids = strip(result["gist"])
+        result["gist_evidence"] = list(dict.fromkeys([*result.get("gist_evidence", []), *inline_ids]))
+    for section in ("topics", "useful_ideas", "emphases", "caveats"):
+        for item in result.get(section, []):
+            if isinstance(item, dict) and isinstance(item.get("text"), str):
+                item["text"], inline_ids = strip(item["text"])
+                item["evidence"] = list(dict.fromkeys([*item.get("evidence", []), *inline_ids]))
 
 
 def _schema_for_ids(identifiers: list[str]) -> dict:
     schema = deepcopy(BRIEF_SCHEMA)
     allowed = sorted(set(identifiers))
     schema["properties"]["gist_evidence"]["items"]["enum"] = allowed
-    for section in ("topics", "useful_ideas", "emphases"):
+    for section in ("topics", "useful_ideas", "emphases", "caveats"):
         schema["properties"][section]["items"]["properties"]["evidence"]["items"]["enum"] = allowed
     return schema
 
@@ -66,7 +74,11 @@ def chunk_segments(bundle: EvidenceBundle, max_chars: int = MAX_CHARS) -> list[l
     return chunks
 
 
-def brief_bundle(bundle: EvidenceBundle, llm: JsonLLM) -> tuple[dict, dict]:
+def brief_bundle(
+    bundle: EvidenceBundle,
+    llm: JsonLLM,
+    progress: Callable[[dict], None] | None = None,
+) -> tuple[dict, dict]:
     prompt_system = SYSTEM.read_text(encoding="utf-8")
     prompt_hash = hashlib.sha256(prompt_system.encode()).hexdigest()
     source_segments = {segment.id: segment for segment in bundle.segments}
@@ -74,6 +86,8 @@ def brief_bundle(bundle: EvidenceBundle, llm: JsonLLM) -> tuple[dict, dict]:
     for index, chunk in enumerate(chunk_segments(bundle)):
         lines = "\n".join(f"[{s.id}] {s.start_seconds:.2f}+{s.duration_seconds:.2f}s {s.text}" for s in chunk)
         parts.append(llm.generate_json(system=prompt_system, prompt=f"Transcript part {index + 1}/{len(chunk_segments(bundle))}, source language {bundle.language}. Use only this part.\n{lines}", schema=BRIEF_SCHEMA))
+        if progress:
+            progress({"phase": "brief_chunk", "chunk": index + 1, "chunks_total": len(chunk_segments(bundle)), "partial_brief_parts": parts, "model_calls": list(getattr(llm, "responses", []))})
     if len(parts) == 1:
         result = parts[0]
     else:
@@ -104,15 +118,9 @@ def brief_bundle(bundle: EvidenceBundle, llm: JsonLLM) -> tuple[dict, dict]:
         )
         result = llm.generate_json(system=prompt_system, prompt=repair_prompt, schema=_schema_for_ids(allowed_ids))
         _normalize_inline_gist_citations(result)
-    gist_citations_derived = False
-    if not result.get("gist_evidence"):
-        result["gist_evidence"] = list(dict.fromkeys(
-            identifier
-            for topic in result.get("topics", [])
-            for identifier in topic.get("evidence", [])
-        ))
-        gist_citations_derived = bool(result["gist_evidence"])
     validate_briefing(result, bundle)
+    if progress:
+        progress({"phase": "brief_complete", "briefing": result, "model_calls": list(getattr(llm, "responses", []))})
     # Every reference is rendered to exact original segment times; IDs from unprovided source fail closed.
     result["gist_evidence_resolved"] = [
         {"id": identifier, "start_seconds": source_segments[identifier].start_seconds,
@@ -126,7 +134,12 @@ def brief_bundle(bundle: EvidenceBundle, llm: JsonLLM) -> tuple[dict, dict]:
                  "duration_seconds": source_segments[identifier].duration_seconds}
                 for identifier in claim.get("evidence", [])
             ]
-    result.setdefault("caveats", [])
+    for caveat in result.get("caveats", []):
+        caveat["evidence"] = [
+            {"id": identifier, "start_seconds": source_segments[identifier].start_seconds,
+             "duration_seconds": source_segments[identifier].duration_seconds}
+            for identifier in caveat.get("evidence", [])
+        ]
     result["source_language"] = bundle.language
     result["source_sha256"] = bundle.raw_sha256
     model_info = {
@@ -136,8 +149,9 @@ def brief_bundle(bundle: EvidenceBundle, llm: JsonLLM) -> tuple[dict, dict]:
         "source_sha256": bundle.raw_sha256,
         "prompt_tokens": getattr(llm, "last_response", {}).get("prompt_eval_count"),
         "completion_tokens": getattr(llm, "last_response", {}).get("eval_count"),
-        "cloud_backed": True,
-        "gist_citations_derived_from_topics": gist_citations_derived,
+        "cloud_backed": getattr(llm, "model", "").endswith("-cloud"),
+        "inference_calls": list(getattr(llm, "responses", [])),
+        "gist_citations_derived_from_topics": False,
     }
     return result, model_info
 
@@ -154,12 +168,18 @@ def render_brief(result: dict) -> str:
     lines.extend(["", "Полезные идеи"])
     for item in result.get("useful_ideas", []):
         citations = ", ".join(f"{e['id']} @{e['start_seconds']:.0f}с" if isinstance(e, dict) else str(e) for e in item.get("evidence", []))
-        lines.append(f"- {item.get('text', '')}" + (f" [{citations}]" if citations else ""))
+        kind = "Вывод ассистента" if item.get("kind") == "inference" else "Идея из источника"
+        lines.append(f"- [{kind}] {item.get('text', '')}" + (f" [{citations}]" if citations else ""))
     lines.extend(["", "Акценты участников"])
     for item in result.get("emphases", []):
         citations = ", ".join(f"{e['id']} @{e['start_seconds']:.0f}с" if isinstance(e, dict) else str(e) for e in item.get("evidence", []))
         lines.append(f"- {item.get('text', '')}" + (f" [{citations}]" if citations else ""))
     if result.get("caveats"):
         lines.extend(["", "Оговорки"])
-        lines.extend(f"- {item}" for item in result["caveats"])
+        for item in result["caveats"]:
+            if isinstance(item, dict):
+                citations = ", ".join(f"{e['id']} @{e['start_seconds']:.0f}с" for e in item.get("evidence", []) if isinstance(e, dict))
+                lines.append(f"- {item.get('text', '')}" + (f" [{citations}]" if citations else ""))
+            else:
+                lines.append(f"- {item}")
     return "\n".join(lines).strip() + "\n"

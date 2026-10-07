@@ -65,6 +65,11 @@ def parse_summarize_output(stdout: str, video_id: str, language: str) -> Evidenc
         segments.append(TranscriptSegment(str(item.get("id") or f"s{index:05d}"), str(item.get("text", "")), float(start) if start is not None else -1, float(duration) if duration is not None else -1))
     raw_text = json.dumps(raw_segments, ensure_ascii=False, separators=(",", ":"))
     source_language = str(extracted.get("language") or "und")
+    if source_language == "und" or source_language.lower().split("-")[0] != language.lower().split("-")[0]:
+        raise ValueError(
+            f"summarize source language {source_language!r} does not match requested {language!r}; "
+            "refusing non-comparable transcript"
+        )
     metadata = {
         "title": extracted.get("title"),
         "description": extracted.get("description"),

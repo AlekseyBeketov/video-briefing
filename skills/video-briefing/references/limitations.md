@@ -1,0 +1,9 @@
+# Scope and acceptance limits
+
+Verified working path (Wednesday, October 7, 2026): the checked-in Python CLI extracts anonymous Russian timed captions with `youtube-transcript-api==1.2.4`, stores provenance and source hash, creates a cited Russian briefing, then answers grounded questions from the saved transcript. The model endpoint is cloud-backed: requested `gemma4:31b-cloud`, returned model `gemma4:31b`. This is not offline inference.
+
+The source used for the bounded live smoke is the Droider video `https://www.youtube.com/watch?v=DvSwvJVens8`, Russian captions, 566 segments, SHA-256 `940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af`. The summary and two fixed follow-up examples are recorded in `reports/production-acceptance.md`; private raw evidence stays in ignored `artifacts/private/`.
+
+The independent spec and code reviews returned REQUEST_CHANGES; whole-project acceptance is NOT READY. In particular, passing tests and a successful smoke do not establish semantic citation support, complete retrieval recall, exhaustive negative answers, stable extraction across sources, or full production readiness. See `reports/spec-review.md`, `reports/code-review.md`, and `reports/review-findings.json` for the exact remaining findings. Never claim that Q&A has proven a topic absent merely because retrieval abstained. Never attribute captions to a named person without source evidence.
+
+Use the current README and `video-briefing doctor` for setup. The tool can report no-captions, network/IP-block, and authentication/cookie-required failures distinctly; this workflow intentionally uses no cookies, credentials, proxies, or paid ASR. Optional Baoyu/summarize paths are not interchangeable with the tested captions API and should only be used when their installed dependencies and provenance are clear.

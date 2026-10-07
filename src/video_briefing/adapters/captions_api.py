@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from importlib.metadata import version
 
 import requests
+from youtube_transcript_api._errors import CookieError, IpBlocked, NoTranscriptFound, RequestBlocked, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from ..models import EvidenceBundle, TranscriptSegment
@@ -25,11 +26,22 @@ def extract(url: str, *, language: str = "ru") -> EvidenceBundle:
     session.trust_env = False
     session.cookies.clear()
     try:
-        fetched = YouTubeTranscriptApi(http_client=session).fetch(video_id, languages=[language])
+        try:
+            fetched = YouTubeTranscriptApi(http_client=session).fetch(video_id, languages=[language])
+        except (NoTranscriptFound, TranscriptsDisabled) as exc:
+            raise RuntimeError(f"No captions are available for video {video_id!r} in language {language!r}; description-only fallback is forbidden") from exc
+        except (IpBlocked, RequestBlocked) as exc:
+            raise RuntimeError("YouTube blocked this network/IP request; retry later or stop—proxy/cookie bypass is not supported") from exc
+        except CookieError as exc:
+            raise RuntimeError("YouTube requires authentication/cookies for this source; this workflow does not read or use cookies") from exc
     finally:
         session.close()
 
     raw_segments = fetched.to_raw_data()
+    if fetched.language_code.lower().split("-")[0] != language.lower().split("-")[0]:
+        raise ValueError(
+            f"Caption track language {fetched.language_code!r} does not match requested {language!r}"
+        )
     raw_text = json.dumps(raw_segments, ensure_ascii=False, separators=(",", ":"))
     segments = [
         TranscriptSegment(

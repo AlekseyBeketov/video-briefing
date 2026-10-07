@@ -34,6 +34,10 @@ def validate_bundle(bundle: EvidenceBundle) -> None:
         raise ValueError("Bundle identity, source language, and extractor variant are required")
     if not _ID_RE.fullmatch(bundle.video_id):
         raise ValueError("Invalid YouTube video id")
+    if bundle.language.casefold() in {"und", "unknown", ""}:
+        raise ValueError("Source language must be identified before analysis")
+    if not re.fullmatch(r"[0-9a-f]{64}", bundle.raw_sha256):
+        raise ValueError("Source SHA-256 must be a lowercase 64-character hex digest")
     if not bundle.segments or not any(segment.text.strip() for segment in bundle.segments):
         raise ValueError("Source has no transcript text; descriptions/metadata are not evidence")
     ids: set[str] = set()
@@ -57,7 +61,7 @@ def validate_citations(payload: dict, bundle: EvidenceBundle) -> list[str]:
     def scan(value):
         if isinstance(value, dict):
             for key, child in value.items():
-                if key in {"evidence", "segment_ids"} and isinstance(child, list):
+                if key in {"evidence", "segment_ids", "gist_evidence"} and isinstance(child, list):
                     unknown.extend(str(item) for item in child if str(item) not in known)
                 else:
                     scan(child)
@@ -80,6 +84,13 @@ def validate_briefing(payload: dict, bundle: EvidenceBundle) -> None:
             if not isinstance(item, dict) or not str(item.get("text", "")).strip():
                 raise ValueError(f"Brief section {name} contains an invalid claim")
             sections.append(item.get("evidence", []))
+    caveats = payload.get("caveats", [])
+    if not isinstance(caveats, list):
+        raise ValueError("Brief caveats must be a list")
+    for caveat in caveats:
+        if not isinstance(caveat, dict) or not str(caveat.get("text", "")).strip():
+            raise ValueError("Brief contains an invalid caveat")
+        sections.append(caveat.get("evidence", []))
     if any(not isinstance(evidence, list) or not evidence for evidence in sections):
         raise ValueError("Every briefing claim, including gist, needs evidence segment ids")
     unknown = validate_citations(payload, bundle)

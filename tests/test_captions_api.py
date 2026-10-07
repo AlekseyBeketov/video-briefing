@@ -1,5 +1,7 @@
 from video_briefing.adapters import captions_api
 import hashlib
+import pytest
+from youtube_transcript_api._errors import CookieError, IpBlocked, NoTranscriptFound
 
 
 class FakeTranscript:
@@ -32,3 +34,24 @@ def test_captions_api_preserves_language_times_and_is_anonymous(monkeypatch):
     assert bundle.segments[0].duration_seconds == 2.5
     assert bundle.raw_text is not None
     assert bundle.raw_sha256 == hashlib.sha256(bundle.raw_text.encode()).hexdigest()
+
+
+@pytest.mark.parametrize(
+    ("error", "message"),
+    [
+        (NoTranscriptFound("DvSwvJVens8", [], []), "No captions are available"),
+        (IpBlocked("blocked"), "blocked this network/IP"),
+        (CookieError("authentication required"), "does not read or use cookies"),
+    ],
+)
+def test_captions_api_reports_no_captions_network_and_auth_separately(monkeypatch, error, message):
+    class FailingApi:
+        def __init__(self, *, http_client):
+            pass
+
+        def fetch(self, *args, **kwargs):
+            raise error
+
+    monkeypatch.setattr(captions_api, "YouTubeTranscriptApi", FailingApi)
+    with pytest.raises(RuntimeError, match=message):
+        captions_api.extract("https://www.youtube.com/watch?v=DvSwvJVens8", language="ru")

@@ -44,7 +44,7 @@ _QUERY_ALIASES = {
 }
 
 
-def retrieve(bundle: EvidenceBundle, question: str, limit: int = 8, context_radius: int = 1) -> list[TranscriptSegment]:
+def retrieve(bundle: EvidenceBundle, question: str, limit: int = 12, context_radius: int = 2) -> list[TranscriptSegment]:
     query = _terms(question)
     if not query:
         return []

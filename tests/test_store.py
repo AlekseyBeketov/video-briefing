@@ -1,21 +1,27 @@
+import hashlib
+import pytest
+
 from video_briefing.models import EvidenceBundle, TranscriptSegment
 from video_briefing.store import ArtifactStore
 
 
 def source(title, variant="baoyu"):
     return EvidenceBundle("youtube", "DvSwvJVens8", "https://youtube.com/watch?v=DvSwvJVens8", "en", variant,
-                          "manual-captions", "1", [TranscriptSegment("s00001", title, 0, 1)], "a" * 64,
-                          metadata={"title": title})
+                          "manual-captions", "1", [TranscriptSegment("s00001", title, 0, 1)], hashlib.sha256(title.encode()).hexdigest(),
+                          metadata={"title": title}, raw_text=title)
 
 
-def test_cache_identity_excludes_title_and_variant_isolated(tmp_path):
+def test_cache_identity_is_immutable_and_variant_isolated(tmp_path):
     store = ArtifactStore(tmp_path)
     one = store.save(source("First title"))
     assert store.load("youtube", "DvSwvJVens8", "en", "baoyu").metadata["title"] == "First title"
-    assert store.save(source("Changed title")).key == one.key
+    with pytest.raises(ValueError, match="immutable cache identity conflict"):
+        store.save(source("Changed title"))
     other = store.save(source("Second", "summarize"))
     assert other.key != one.key
-    assert store.load("youtube", "DvSwvJVens8", "en", "baoyu").segments[0].text == "Changed title"
+    cached = store.load("youtube", "DvSwvJVens8", "en", "baoyu")
+    assert cached is not None
+    assert cached.segments[0].text == "First title"
 
 
 def test_incomplete_or_tampered_store_is_rejected(tmp_path):
