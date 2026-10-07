@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+      "title": "",
+      "accessed": "2026-10-05",
+      "quotes": [
+        {
+          "text": "Большая память сама по себе",
+          "added": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "url": "https://www.youtube.com/oembed?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DDvSwvJVens8&format=json",
+      "title": "",
+      "accessed": "2026-10-05"
+    },
+    {
+      "id": 3,
+      "url": "https://raw.githubusercontent.com/JimLiu/baoyu-skills/1567581c26ec29f4216c6e6835415bf30343b0e3/skills/baoyu-youtube-transcript/SKILL.md",
+      "title": "",
+      "accessed": "2026-10-05"
+    },
+    {
+      "id": 4,
+      "url": "https://raw.githubusercontent.com/steipete/summarize/ddbae2bfceac77d31eb24582523d131cdf0816d6/docs/extract-only.md",
+      "title": "",
+      "accessed": "2026-10-05"
+    },
+    {
+      "id": 5,
+      "url": "https://raw.githubusercontent.com/jdepoix/youtube-transcript-api/8f150ba8836da30a36bcd40e8fca226ed179ba72/README.md",
+      "title": "",
+      "accessed": "2026-10-05"
+    },
+    {
+      "id": 6,
+      "url": "https://openresearch.sh/docs",
+      "title": "",
+      "accessed": "2026-10-05"
+    },
+    {
+      "id": 7,
+      "url": "https://raw.githubusercontent.com/steipete/summarize/ddbae2bfceac77d31eb24582523d131cdf0816d6/docs/cache.md",
+      "title": "",
+      "accessed": "2026-10-06"
+    },
+    {
+      "id": 8,
+      "url": "https://raw.githubusercontent.com/steipete/summarize/ddbae2bfceac77d31eb24582523d131cdf0816d6/docs/install.md",
+      "title": "",
+      "accessed": "2026-10-06"
+    },
+    {
+      "id": 9,
+      "url": "file:///Users/alexbeketov/video-briefing/data/reference/orx-create.txt",
+      "title": "",
+      "accessed": "2026-10-06"
+    },
+    {
+      "id": 10,
+      "url": "file:///Users/alexbeketov/video-briefing/data/reference/orx-compute-local.txt",
+      "title": "",
+      "accessed": "2026-10-06"
+    },
+    {
+      "id": 11,
+      "url": "file:///Users/alexbeketov/video-briefing/data/reference/orx-git.txt",
+      "title": "",
+      "accessed": "2026-10-06"
+    },
+    {
+      "id": 12,
+      "url": "file:///Users/alexbeketov/video-briefing/data/reference/orx-evidence.txt",
+      "title": "",
+      "accessed": "2026-10-06"
+    }
+  ]
+}

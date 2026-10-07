@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "protocol_id": "DvSwvJVens8-caption-case-v1",
+  "predeclared_at_utc": "2026-10-05T21:43:01Z",
+  "phase": "source_preflight_before_variant_answers",
+  "variant_generated_answers_read": false,
+  "video": {
+    "id": "DvSwvJVens8",
+    "url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+    "title": "AI PC — личный ИИ у вас дома! Объясняем",
+    "channel": "Droider",
+    "duration_seconds": 1457,
+    "original_language": "ru",
+    "language_priority": ["ru"],
+    "output_language": "ru"
+  },
+  "reference": {
+    "raw_path": "data/reference/yta-ru-raw.json",
+    "raw_format": "CLI JSON outer array contains one video, whose entries are text/start/duration",
+    "raw_sha256": "c08f0e724cbe45db65aa1c30f338085b420f55e17d29f309272eb3580c5002ab",
+    "segments_path": "data/reference/reference-segments.json",
+    "segments_sha256": "64bb79566e062fa5b46bea6272d78af436835e51c43f2ae390098b448ef6fcd0",
+    "timed_text_path": "data/reference/reference-timed.txt",
+    "segment_count": 566,
+    "segment_id_namespace": "r0000 through r0565; ranges below are inclusive",
+    "source_type": "youtube_auto_captions",
+    "language": "ru",
+    "extractor": "youtube-transcript-api",
+    "extractor_version": "1.2.4",
+    "is_independent_ground_truth": false,
+    "common_mode_bias": "Reference and A/B/C may use the same YouTube auto-caption track. Agreement measures extraction preservation and caption-grounding, not independent speech accuracy or hardware truth.",
+    "media_check": {
+      "audio_verified": false,
+      "frames": "Two public YouTube storyboard sheets, 89x45 pixels per tile, 10-second preview sampling; bounded visual inspection only.",
+      "provenance_path": "data/reference/storyboard-provenance.json",
+      "limitations": ["No audio listening or forced alignment", "No reliable numeric OCR or speaker identity from preview tiles", "Thumbnail is cover art, not timestamped evidence"]
+    },
+    "content_accuracy_policy": "Expected answers report what the source claims. Potentially incorrect model names, memory rules and future hardware claims are not endorsed or silently corrected as external facts."
+  },
+  "variants": [
+    {"id": "A", "backend": "baoyu", "scope": "existing raw timed captions only; no speakers/translation/AI postprocessing", "required": true},
+    {"id": "B", "backend": "summarize", "scope": "extraction-only timed JSON; no own summary, description fallback or paid ASR", "required": true},
+    {"id": "C", "backend": "captions_api", "scope": "youtube-transcript-api==1.2.4 original ru captions; optional implemented third", "required": false, "selected_over": "yt-dlp plus whisper.cpp", "reason": "Original timed captions obtained twice without auth/proxy; no discretionary ASR model download. Not an independent audio reference."}
+  ],
+  "constants": {
+    "llm_provider": "ollama",
+    "llm_base_url": "http://127.0.0.1:11434",
+    "llm_requested_model": "gemma4:31b-cloud",
+    "llm_cloud_backed": true,
+    "temperature": 0,
+    "expected_requested_vs_returned_model_logging": true,
+    "prompt_and_retrieval_policy": "One implementation-defined committed prompt/chunking/retrieval configuration for all variants; record hashes before runs. Expected answers and reference ranges are evaluator-only, never model context.",
+    "run_contract": "Set one fixed OpenResearch command/environment after implementation; variant/cache choices in committed configuration only.",
+    "no_cookies": true,
+    "no_proxy": true,
+    "no_paid_fallback": true,
+    "no_new_model_download": true,
+    "extractor_attempt_limit": "At most two bounded attempts per backend; preserve failures. No unbounded client rotation."
+  },
+  "speaker_policy": {
+    "channel_is_not_speaker_proof": true,
+    "established_role": "Presenter self-introduces as Valeriy in r0030 and signs off in r0562; auto-caption surname spelling differs.",
+    "allowed_attribution": "ведущий / автор объяснения / говорящий в этом фрагменте",
+    "name_certainty": "Textual self-introduction supports first name; exact surname and per-segment speaker map are unverified.",
+    "no_diarization": true,
+    "no_named_guest_claims": true,
+    "promo_and_cutaway_speakers": "Do not assign all advertising/cutaway speech to the presenter. No verified multi-speaker map."
+  },
+  "topic_anchors": [
+    {"id": "a01", "topic": "Смена акцента с NPU/TOPS на объём и bandwidth памяти; UMA и zero-copy", "reference_segment_ranges": [["r0078", "r0137"]], "expected": "Большая модель должна помещаться целиком; объединённый пул CPU/GPU/NPU экономит копирование через PCIe, хотя уступает GDDR7 по пиковой скорости."},
+    {"id": "a02", "topic": "GPT OSS 120B как иллюстрация MoE и памяти", "reference_segment_ranges": [["r0138", "r0151"]], "expected": "В тексте различаются общее число параметров, активные на токен и объём памяти. Числа являются утверждениями ролика, а не нашей проверкой модели."},
+    {"id": "a03", "topic": "Apple: Unified Memory и ограничение software ecosystem", "reference_segment_ranges": [["r0161", "r0226"]], "expected": "Большой GPU-доступный пул и инструменты MLX/Metal помогают local LLM; профессиональный стек исторически ориентирован на CUDA. Память не решает всё."},
+    {"id": "a04", "topic": "NVIDIA: DGX Spark, CUDA и переход к обычным RTX Spark PC; оговорки", "reference_segment_ranges": [["r0228", "r0350"]], "expected": "DGX рассчитан на разработчиков/исследователей; 55–60 tokens/s условны и падают с контекстом. Для объявленных ноутбуков нет полноценной картины тестов, нагрева и автономности."},
+    {"id": "a05", "topic": "AMD: x86, много общей памяти и ограничения ROCm/Windows", "reference_segment_ranges": [["r0351", "r0439"]], "expected": "Ryzen AI Max Plus как обычная компактная x86-машина с большой памятью для встроенной графики; популярные LLM проще экспериментального стека, поддержка Windows неполна."},
+    {"id": "a06", "topic": "Домашние кластеры: software sharding, сеть и расширение", "reference_segment_ranges": [["r0202", "r0208"], ["r0440", "r0493"]], "expected": "Память обычных отдельных ПК не сливается физически: модель делит софт и обменивается данными по сети. Есть задержки; API может скрывать несколько узлов."},
+    {"id": "a07", "topic": "AI NAS как домашний always-on backend; available versus promised software", "reference_segment_ranges": [["r0495", "r0525"]], "expected": "Хранилище 24x7 рядом с данными обслуживает ноутбук/телефон. Полный поиск всех типов файлов в тексте обещан, не продемонстрирован как уже готовый."},
+    {"id": "a08", "topic": "Условная, а не универсальная финальная рекомендация ведущего", "reference_segment_ranges": [["r0526", "r0563"]], "expected": "Выбор зависит от размера модели, OS и нужного software: дискретная RTX для помещающихся моделей, Mac при подходящем стеке, AMD для x86 Windows/Linux, NVIDIA при необходимости её экосистемы."}
+  ],
+  "excluded_from_required_brief_topics": [
+    {"reference_segment_ranges": [["r0042", "r0077"], ["r0326", "r0333"]], "reason": "Рекламные интеграции: не считать роутеры или промокод главной технической рекомендацией. Их наличие можно кратко пометить."}
+  ],
+  "questions": [
+    {
+      "id": "q01",
+      "kind": "author_emphasis",
+      "question": "На чём автор делает главный акцент при объяснении нового AI PC: на мощности NPU или на памяти? Какой компромисс он описывает у объединённой памяти?",
+      "anchors": ["a01"],
+      "reference_segment_ranges": [["r0036", "r0041"], ["r0078", "r0087"], ["r0117", "r0137"]],
+      "expected_points": ["Ключевой bottleneck для больших локальных моделей — объём памяти и её пропускная способность, а не только NPU/TOPS", "Единый пул доступен CPU/GPU/NPU и убирает постоянное копирование через PCIe", "UMA медленнее GDDR7 по пиковой скорости, но позволяет поместить модель целиком"],
+      "reject": ["Любой NPU автоматически делает ПК пригодным для любой LLM", "UMA быстрее GDDR7 во всех режимах", "Грубую эвристику параметры→гигабайты выдать за точный универсальный закон"]
+    },
+    {
+      "id": "q02",
+      "kind": "numeric_source_claim",
+      "question": "Какие три разные величины приводит ролик для GPT OSS 120B: всего параметров, активных на токен и требуемой памяти MXFP4? Почему в примере недостаточно 32 ГБ RTX 5090?",
+      "anchors": ["a02"],
+      "reference_segment_ranges": [["r0138", "r0147"]],
+      "expected_points": ["Ролик говорит о 117 млрд общих параметров", "Около 5,1 млрд активных на токен благодаря MoE", "MXFP4 примерно на 80 ГБ памяти; в 32 ГБ целиком не помещается", "Активные параметры не равны всему хранимому весу; это пересказ примера автора, не независимый hardware benchmark"],
+      "reject": ["120B значит 5,1 ГБ общей памяти", "Модель в источнике имеет всего 5,1 млрд параметров", "Наш агент сам измерил её hardware требования"]
+    },
+    {
+      "id": "q03",
+      "kind": "limitation",
+      "question": "Почему большие локальные LLM удобно запускать на Mac, но большая Unified Memory сама по себе не гарантирует пригодность для любого AI-софта?",
+      "anchors": ["a03"],
+      "reference_segment_ranges": [["r0167", "r0194"], ["r0199", "r0201"], ["r0217", "r0226"]],
+      "expected_points": ["GPU использует большой общий пул памяти, и крупная модель может поместиться целиком даже при более медленных вычислениях", "У Apple свой стек Metal/MLX и доступные инструменты популярных LLM", "Большая часть профессионального AI-стека исторически строилась вокруг CUDA; объём памяти не устраняет программные ограничения"],
+      "reject": ["На Mac все CUDA-инструменты работают без изменений", "Любая модель на Mac обязательно быстрее дискретной NVIDIA GPU"]
+    },
+    {
+      "id": "q04",
+      "kind": "conditional_benchmark_and_uncertainty",
+      "question": "Какие оговорки в ролике относятся к цифре 55–60 токенов/с у DGX Spark и к заявленным ноутбукам на RTX Spark? Можно ли считать это универсальной измеренной производительностью всех таких компьютеров?",
+      "anchors": ["a04"],
+      "reference_segment_ranges": [["r0266", "r0273"], ["r0277", "r0289"], ["r0334", "r0345"]],
+      "expected_points": ["55–60 tokens/s приведены для GPT OSS 120B в публичном llama.cpp benchmark при небольшом/среднем контексте", "С ростом контекста скорость падает; автор называет число ориентиром, не универсальной цифрой", "Для ноутбуков полноценного тестирования и картины производительности/нагрева/автономности ещё нет; рекламные заявления не равны измерению", "DGX и объявленные ноутбуки не смешивать в один подтверждённый результат"],
+      "reject": ["55–60 tokens/s гарантированы при любом контексте на всех RTX Spark ноутбуках", "Автор лично измерил автономность этих ноутбуков"]
+    },
+    {
+      "id": "q05",
+      "kind": "author_recommendation_and_attribution",
+      "question": "Как меняется финальная рекомендация ведущего в зависимости от размера модели, операционной системы и нужного программного стека? Кому в источнике можно осторожно приписать эту рекомендацию?",
+      "anchors": ["a05", "a08"],
+      "reference_segment_ranges": [["r0030", "r0031"], ["r0228", "r0239"], ["r0402", "r0434"], ["r0526", "r0563"]],
+      "expected_points": ["Для моделей, помещающихся в 32 ГБ VRAM, обычный ПК с RTX 5090 или несколькими 3090", "Mac — если подходит macOS и нужный стек LM Studio/MLX/Metal", "AMD Ryzen AI Max Plus — интересный x86 Windows/Linux вариант с большой общей памятью", "NVIDIA предлагается, если нужна её экосистема; DGX рассматривается отдельно под нейросети", "Это рекомендация ведущего объяснения, который представляется Валерием; точная фамилия и per-segment diarization не установлены. Достаточно нейтрального 'ведущий', без имени"],
+      "reject": ["Безусловный лучший ПК для всех — один выбранный бренд", "Рекомендация приписана выдуманному гостю", "Канал Droider объявлен доказательством, что все реплики произносит один человек"],
+      "caption_caveat": "Финальная оговорка в captions неполная и не называет CUDA явно. Связь с software ecosystem поддерживается также a03/a04/a05; это контекстная интерпретация, не проверенная по аудио дословная CUDA-цитата из r0555–r0556."
+    },
+    {
+      "id": "q06",
+      "kind": "mechanism_and_late_retrieval",
+      "question": "При объединении нескольких домашних ПК их память физически превращается в одну общую планку? Как ролик объясняет распределение модели и чем полезен OpenAI-совместимый API?",
+      "anchors": ["a06"],
+      "reference_segment_ranges": [["r0202", "r0208"], ["r0460", "r0463"], ["r0475", "r0487"]],
+      "expected_points": ["Нет физического слияния памяти отдельных обычных машин; софт разбивает модель между узлами", "Передача идёт по сети/соединениям с задержками", "Можно расширять систему добавлением узлов", "OpenAI-совместимый API скрывает от клиентского приложения, что модель распределена между несколькими компьютерами"],
+      "reject": ["Задержки сети отсутствуют", "Четыре компьютера автоматически образуют аппаратную UMA любого производителя"]
+    },
+    {
+      "id": "q07",
+      "kind": "available_vs_promised_and_late_retrieval",
+      "question": "Почему ролик предлагает держать локального AI-ассистента на NAS, а не обязательно в ноутбуке? Какие software возможности описаны как уже имеющиеся, а какие только обещаны?",
+      "anchors": ["a07"],
+      "reference_segment_ranges": [["r0503", "r0525"]],
+      "expected_points": ["NAS работает дома 24x7, подключён к сети и хранит данные; закрытый/унесённый ноутбук менее удобен как постоянный backend", "Запросы могут приходить с ноутбука и телефона", "В тексте уже описаны локальный ассистент, поиск по изображениям/видео, Docker и виртуальные машины", "Поиск по всем типам файлов компания ещё обещает добавить в конце третьего квартала 2026; это утверждение на момент ролика, не наше подтверждение текущего release"],
+      "reject": ["Полный поиск всех файлов уже независимо проверен агентом", "Крышку ноутбука надо держать открытой для доступа к NAS", "Дата обещания превращена в подтверждение фактического релиза"]
+    },
+    {
+      "id": "q08",
+      "kind": "unknown_answer_abstention",
+      "question": "Назови точную измеренную температуру под нагрузкой и время автономной работы в часах ноутбука ASUS на RTX Spark, приведённые в этом видео.",
+      "anchors": ["a04"],
+      "reference_segment_ranges": [["r0334", "r0345"]],
+      "expected_points": ["Источник этих чисел не приводит; ведущий говорит, что полноценной картины нагрева и автономности пока нет", "Не подставлять внешние характеристики, догадки или числа DGX Spark", "Ограничить отрицательный вывод всей доступной расшифровкой, не утверждать, что просмотрены все визуальные кадры/аудио"],
+      "must_abstain": true,
+      "absence_check": {
+        "scope": "Human reading of all 566 reference captions plus whole-source term search",
+        "terms": ["температур", "нагрев", "автоном", "батар", "градус", "час", "ASUS"],
+        "relevant_hits": ["r0334", "r0336", "r0341", "r0343", "r0344"],
+        "result": "No measured temperature or battery-hours value; explicit testing caveat exists.",
+        "limitations": "Auto captions can omit speech; preview sheets cannot establish absence of every on-screen number."
+      },
+      "reject": ["Любое придуманное число градусов или часов", "Нет в одном retrieval окне, поэтому автор никогда об этом не говорил"]
+    }
+  ],
+  "rubric": {
+    "engineering_hard_gates": [
+      "Actual target content, nonempty finite nonnegative timed segments, not description",
+      "Immutable raw source hash, extractor/version/language/auto provenance",
+      "All generated citation IDs resolve to actual candidate segments; no invented IDs",
+      "No unsupported named speaker attribution or false independent hardware measurement",
+      "Cached Q&A retains exact source hash and instrumented extractor/network-adapter calls = 0",
+      "Real benchmark stdout/logs identify config/prompt/model hashes and artifacts; unit fixtures are not live evidence"
+    ],
+    "anchor_coverage_labels": ["present", "partial", "absent"],
+    "claim_support_labels": ["supported", "partial", "unsupported", "unverifiable"],
+    "question_labels": ["pass", "partial", "fail"],
+    "grading": "Review every substantive briefing claim and each question against the cited source context. Present=correct source-linked main point; partial=incomplete or imprecise; absent=omitted. Correct source-supported abstention passes q08. Count labels and denominators, do not invent a weighted universal quality score.",
+    "citation_comparison": "Reference IDs and candidate IDs are different namespaces. Compare actual text and source intervals; interval overlap alone is not semantic support. Proportional sentence times are not forced alignment.",
+    "concision_usefulness": "Reviewer-labelled subjective: 2–4 gist sentences, compact themes/useful ideas/author emphases/important caveats; avoid minute-by-minute and promotional digression. Inferences explicitly marked, not put into author mouth.",
+    "winner_policy": "After hard gates, compare grounded usefulness, setup burden and measured latency. Honest tie is allowed. One functioning backend plus failed alternatives is usable MVP but not successful content head-to-head. Single-video case study only."
+  },
+  "measurement_plan": {
+    "repeat_count_target": 1,
+    "report_actual_n": true,
+    "setup_separate_from_steady_state": true,
+    "timings_seconds": ["setup", "extraction", "briefing_llm", "each_qa", "total", "warm_artifact_read", "cached_follow_up"],
+    "cache": "Fresh wrapper artifact directory is not proof of cold upstream extraction; summarize --no-cache disables summary cache only. Label uncertain upstream cache and order confounds.",
+    "evidence_metrics": ["segment_count", "first_start", "max_end", "caption_interval_union_seconds", "source_hash", "citation_ID_validity", "anchor_coverage_counts", "claim_support_counts", "q08_abstention", "speaker_attribution_status"],
+    "provider": "Record requested and returned model, effective settings, prompt hashes, token/usage fields when returned. Missing usage or pricing means cost not measured, never zero.",
+    "failure_policy": "Report failed/blocked/missing variants and exact cause separately. Preserve stderr; no synthetic substitute or title-based summary."
+  },
+  "next_stage": {
+    "formal_openresearch_runs_performed_here": false,
+    "commit_protocol_before_formal_runs": true,
+    "implementation_prerequisites": ["Project-local A/B dependencies and real extraction attempts", "questions_file path relative to repo root reconciled", "Original ru language preference", "Common LLM/prompts and full-source retrieval demonstrated", "Fixed run command/environment and durable artifacts established"],
+    "large_download_decision_needed": false,
+    "blocked_from_all_source_access": false
+  }
+}

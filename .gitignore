@@ -21,3 +21,4 @@ artifacts/private/
 *.webm
 *.sqlite*
 .DS_Store
+src/*.egg-info/

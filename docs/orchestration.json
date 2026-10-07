@@ -1,0 +1,136 @@
+{
+  "project": "/Users/alexbeketov/video-briefing",
+  "target_video_id": "DvSwvJVens8",
+  "target_video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+  "initial_commit": "6b16278131f10a457a41c612696c92dd65a94aa5",
+  "remote": null,
+  "maximum_active_project_agents": 2,
+  "nested_agents_allowed": false,
+  "orx": {
+    "version": "0.2.13",
+    "dashboard": "http://127.0.0.1:4791",
+    "daemon_session_id": "proc_ed3180bde8b4",
+    "no_agent": true,
+    "telemetry_off": true
+  },
+  "requested_coding_model_literal": "luna-6-max",
+  "verified_coding_model": "gpt-6-luna",
+  "verified_coding_reasoning": "max",
+  "downstream_inference": {
+    "requested_model": "gemma4:31b-cloud",
+    "actual_smoke_returned_model": "gemma4:31b",
+    "provider": "ollama",
+    "cloud_backed": true,
+    "readiness_smoke_response": "OK",
+    "readiness_smoke_elapsed_seconds": 0.632,
+    "video_pipeline_not_yet_proven": true
+  },
+  "protected_file_note": "AGENTS.md creation approval timed out; not created, not retried. Do not bypass.",
+  "verified_task_count": 7,
+  "tasks": [
+    {
+      "id": "t_4924c5e9",
+      "title": "Video Briefing: исследовать реальный источник и зафиксировать протокол сравнения",
+      "status": "running",
+      "assignee": "research",
+      "parents": [],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6.1-sol",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_57ebfc61",
+      "title": "Video Briefing: реализовать Baoyu и summarize с общим brief, evidence и cached Q&A",
+      "status": "running",
+      "assignee": "coder",
+      "parents": [],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6-luna",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_93e3976e",
+      "title": "Video Briefing: сравнить варианты реальными OpenResearch runs и проверить спецификацию",
+      "status": "todo",
+      "assignee": "research",
+      "parents": [
+        "t_4924c5e9",
+        "t_57ebfc61"
+      ],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6.1-sol",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_9c90bf74",
+      "title": "Video Briefing: независимое review спецификации и качества кода",
+      "status": "todo",
+      "assignee": "coder",
+      "parents": [
+        "t_93e3976e"
+      ],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6-luna",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_b57e77ae",
+      "title": "Video Briefing: исправить review, проверить winner и установить proven skill в source of truth/default",
+      "status": "todo",
+      "assignee": "coder",
+      "parents": [
+        "t_9c90bf74"
+      ],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6-luna",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_1d07e629",
+      "title": "Video Briefing: независимо перепроверить исправления, E2E и установленный skill",
+      "status": "todo",
+      "assignee": "coder",
+      "parents": [
+        "t_b57e77ae"
+      ],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6-luna",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    },
+    {
+      "id": "t_e59e845d",
+      "title": "Video Briefing: финально проверить рабочее решение и передать результат Алексею",
+      "status": "todo",
+      "assignee": "default",
+      "parents": [
+        "t_1d07e629"
+      ],
+      "workspace_kind": "dir",
+      "workspace_path": "/Users/alexbeketov/video-briefing",
+      "model_override": "gpt-6.1-sol",
+      "provider_override": "openai-codex",
+      "current_run_id": null,
+      "goal_mode": null
+    }
+  ],
+  "final_delivery_card": "t_e59e845d",
+  "state_note": "Statuses are a read-back snapshot, not live progress. Completion requires actual video output, experiment evidence, tests and installed skill."
+}

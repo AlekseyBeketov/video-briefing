@@ -1,20 +1,22 @@
 {
   "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
   "video_id": "DvSwvJVens8",
-  "variant": "baoyu",
+  "variant": "captions_api",
+  "languages": "ru",
   "summary_language": "ru",
   "source_language_policy": "original_then_available",
+  "questions_file": "docs/research/evaluation.json",
   "llm": {
     "provider": "ollama",
     "base_url": "http://127.0.0.1:11434",
     "model": "gemma4:31b-cloud",
     "cloud_backed": true,
-    "temperature": 0
+    "temperature": 0,
+    "timeout_seconds": 300
   },
   "cache_mode": "cold_then_warm",
   "allow_description_only": false,
   "allow_cookies": false,
   "allow_proxy": false,
-  "allow_paid_fallback": false,
-  "status": "provisional-design-not-yet-runnable"
+  "allow_paid_fallback": false
 }

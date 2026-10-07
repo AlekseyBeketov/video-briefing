@@ -1,0 +1,83 @@
+{
+  "task_id": "t_4924c5e9",
+  "phase": "source_preflight",
+  "evaluation_sha256": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+  "question_count": 8,
+  "topic_anchor_count": 8,
+  "reference_segment_count": 566,
+  "all_reference_ranges_resolve": true,
+  "raw_and_normalized_text_times_match": true,
+  "finite_nonnegative_times_nonempty_text": true,
+  "raw_sha256": "c08f0e724cbe45db65aa1c30f338085b420f55e17d29f309272eb3580c5002ab",
+  "normalized_sha256": "64bb79566e062fa5b46bea6272d78af436835e51c43f2ae390098b448ef6fcd0",
+  "anonymous_source_recheck": {
+    "extractor": "youtube-transcript-api==1.2.4",
+    "video_id": "DvSwvJVens8",
+    "languages": ["ru"],
+    "exit_code": 0,
+    "raw_byte_identical": true,
+    "wall_seconds": 2.02,
+    "user_seconds": 0.10,
+    "sys_seconds": 0.04,
+    "wall_measurement": "/usr/bin/time -p; n=1 warmed uv environment; not formal/cold extractor benchmark",
+    "stderr_path": "data/reference/yta-ru-recheck.stderr"
+  },
+  "source_statistics": {
+    "video_duration_seconds": 1457,
+    "first_start_seconds": 0.76,
+    "max_end_seconds": 1454.171,
+    "caption_interval_union_seconds": 1422.7680000000003,
+    "caption_interval_union_pct_of_video": 97.65051475634868,
+    "coverage_not_speech_accuracy": true
+  },
+  "visual_check": {
+    "two_public_preview_sheets_http_200": true,
+    "inspected_approximate_tile_seconds": [80, 340, 420, 660, 840, 950, 1160, 1290, 1340, 1420],
+    "observation": "Coarse presenter/device/screen/cutaway context only; no reliable numeric OCR or face-based speaker identification.",
+    "audio_listened": false,
+    "independent_ground_truth": false,
+    "cover_thumbnail_not_storyboard": true,
+    "provenance": "data/reference/storyboard-provenance.json"
+  },
+  "orx": {
+    "live_cli_version": "0.2.15",
+    "task_declared_version": "0.2.13",
+    "daemon_restarted": false,
+    "live_projects": [],
+    "formal_import_or_runs": false,
+    "local_backend_enabled": true,
+    "custom_instructions_content": "",
+    "contract": "docs/research/openresearch-contract.md"
+  },
+  "runtime_inventory": {
+    "uv": "0.12.1",
+    "python3": "3.14.5",
+    "node": "v22.22.3",
+    "path_ffmpeg": "8.1.1",
+    "baoyu_skill": "1.1.0",
+    "yta": "1.2.4",
+    "summarize_runtime_version": null,
+    "bun_runtime_version": null,
+    "candidate_A_B_runtime_verified_by_research": false,
+    "observed_baoyu_skill_sha256": "b7085574c6bf72e07c578db14316682b9ebf1e841d9db62916d284efd84c96cc",
+    "observed_baoyu_main_ts_sha256": "c838bb93c88702d06eef79e22e0861a256dc3996841ae26a592431236917ddc5"
+  },
+  "next_stage_issues": [
+    "Actual A/B tool versions and extraction success belong implementation, reference C success is not substitute",
+    "questions_file repo-root versus config-directory resolution needs reconciliation",
+    "Use original ru captions first, not provisional en,ru",
+    "Common prompt/settings/retrieval hashes and actual returned Ollama model must be logged",
+    "Snapshot-safe fixed tool/artifact/model paths and formal immutable orx runs still required"
+  ],
+  "scope": {
+    "only_docs_research_and_data_reference_written": true,
+    "source_config_branch_index_commits_modified": false,
+    "variant_generated_answers_read": false,
+    "nested_agents_spawned": false,
+    "credential_proxy_cookie_or_model_download": false
+  },
+  "tool_obstacles": [
+    "Two inline Python diagnostics were blocked by security scan before execution; no config bypass. Public preview fetch was performed via an inspectable bounded script in data/reference.",
+    "One read-only diagnostic used a UI-shortened filename and failed FileNotFoundError; exact pypi-transcript-api.json discovered and metadata read successfully."
+  ]
+}
