@@ -1,6 +1,6 @@
 ---
 name: video-briefing
-description: Use when a user shares a video URL and needs a source-grounded summary or transcript Q&A. Run the project CLI, cite timed evidence, and abstain honestly.
+description: Use for video URLs: source-grounded summaries and Q&A. Run the project CLI, cite timed evidence, and abstain honestly.
 ---
 
 # Video Briefing
