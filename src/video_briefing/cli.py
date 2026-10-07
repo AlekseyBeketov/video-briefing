@@ -98,7 +98,8 @@ def _run_extractor(url: str, variant: str, languages: str, store: ArtifactStore)
 
 def _get_bundle(url: str, variant: str, languages: str, store: ArtifactStore, *, extract_if_missing: bool):
     _, video_id, _ = parse_video_url(url)
-    bundle = store.find(video_id, variant)
+    requested_language = languages.split(",")[0].strip()
+    bundle = store.find(video_id, variant, language=requested_language)
     if bundle is None:
         if not extract_if_missing:
             raise FileNotFoundError("No saved evidence bundle; run `video-briefing extract` first")

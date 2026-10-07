@@ -18,7 +18,7 @@ QA_SCHEMA = {
 
 
 def answer_question(bundle: EvidenceBundle, question: str, llm: JsonLLM) -> dict:
-    excerpts = retrieve(bundle, question)
+    excerpts = retrieve(bundle, question, limit=12)
     if not excerpts:
         return {"answer": "В сохранённой расшифровке не найдено подходящего подтверждения; это не доказывает, что тема нигде в видео не упоминается.", "claims": [], "abstained": True}
     rendered = "\n".join(f"[{s.id}] {s.start_seconds:.2f}+{s.duration_seconds:.2f}s: {s.text}" for s in excerpts)

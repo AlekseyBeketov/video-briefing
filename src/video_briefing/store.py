@@ -35,13 +35,15 @@ class ArtifactStore:
         self._atomic_bytes(self.bundle_path(key), payload)
         return bundle
 
-    def find(self, video_id: str, variant: str) -> EvidenceBundle | None:
+    def find(self, video_id: str, variant: str, *, language: str | None = None) -> EvidenceBundle | None:
         """Load a matching saved bundle without invoking an extractor."""
         for path in self.root.glob("*/*/bundle.json"):
             try:
                 value = json.loads(path.read_text(encoding="utf-8"))
                 bundle = EvidenceBundle.from_dict(value)
-                if bundle.video_id == video_id and bundle.variant == variant:
+                if bundle.video_id == video_id and bundle.variant == variant and (
+                    language is None or bundle.language == language
+                ):
                     loaded = self.load(bundle.platform, video_id, bundle.language, variant)
                     if loaded is not None:
                         return loaded

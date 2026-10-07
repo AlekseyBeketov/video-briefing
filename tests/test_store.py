@@ -25,3 +25,13 @@ def test_incomplete_or_tampered_store_is_rejected(tmp_path):
     data = path.read_text()
     path.write_text(data.replace('"text": "immutable"', '"text": "tampered"'))
     assert store.load("youtube", "DvSwvJVens8", "en", "baoyu") is None
+
+
+def test_find_can_select_the_requested_source_language(tmp_path):
+    store = ArtifactStore(tmp_path)
+    store.save(source("English", "captions_api"))
+    russian = source("Русский", "captions_api")
+    russian.language = "ru"
+    store.save(russian)
+
+    assert store.find("DvSwvJVens8", "captions_api", language="ru").segments[0].text == "Русский"

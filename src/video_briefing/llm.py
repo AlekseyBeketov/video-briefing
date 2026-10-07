@@ -25,6 +25,9 @@ def _parse_json_object(message: Any) -> dict[str, Any]:
             return match.group(1) + body + match.group(3)
 
         candidate = re.sub(r'("(?:gist_evidence|evidence)"\s*:\s*\[)([^\]]*)(\])', quote_bare_ids, candidate)
+        # Some providers emit LaTeX-like text such as ``\approx`` inside JSON strings.
+        # Escape only backslashes that cannot begin a JSON escape; preserve valid JSON escapes.
+        candidate = re.sub(r'(?<!\\)\\(?!["\\/bfnrtu])', r'\\\\', candidate)
     value = json.loads(candidate)
     if not isinstance(value, dict):
         raise ValueError("Ollama response JSON must be an object")

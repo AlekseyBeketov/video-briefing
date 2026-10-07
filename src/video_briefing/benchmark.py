@@ -45,7 +45,8 @@ def _questions(path: Path) -> list[dict]:
 def run_benchmark(config: dict, *, root: Path, artifact_root: Path) -> dict:
     variant = config["variant"]
     store = ArtifactStore(artifact_root)
-    bundle = store.find(EXPECTED_ID, variant)
+    requested_language = config.get("languages", config.get("language", "ru")).split(",")[0].strip()
+    bundle = store.find(EXPECTED_ID, variant, language=requested_language)
     extract_seconds = 0.0
     extractor_calls = 0
     if bundle is None:
@@ -77,7 +78,7 @@ def run_benchmark(config: dict, *, root: Path, artifact_root: Path) -> dict:
         answer = answer_question(bundle, item["question"], llm)
         qa_seconds.append(time.perf_counter() - started)
         qa_results.append({"id": item.get("id"), "question": item["question"], **answer})
-    same_hash = store.find(EXPECTED_ID, variant)
+    same_hash = store.find(EXPECTED_ID, variant, language=bundle.language)
     if same_hash is None or same_hash.raw_sha256 != bundle.raw_sha256:
         raise RuntimeError("Warm artifact reuse did not preserve the exact source hash")
     metrics = {
