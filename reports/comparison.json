@@ -1,0 +1,1341 @@
+{
+  "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
+  "video_id": "DvSwvJVens8",
+  "case_study_n_videos": 1,
+  "created_at_utc": "2026-10-07T09:24:21.884048+00:00",
+  "protocol_id": "DvSwvJVens8-caption-case-v1",
+  "evaluation_sha256": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+  "reference_segments_sha256": "64bb79566e062fa5b46bea6272d78af436835e51c43f2ae390098b448ef6fcd0",
+  "reference_raw_sha256": "c08f0e724cbe45db65aa1c30f338085b420f55e17d29f309272eb3580c5002ab",
+  "schema_version": 1,
+  "status": "BLOCKED_BENCHMARK_READINESS",
+  "successful_original_language_head_to_head": false,
+  "recommendation": {
+    "winner": "none",
+    "provisional_extractor": "captions_api",
+    "reason": "Original566 RU segments match fixed reference exactly. This is extraction viability, not reliable generation/quality superiority. Root output completed but has material rubric gaps; sibling generation failed twice.",
+    "next_action": "needs_input: route concrete citation/provider-diagnostics and full-source retrieval defects to implementer, repair before any further formal runs; do not exceed retry cap."
+  },
+  "run_count": 6,
+  "status_counts": {
+    "failed": 4,
+    "done": 2
+  },
+  "method": {
+    "unit_policy": "Brief: gist block is one unit, each bullet is one unit; not a count of atomic factual propositions. QA claim counts cover structured claims[] only; uncited answer prose and missed expected points are graded separately per question. Labels are a human source-grounding assessment, not independent hardware/audio truth or an automatic quality score.",
+    "repeat_n": "Sibling A1,B1,C2 failures; baseline C2 attempts1 success; warm probe2 questions,not experiment",
+    "order": [
+      "root_C_failed",
+      "root_C_completed",
+      "A_failed",
+      "B_completed_noncomparable",
+      "C_failed",
+      "C_failed"
+    ],
+    "constants": "identical command/env/model/temp/questions/source-language policy/prompts/retrieval; variant only committed change onA/B",
+    "source_language_actual_invariant": "violated by B:und primarily English, not enforced by harness",
+    "common_caption_bias": true,
+    "audio_listened": false,
+    "independent_media_check": "Only prior preflight bounded10s storyboard previews; no new audio/visual accuracy claims",
+    "cost": "not measured; do not interpret missing cost as0"
+  },
+  "variants": [
+    {
+      "variant": "A",
+      "backend": "baoyu",
+      "formal_exp_id": "843d23fc-586c-48cc-9f76-57c17b12e809",
+      "runtime_status": "failed",
+      "content_usable": false,
+      "reason": "HTTP429, empty raw snippets; adapter fail-closed, no description substitute"
+    },
+    {
+      "variant": "B",
+      "backend": "summarize",
+      "formal_exp_id": "3c86189a-b281-4b25-ad7b-8386f1c5cc48",
+      "runtime_status": "completed",
+      "content_usable": "timed translated/und source exists, not original-RU valid comparator",
+      "reason": "560 segments,source drift incl2026->2020 and120B->120GB; multilingual/retrieval/QA policy failures"
+    },
+    {
+      "variant": "C",
+      "backend": "captions_api",
+      "formal_exp_id": "5abe83c1-deed-4c57-a604-6e7b6aa4b6e9",
+      "runtime_status": "sibling2 failed; baseline1/2 completed",
+      "content_usable": "566 actual RU source always obtained; generation not stable",
+      "reason": "evidence validation and malformed provider JSON; stop at cap"
+    }
+  ],
+  "reviews": {
+    "review_unit_policy": "Brief: gist block is one unit, each bullet is one unit; not a count of atomic factual propositions. QA claim counts cover structured claims[] only; uncited answer prose and missed expected points are graded separately per question. Labels are a human source-grounding assessment, not independent hardware/audio truth or an automatic quality score.",
+    "baseline_C": {
+      "run_id": "5809a015-d997-4e87-a83c-47161c4fc8ce",
+      "brief_units": [
+        {
+          "id": "gist",
+          "label": "partial",
+          "reason": "Overview grounded, but gives auto-caption surname as verified host identity and emphasizes PCIe instead of central capacity/bandwidth bottleneck."
+        },
+        {
+          "id": "topic1",
+          "label": "supported",
+          "reason": "UMA and zero copy are in r0120-r0137."
+        },
+        {
+          "id": "topic2",
+          "label": "supported",
+          "reason": "Apple/NVIDIA/AMD examples exist throughout original captions."
+        },
+        {
+          "id": "topic3",
+          "label": "supported",
+          "reason": "Author gives rough quantized-model memory estimate r0088-r0094; this is source claim, not external truth."
+        },
+        {
+          "id": "topic4",
+          "label": "supported",
+          "reason": "Metal/MLX and phonetically-captioned CUDA are in r0220-r0234; spellings not audio-verified."
+        },
+        {
+          "id": "topic5",
+          "label": "partial",
+          "reason": "Clusters supported, but s00545 is Mac recommendation, not supporting the cited mini-PC cluster."
+        },
+        {
+          "id": "idea1",
+          "label": "partial",
+          "reason": "Faithful rough rule, but rendered as advice without explicit author-heuristic/non-universal caveat."
+        },
+        {
+          "id": "idea2",
+          "label": "supported",
+          "reason": "Author links zero-copy to speed/energy r0130-r0137; not an independently measured superiority."
+        },
+        {
+          "id": "idea3",
+          "label": "partial",
+          "reason": "Trillion-class cluster appears in full source, but cited s00545 concerns Mac; specific local evidence is imprecise."
+        },
+        {
+          "id": "emphasis1",
+          "label": "partial",
+          "reason": "Correct main point in full source r0083-r0087/r0125-r0128, but cited s00153/s00398/s00399 do not establish the comparison."
+        },
+        {
+          "id": "emphasis2",
+          "label": "supported",
+          "reason": "CUDA standard supported with immediate source context r0230-r0234."
+        },
+        {
+          "id": "caveat1",
+          "label": "unsupported",
+          "reason": "Treats caption spellings/partial outlines as absence of content. Mini Scloud/indexing archive are actually in r0504-r0523; no citation supplied."
+        }
+      ],
+      "qa_claim_labels": [
+        {
+          "question": "q01",
+          "labels": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "question": "q02",
+          "labels": [
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "question": "q03",
+          "labels": [
+            "supported",
+            "supported",
+            "partial",
+            "supported"
+          ]
+        },
+        {
+          "question": "q04",
+          "labels": [
+            "partial"
+          ]
+        },
+        {
+          "question": "q05",
+          "labels": []
+        },
+        {
+          "question": "q06",
+          "labels": [
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "question": "q07",
+          "labels": [
+            "supported",
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "question": "q08",
+          "labels": []
+        }
+      ],
+      "questions": [
+        {
+          "id": "q01",
+          "label": "partial",
+          "reason": "Memory over NPU and slower GDDR7 answered, but zero-copy and bandwidth/whole-model detail missing."
+        },
+        {
+          "id": "q02",
+          "label": "partial",
+          "reason": "117B,80GB,32GB correctly given; active5.1B missing because retrieval excludes s00142/r0141."
+        },
+        {
+          "id": "q03",
+          "label": "partial",
+          "reason": "Memory capacity and generic software importance given; Metal/MLX/CUDA limitation absent."
+        },
+        {
+          "id": "q04",
+          "label": "fail",
+          "reason": "Omits small/medium-context restriction, slowdown and laptop test uncertainty; windows omit s00271-s00274/r0270-r0273 and r0334-r0345."
+        },
+        {
+          "id": "q05",
+          "label": "fail",
+          "reason": "False abstention despite source-supported conditional recommendations r0526-r0560. Neutral attribution would suffice."
+        },
+        {
+          "id": "q06",
+          "label": "partial",
+          "reason": "Software sharding correct; later OpenAI-compatible API, expandability and latency absent from retrieved context."
+        },
+        {
+          "id": "q07",
+          "label": "pass",
+          "reason": "NAS24x7, laptop inconvenience, available features vs promised Q3 2026 correctly preserved."
+        },
+        {
+          "id": "q08",
+          "label": "pass",
+          "reason": "Abstains, no invented temperature/battery numbers; appropriately says supplied excerpts, not all audiovisual evidence. Evaluator confirmed absence in full captions."
+        }
+      ],
+      "anchors": [
+        {
+          "id": "a01",
+          "label": "partial",
+          "reason": "UMA/zero-copy present; capacity bottleneck and pure-speed trade-off incompletely preserved."
+        },
+        {
+          "id": "a02",
+          "label": "absent",
+          "reason": "Brief omits117B/5.1B/80GB MoE distinction."
+        },
+        {
+          "id": "a03",
+          "label": "partial",
+          "reason": "Apple and software named, compatibility limitation not made clear."
+        },
+        {
+          "id": "a04",
+          "label": "partial",
+          "reason": "NVIDIA mentioned, measured-context and untested-laptop caveats omitted."
+        },
+        {
+          "id": "a05",
+          "label": "partial",
+          "reason": "AMD present generically, x86/ROCm/Windows detail omitted."
+        },
+        {
+          "id": "a06",
+          "label": "partial",
+          "reason": "Cluster idea present, software-vs-physical memory distinction/API/latency omitted."
+        },
+        {
+          "id": "a07",
+          "label": "absent",
+          "reason": "NAS always-on and actual-vs-promised missing; false absence caveat."
+        },
+        {
+          "id": "a08",
+          "label": "absent",
+          "reason": "Final conditional hardware/OS/software recommendation omitted."
+        }
+      ],
+      "attribution": "FAIL: full auto-caption surname in gist; first name self-introduction only, no verified surname/per-segment speaker map. No invented guest found.",
+      "subjective_usefulness": "Compact Russian gist2 sentences,5 topics,3 ideas,2 emphases; useful memory/zero-copy navigation, but weak full-video coverage and harmful caveat. Not approved as final briefing.",
+      "counts": {
+        "brief_review_units": {
+          "partial": 5,
+          "supported": 6,
+          "unsupported": 1
+        },
+        "qa_structured_claims_vs_original_reference": {
+          "supported": 15,
+          "partial": 2
+        },
+        "questions": {
+          "partial": 4,
+          "fail": 2,
+          "pass": 2
+        },
+        "anchors": {
+          "partial": 5,
+          "absent": 3
+        }
+      }
+    },
+    "B": {
+      "run_id": "2ee2889d-0806-4726-9e34-bd7f78775142",
+      "brief_units": [
+        {
+          "id": "gist",
+          "label": "supported",
+          "reason": "Memory architecture and vendor approaches correctly summarized from full source context."
+        },
+        {
+          "id": "topic1",
+          "label": "supported",
+          "reason": "VRAM bottleneck and rough memory estimates present."
+        },
+        {
+          "id": "topic2",
+          "label": "supported",
+          "reason": "UMA/Apple Silicon/zero-copy present."
+        },
+        {
+          "id": "topic3",
+          "label": "partial",
+          "reason": "NVIDIA approach present, but silently normalizes Blackwall to Blackwell without audio verification."
+        },
+        {
+          "id": "topic4",
+          "label": "supported",
+          "reason": "AMD x86/memory approach present in original r0351-r0401."
+        },
+        {
+          "id": "topic5",
+          "label": "partial",
+          "reason": "Clusters and Mini Cloud present globally; cited source window near1260s establishes NAS hardware, not service details."
+        },
+        {
+          "id": "topic6",
+          "label": "partial",
+          "reason": "Software comparison exists, but cited AMD windows do not establish Metal/MLX."
+        },
+        {
+          "id": "idea1",
+          "label": "supported",
+          "reason": "Explicitly calls memory estimate empirical rule; original r0088-r0110 supports source claim, not verified requirements."
+        },
+        {
+          "id": "idea2",
+          "label": "supported",
+          "reason": "Correct slower-speed/capacity/zero-copy trade-off."
+        },
+        {
+          "id": "idea3",
+          "label": "partial",
+          "reason": "Cluster claim supported globally, supplied citations omit trillion-class model identity and join different demonstrators."
+        },
+        {
+          "id": "idea4",
+          "label": "supported",
+          "reason": "Conditional AMD Windows/Linux/x86/value recommendation in r0545-r0554."
+        },
+        {
+          "id": "emphasis1",
+          "label": "supported",
+          "reason": "Shift from NPU marketing to memory architecture supported r0148-r0155."
+        },
+        {
+          "id": "emphasis2",
+          "label": "partial",
+          "reason": "Substantially lags exaggerates current claim: source says historical weakness, now much better but Windows stack incomplete r0420-r0434."
+        },
+        {
+          "id": "emphasis3",
+          "label": "supported",
+          "reason": "GPU uses large shared pool r0180-r0194."
+        },
+        {
+          "id": "caveat1",
+          "label": "supported",
+          "reason": "Untested laptops in r0334-r0345, but no evidence ID in generated caveat."
+        },
+        {
+          "id": "caveat2",
+          "label": "partial",
+          "reason": "14tok/s is Geekom's model-specific claim r0469-r0472, not general independently measured distributed-system speed; no cited ID."
+        },
+        {
+          "id": "caveat3",
+          "label": "supported",
+          "reason": "Mini Cloud software developing r0520-r0523, but no evidence ID."
+        }
+      ],
+      "qa_claim_labels": [
+        {
+          "question": "q01",
+          "labels": [
+            "supported",
+            "partial"
+          ]
+        },
+        {
+          "question": "q02",
+          "labels": [
+            "supported",
+            "supported",
+            "supported",
+            "supported"
+          ]
+        },
+        {
+          "question": "q03",
+          "labels": [
+            "supported",
+            "supported",
+            "partial"
+          ]
+        },
+        {
+          "question": "q04",
+          "labels": [
+            "partial"
+          ]
+        },
+        {
+          "question": "q05",
+          "labels": []
+        },
+        {
+          "question": "q06",
+          "labels": []
+        },
+        {
+          "question": "q07",
+          "labels": [
+            "unsupported",
+            "supported"
+          ],
+          "candidate_source_labels": [
+            "supported",
+            "supported"
+          ],
+          "reason": "2020 is faithfully cited from translated candidate, but original reference says2026: upstream distortion, not solely LLM hallucination."
+        },
+        {
+          "question": "q08",
+          "labels": []
+        }
+      ],
+      "questions": [
+        {
+          "id": "q01",
+          "label": "partial",
+          "reason": "Memory emphasis/slower GDDR7 preserved, volume and zero-copy compromise incomplete."
+        },
+        {
+          "id": "q02",
+          "label": "pass",
+          "reason": "117B total,5.1B active,80GB MXFP4 and32GB incompatibility given as source example."
+        },
+        {
+          "id": "q03",
+          "label": "fail",
+          "reason": "Unsupported causal answer: hardware peak speed is substituted for actual software/CUDA compatibility caveat. UMA expanded as Array from translated source."
+        },
+        {
+          "id": "q04",
+          "label": "fail",
+          "reason": "Context becomes short/medium text; actual caveats and uncertainty missed, despite present in full candidate/original source."
+        },
+        {
+          "id": "q05",
+          "label": "fail",
+          "reason": "False abstention about available final recommendation; lexical Russian query vs English source contributes."
+        },
+        {
+          "id": "q06",
+          "label": "fail",
+          "reason": "False abstention about software sharding/API. Answer English, not requested Russian."
+        },
+        {
+          "id": "q07",
+          "label": "fail",
+          "reason": "English answer; misses NAS24x7 rationale and propagates candidate Q3 2020 instead of original2026."
+        },
+        {
+          "id": "q08",
+          "label": "pass",
+          "reason": "No fabricated numbers; narrow excerpt-scoped abstention consistent with evaluator full-source search."
+        }
+      ],
+      "anchors": [
+        {
+          "id": "a01",
+          "label": "present",
+          "reason": "Memory bottleneck, slowerUMA, volume and zero-copy preserved."
+        },
+        {
+          "id": "a02",
+          "label": "absent",
+          "reason": "Brief lacks117B/5.1B/80GB MoE example."
+        },
+        {
+          "id": "a03",
+          "label": "partial",
+          "reason": "Apple pool/software present but CUDA compatibility restriction missing."
+        },
+        {
+          "id": "a04",
+          "label": "partial",
+          "reason": "Vendor path/laptop caution present; DGX context-condition missing and product spellings uncertain."
+        },
+        {
+          "id": "a05",
+          "label": "partial",
+          "reason": "AMD x86 Windows/Linux and memory present; current ROCm limitation overstated."
+        },
+        {
+          "id": "a06",
+          "label": "partial",
+          "reason": "Clusters described, physical-vs-software distinction/OpenAI-compatible API omitted."
+        },
+        {
+          "id": "a07",
+          "label": "partial",
+          "reason": "Mini Cloud/software developing mentioned; NAS24x7 and existing-vs-promised absent."
+        },
+        {
+          "id": "a08",
+          "label": "partial",
+          "reason": "Only AMD conditional recommendation retained; RTX/Mac/NVIDIA conditions omitted."
+        }
+      ],
+      "attribution": "No invented named speaker/guest in brief; neutral presenter role. No diarization or audio proof.",
+      "subjective_usefulness": "Russian brief2 sentences,6 topics,4 ideas,3 emphases,3 caveats covers more categories but is longer. Q&A language/retrieval/source distortions make this unsuitable as original-RU winner.",
+      "counts": {
+        "brief_review_units": {
+          "supported": 11,
+          "partial": 6
+        },
+        "qa_structured_claims_vs_original_reference": {
+          "supported": 8,
+          "partial": 3,
+          "unsupported": 1
+        },
+        "questions": {
+          "partial": 1,
+          "pass": 2,
+          "fail": 5
+        },
+        "anchors": {
+          "present": 1,
+          "absent": 1,
+          "partial": 6
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "id": "6177d70e-8aea-44e0-87bf-0ee25001779f",
+      "experimentId": "88a9843c-4f89-481a-ad37-e425e63ded33",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "failed",
+      "commitSha": "c90fc6fe897b521c473199fea4ff32dd9d094154",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791363694002,
+      "endedAt": 1791363750071,
+      "duration_seconds_from_orx": 56.069,
+      "hashes": {
+        "config/experiment.json": "30e4b42c43564595fc0a225b31f649596d08eef2e77b72b0e10621442534afe7",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/root-fixed-original-ru-pipeline-controls",
+      "created_at_utc": "2026-10-07T09:01:34.002000+00:00",
+      "ended_at_utc": "2026-10-07T09:02:30.071000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137.tar",
+        "sourceDigest": "09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/6177d70e-8aea-44e0-87bf-0ee25001779f.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/6177d70e-8aea-44e0-87bf-0ee25001779f/stdout-stderr.log",
+      "log_sha256": "268e55bb3237e4343ee13faa0669232894d09a7532901a241190b99e4f420f40",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "captions_api",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/6177d70e-8aea-44e0-87bf-0ee25001779f/effective-config.json",
+      "source": {
+        "bundle_path": "/Users/alexbeketov/.local/share/openresearch/local-runs/6177d70e-8aea-44e0-87bf-0ee25001779f/repo/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json",
+        "raw_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "source_type": "auto-captions",
+        "language": "ru",
+        "extractor_version": "youtube-transcript-api-1.2.4",
+        "fetched_at": "2026-10-07T09:01:38.334876+00:00",
+        "segment_count": 566,
+        "first_start": 0.76,
+        "max_end": 1454.171,
+        "union_seconds": 1422.7680000000003,
+        "interval_coverage_percent": 97.65051475634868,
+        "finite_nonnegative_timestamps": true,
+        "raw_sha_verified": true,
+        "unique_ids": true,
+        "script_chars": {
+          "cyrillic": 14787,
+          "latin": 1491,
+          "thai": 2
+        },
+        "warnings": [],
+        "exact_reference_segment_text_timing_equal": true
+      },
+      "diagnostic_error": "ValueError: Every non-abstaining Q&A claim must cite evidence",
+      "metrics_missing": "Run did not finish; harness persists generated brief/answers/metrics only at end, partial stages not recoverable."
+    },
+    {
+      "id": "5809a015-d997-4e87-a83c-47161c4fc8ce",
+      "experimentId": "88a9843c-4f89-481a-ad37-e425e63ded33",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "done",
+      "commitSha": "c90fc6fe897b521c473199fea4ff32dd9d094154",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791363815577,
+      "endedAt": 1791363867642,
+      "duration_seconds_from_orx": 52.065,
+      "hashes": {
+        "config/experiment.json": "30e4b42c43564595fc0a225b31f649596d08eef2e77b72b0e10621442534afe7",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/root-fixed-original-ru-pipeline-controls",
+      "created_at_utc": "2026-10-07T09:03:35.577000+00:00",
+      "ended_at_utc": "2026-10-07T09:04:27.642000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137.tar",
+        "sourceDigest": "09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/5809a015-d997-4e87-a83c-47161c4fc8ce.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/stdout-stderr.log",
+      "log_sha256": "44c1c5019022c1538799d16cd016150aae69f608a9a09cd73aa3fb861b4f9d51",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "captions_api",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/effective-config.json",
+      "source": {
+        "bundle_path": "/Users/alexbeketov/.local/share/openresearch/local-runs/5809a015-d997-4e87-a83c-47161c4fc8ce/repo/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json",
+        "raw_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "source_type": "auto-captions",
+        "language": "ru",
+        "extractor_version": "youtube-transcript-api-1.2.4",
+        "fetched_at": "2026-10-07T09:03:38.350357+00:00",
+        "segment_count": 566,
+        "first_start": 0.76,
+        "max_end": 1454.171,
+        "union_seconds": 1422.7680000000003,
+        "interval_coverage_percent": 97.65051475634868,
+        "finite_nonnegative_timestamps": true,
+        "raw_sha_verified": true,
+        "unique_ids": true,
+        "script_chars": {
+          "cyrillic": 14787,
+          "latin": 1491,
+          "thai": 2
+        },
+        "warnings": [],
+        "exact_reference_segment_text_timing_equal": true
+      },
+      "metrics": {
+        "extractor_calls": 1,
+        "measured_seconds": {
+          "brief": 31.957697416000883,
+          "extract_cold": 2.385862500006624,
+          "qa_each": [
+            3.1447933330055093,
+            2.057894875004422,
+            1.6365746249939548,
+            1.9479873340023914,
+            1.3588062080016243,
+            1.0306576660004794,
+            1.57891550000204,
+            0.6782118330011144
+          ],
+          "total": 47.77740129001904
+        },
+        "model": {
+          "actual_model": "gemma4:31b",
+          "cloud_backed": true,
+          "completion_tokens": 940,
+          "gist_citations_derived_from_topics": false,
+          "prompt_sha256": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+          "prompt_tokens": 5231,
+          "requested_model": "gemma4:31b-cloud",
+          "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af"
+        },
+        "questions_n": 8,
+        "runtime": {
+          "package": "0.1.0",
+          "python": "3.13.14 (main, Jul 23 2026, 14:48:16) [Clang 22.1.3 ]"
+        },
+        "source_language": "ru",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "source_type": "auto-captions",
+        "status": "completed",
+        "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "timed_segments": 566,
+        "usage": {
+          "completion_tokens": 940,
+          "prompt_tokens": 5231
+        },
+        "variant": "captions_api",
+        "video_id": "DvSwvJVens8",
+        "warm_source_reuse": {
+          "cache_hit": true,
+          "extractor_calls": 0,
+          "same_source_hash": true
+        }
+      },
+      "exported_artifact_paths": {
+        "effective-config.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/effective-config.json",
+        "metrics.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/metrics.json",
+        "briefing.md": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/briefing.md",
+        "answers.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/5809a015-d997-4e87-a83c-47161c4fc8ce/answers.json"
+      },
+      "artifact_sha256": {
+        "effective-config.json": "30e4b42c43564595fc0a225b31f649596d08eef2e77b72b0e10621442534afe7",
+        "metrics.json": "418a46a96a83e531495b54c9e838fea624fd46742fab9e21a862f1d4632b456e",
+        "briefing.md": "5ba1b78bf1af9bb0a801df9054d22f1f442200341fcac15a5ecf089c353391f2",
+        "answers.json": "67937d75893dd47895ae8ee9101074df491bc6db908f7de09b9cdc75a512592c"
+      },
+      "citation_checks": {
+        "brief_reference_occurrences": 49,
+        "brief_unknown_ids": [],
+        "qa_reference_occurrences": 38,
+        "qa_unknown_ids": [],
+        "qa_claim_count": 17,
+        "questions": 8,
+        "q08_abstained": true
+      },
+      "measured_seconds": {
+        "extraction_wrapper_empty_upstream_cache_uncertain": 2.385862500006624,
+        "brief": 31.957697416000883,
+        "qa_each": [
+          3.1447933330055093,
+          2.057894875004422,
+          1.6365746249939548,
+          1.9479873340023914,
+          1.3588062080016243,
+          1.0306576660004794,
+          1.57891550000204,
+          0.6782118330011144
+        ],
+        "qa_sum": 13.433841374011536,
+        "pipeline_total": 47.77740129001904
+      },
+      "orx_nonbenchmark_overhead_seconds": 4.287598709980955,
+      "usage_scope": "Only last briefing response; excludes other chunks, repair/synthesis and all benchmark Q&A. Cost not measured."
+    },
+    {
+      "id": "33687786-f205-4bdf-8a12-7df3ff34244d",
+      "experimentId": "843d23fc-586c-48cc-9f76-57c17b12e809",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "failed",
+      "commitSha": "2605513e067bec6b5269b11b9d8bf05e6df6320c",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791363939958,
+      "endedAt": 1791363955984,
+      "duration_seconds_from_orx": 16.026,
+      "hashes": {
+        "config/experiment.json": "3415a0a4f2235eeaa5fe940727258a5335876102917095d80066071a6d35a34f",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/a-baoyu-raw-original-captions",
+      "created_at_utc": "2026-10-07T09:05:39.958000+00:00",
+      "ended_at_utc": "2026-10-07T09:05:55.984000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/b84a82a4a501b18cfce791fbd1cd5b8bb971442024fc7cdb1b39bd20aea4adfb.tar",
+        "sourceDigest": "b84a82a4a501b18cfce791fbd1cd5b8bb971442024fc7cdb1b39bd20aea4adfb",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/33687786-f205-4bdf-8a12-7df3ff34244d.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/33687786-f205-4bdf-8a12-7df3ff34244d/stdout-stderr.log",
+      "log_sha256": "9bac76c601fad08ef0495000f22ff78b809209d4fbef66ba5a32e7267d29f274",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "baoyu",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/33687786-f205-4bdf-8a12-7df3ff34244d/effective-config.json",
+      "diagnostic_error": "ValueError: Baoyu exited successfully without raw transcript JSON; stdout=''; stderr='Warning (DvSwvJVens8): Transcript fetch returned empty snippets. Retrying with yt-dlp fallback.\\nError (DvSwvJVens8): HTTP 429 fetching transcript\\n'",
+      "metrics_missing": "Run did not finish; harness persists generated brief/answers/metrics only at end, partial stages not recoverable."
+    },
+    {
+      "id": "2ee2889d-0806-4726-9e34-bd7f78775142",
+      "experimentId": "3c86189a-b281-4b25-ad7b-8386f1c5cc48",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "done",
+      "commitSha": "71ffd10c4bc2d852f4871927a00c56d5e0f3e360",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791363968535,
+      "endedAt": 1791364010593,
+      "duration_seconds_from_orx": 42.058,
+      "hashes": {
+        "config/experiment.json": "2c0e93aee40bbf89397d540e44ea2d786cd3a8524a13dc3c16b3c29972e9eddf",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/b-summarize-extraction-only",
+      "created_at_utc": "2026-10-07T09:06:08.535000+00:00",
+      "ended_at_utc": "2026-10-07T09:06:50.593000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/27b234862ec34f1a0e63ea22f15a5cf1526787dd672c6274e6a53fc537f417c5.tar",
+        "sourceDigest": "27b234862ec34f1a0e63ea22f15a5cf1526787dd672c6274e6a53fc537f417c5",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/2ee2889d-0806-4726-9e34-bd7f78775142.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/stdout-stderr.log",
+      "log_sha256": "9ace12a43a834ef8027cbd7650baa3ec0e5e008cd87b66a4bcd57143bc402513",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "summarize",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/effective-config.json",
+      "source": {
+        "bundle_path": "/Users/alexbeketov/.local/share/openresearch/local-runs/2ee2889d-0806-4726-9e34-bd7f78775142/repo/artifacts/private/evidence/71/71726bb471c9c257a39c004207c8328950ea39b94a9c906a8de5c534825dcbc2/bundle.json",
+        "raw_sha256": "1e5f0c3b283d41187836a5d1f5f30b61e3423d3ad2acda0226e3223068b0b09d",
+        "source_type": "captions",
+        "language": "und",
+        "extractor_version": "0.25.1",
+        "fetched_at": "2026-10-07T09:06:11.292101+00:00",
+        "segment_count": 560,
+        "first_start": 0.799,
+        "max_end": 1431.479,
+        "union_seconds": 1417.9019999999996,
+        "interval_coverage_percent": 97.31654083733696,
+        "finite_nonnegative_timestamps": true,
+        "raw_sha_verified": true,
+        "unique_ids": true,
+        "script_chars": {
+          "cyrillic": 3,
+          "latin": 16092,
+          "thai": 2
+        },
+        "warnings": [
+          "summarize JSON did not identify the selected caption track language"
+        ],
+        "exact_reference_segment_text_timing_equal": false,
+        "track_provenance_note": "English-dominant observed content; presumed translation of original RU, but selected track/translation lineage not logged and not independently established."
+      },
+      "metrics": {
+        "extractor_calls": 1,
+        "measured_seconds": {
+          "brief": 21.545688792000874,
+          "extract_cold": 2.40137870900071,
+          "qa_each": [
+            1.6064607500011334,
+            1.5558602079981938,
+            1.8468185839956277,
+            4.297198624997691,
+            1.7296915000042645,
+            0.8494611669957521,
+            1.2266011249957955,
+            0.7663829589946545
+          ],
+          "total": 37.825542418984696
+        },
+        "model": {
+          "actual_model": "gemma4:31b",
+          "cloud_backed": true,
+          "completion_tokens": 1616,
+          "gist_citations_derived_from_topics": false,
+          "prompt_sha256": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+          "prompt_tokens": 2872,
+          "requested_model": "gemma4:31b-cloud",
+          "source_sha256": "1e5f0c3b283d41187836a5d1f5f30b61e3423d3ad2acda0226e3223068b0b09d"
+        },
+        "questions_n": 8,
+        "runtime": {
+          "package": "0.1.0",
+          "python": "3.13.14 (main, Jul 23 2026, 14:48:16) [Clang 22.1.3 ]"
+        },
+        "source_language": "und",
+        "source_sha256": "1e5f0c3b283d41187836a5d1f5f30b61e3423d3ad2acda0226e3223068b0b09d",
+        "source_type": "captions",
+        "status": "completed",
+        "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "timed_segments": 560,
+        "usage": {
+          "completion_tokens": 1616,
+          "prompt_tokens": 2872
+        },
+        "variant": "summarize",
+        "video_id": "DvSwvJVens8",
+        "warm_source_reuse": {
+          "cache_hit": true,
+          "extractor_calls": 0,
+          "same_source_hash": true
+        }
+      },
+      "exported_artifact_paths": {
+        "effective-config.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/effective-config.json",
+        "metrics.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/metrics.json",
+        "briefing.md": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/briefing.md",
+        "answers.json": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/2ee2889d-0806-4726-9e34-bd7f78775142/answers.json"
+      },
+      "artifact_sha256": {
+        "effective-config.json": "2c0e93aee40bbf89397d540e44ea2d786cd3a8524a13dc3c16b3c29972e9eddf",
+        "metrics.json": "c9735baef74904764731558765865043308c4d7a12b09541002c6c9c541d56ca",
+        "briefing.md": "6bf0ba3a2d60dac3b245dea689445e2ad5cabc65165d46d0a6fc45def400b715",
+        "answers.json": "609ba6bd0d369891b66a78b574c4f98217d6a9a2287cda9a8d5f2d058e76122d"
+      },
+      "citation_checks": {
+        "brief_reference_occurrences": 58,
+        "brief_unknown_ids": [],
+        "qa_reference_occurrences": 35,
+        "qa_unknown_ids": [],
+        "qa_claim_count": 12,
+        "questions": 8,
+        "q08_abstained": true
+      },
+      "measured_seconds": {
+        "extraction_wrapper_empty_upstream_cache_uncertain": 2.40137870900071,
+        "brief": 21.545688792000874,
+        "qa_each": [
+          1.6064607500011334,
+          1.5558602079981938,
+          1.8468185839956277,
+          4.297198624997691,
+          1.7296915000042645,
+          0.8494611669957521,
+          1.2266011249957955,
+          0.7663829589946545
+        ],
+        "qa_sum": 13.878474917983112,
+        "pipeline_total": 37.825542418984696
+      },
+      "orx_nonbenchmark_overhead_seconds": 4.232457581015304,
+      "usage_scope": "Only last briefing response; excludes other chunks, repair/synthesis and all benchmark Q&A. Cost not measured."
+    },
+    {
+      "id": "e5aec712-5911-47d4-94ca-dea601e84221",
+      "experimentId": "5abe83c1-deed-4c57-a604-6e7b6aa4b6e9",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "failed",
+      "commitSha": "c90fc6fe897b521c473199fea4ff32dd9d094154",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791364025172,
+      "endedAt": 1791364061221,
+      "duration_seconds_from_orx": 36.049,
+      "hashes": {
+        "config/experiment.json": "30e4b42c43564595fc0a225b31f649596d08eef2e77b72b0e10621442534afe7",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/c-captions-api-original-ru",
+      "created_at_utc": "2026-10-07T09:07:05.172000+00:00",
+      "ended_at_utc": "2026-10-07T09:07:41.221000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137.tar",
+        "sourceDigest": "09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/e5aec712-5911-47d4-94ca-dea601e84221.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/e5aec712-5911-47d4-94ca-dea601e84221/stdout-stderr.log",
+      "log_sha256": "3a03893ddbc5ac6940f3a99f0857dbbe75dd42b0965b2fb6f02a232bba3621a1",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "captions_api",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/e5aec712-5911-47d4-94ca-dea601e84221/effective-config.json",
+      "source": {
+        "bundle_path": "/Users/alexbeketov/.local/share/openresearch/local-runs/e5aec712-5911-47d4-94ca-dea601e84221/repo/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json",
+        "raw_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "source_type": "auto-captions",
+        "language": "ru",
+        "extractor_version": "youtube-transcript-api-1.2.4",
+        "fetched_at": "2026-10-07T09:07:07.964415+00:00",
+        "segment_count": 566,
+        "first_start": 0.76,
+        "max_end": 1454.171,
+        "union_seconds": 1422.7680000000003,
+        "interval_coverage_percent": 97.65051475634868,
+        "finite_nonnegative_timestamps": true,
+        "raw_sha_verified": true,
+        "unique_ids": true,
+        "script_chars": {
+          "cyrillic": 14787,
+          "latin": 1491,
+          "thai": 2
+        },
+        "warnings": [],
+        "exact_reference_segment_text_timing_equal": true
+      },
+      "diagnostic_error": "ValueError: Every briefing claim, including gist, needs evidence segment ids",
+      "metrics_missing": "Run did not finish; harness persists generated brief/answers/metrics only at end, partial stages not recoverable."
+    },
+    {
+      "id": "8bf1516a-6b39-4bec-a61f-037b2dd44781",
+      "experimentId": "5abe83c1-deed-4c57-a604-6e7b6aa4b6e9",
+      "projectId": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+      "status": "failed",
+      "commitSha": "c90fc6fe897b521c473199fea4ff32dd9d094154",
+      "command": "env -i HOME=/Users/alexbeketov/video-briefing/artifacts/private/orx-home PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin UV_CACHE_DIR=/Users/alexbeketov/video-briefing/artifacts/private/orx-uv-cache VIDEO_BRIEFING_BUN=/Users/alexbeketov/video-briefing/.tools/bun/node_modules/.bin/bun VIDEO_BRIEFING_SUMMARIZE=/Users/alexbeketov/video-briefing/.tools/summarize/summarize /opt/homebrew/bin/uv run --frozen --python /Users/alexbeketov/video-briefing/.venv/bin/python python -m video_briefing.cli benchmark --config config/experiment.json",
+      "createdAt": 1791364133425,
+      "endedAt": 1791364155460,
+      "duration_seconds_from_orx": 22.035,
+      "hashes": {
+        "config/experiment.json": "30e4b42c43564595fc0a225b31f649596d08eef2e77b72b0e10621442534afe7",
+        "docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+        "prompts/brief.md": "0885d3b93a4268a78ce3c4f07946b4d3c62de8ab0d85761c058ac6db18445957",
+        "prompts/qa.md": "92a6c3cfb3ec123202fdc4e62e2932ab659ad92d9884aff87a46978cad037e46",
+        "src/video_briefing/qa.py": "53716135ed9c449c7ac3e07b717cb1418dedfd8f6a7f9a553b392fd4fad97347",
+        "src/video_briefing/retrieval.py": "ea365af705e4c041702719a4e6e446d8f033ea9d46183fd943bb488fbe0754dc",
+        "src/video_briefing/briefing.py": "68c4451db22dab249a9a1ca4f171b33f420fc969ffc9b940bd76d21396e1d100",
+        "uv.lock": "7f4e6c78fb2ff54a3bb9c5377fcd2f6a0c0307423a44cb798bb5b67c25e1ae9b",
+        "pyproject.toml": "048992601a673d6970cbc90616cf1a0a1696cce71e2812c9b5030065e63fd98f"
+      },
+      "source_snapshot_hash_verified": true,
+      "branch": "orx/c-captions-api-original-ru",
+      "created_at_utc": "2026-10-07T09:08:53.425000+00:00",
+      "ended_at_utc": "2026-10-07T09:09:15.460000+00:00",
+      "snapshot": {
+        "sourcePath": "/Users/alexbeketov/.local/share/openresearch/source-snapshots/09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137.tar",
+        "sourceDigest": "09575090302cbd7b82a6fb678c26b968950954b7f881add514cda19e6b655137",
+        "sourceSize": 266240,
+        "private_data_excluded": true,
+        "file_count": 56
+      },
+      "original_log_path": "/Users/alexbeketov/.local/share/openresearch/run-logs/8bf1516a-6b39-4bec-a61f-037b2dd44781.log",
+      "exported_log_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/8bf1516a-6b39-4bec-a61f-037b2dd44781/stdout-stderr.log",
+      "log_sha256": "daa9a1fdfd94da14898becc73a0ab20f5337f24736f07cada8943515242a85e9",
+      "effective_config": {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "captions_api",
+        "languages": "ru",
+        "summary_language": "ru",
+        "source_language_policy": "original_then_available",
+        "questions_file": "docs/research/evaluation.json",
+        "llm": {
+          "provider": "ollama",
+          "base_url": "http://127.0.0.1:11434",
+          "model": "gemma4:31b-cloud",
+          "cloud_backed": true,
+          "temperature": 0,
+          "timeout_seconds": 300
+        },
+        "cache_mode": "cold_then_warm",
+        "allow_description_only": false,
+        "allow_cookies": false,
+        "allow_proxy": false,
+        "allow_paid_fallback": false
+      },
+      "effective_config_path": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/8bf1516a-6b39-4bec-a61f-037b2dd44781/effective-config.json",
+      "source": {
+        "bundle_path": "/Users/alexbeketov/.local/share/openresearch/local-runs/8bf1516a-6b39-4bec-a61f-037b2dd44781/repo/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json",
+        "raw_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "source_type": "auto-captions",
+        "language": "ru",
+        "extractor_version": "youtube-transcript-api-1.2.4",
+        "fetched_at": "2026-10-07T09:08:56.387477+00:00",
+        "segment_count": 566,
+        "first_start": 0.76,
+        "max_end": 1454.171,
+        "union_seconds": 1422.7680000000003,
+        "interval_coverage_percent": 97.65051475634868,
+        "finite_nonnegative_timestamps": true,
+        "raw_sha_verified": true,
+        "unique_ids": true,
+        "script_chars": {
+          "cyrillic": 14787,
+          "latin": 1491,
+          "thai": 2
+        },
+        "warnings": [],
+        "exact_reference_segment_text_timing_equal": true
+      },
+      "diagnostic_error": "RuntimeError: Ollama returned non-JSON content despite JSON mode; model='gemma4:31b', parse=Expecting ',' delimiter at line 93, column 5, content_chars=2626, content='```json\\n{\\n  \"gist\": \"Ведущий анализирует возможности аппаратного обеспечения для локального запуска LLM, уделяя особое внимание решениям AMD с большим объемом объединенной памяти и возможности создания кластеров из мини-ПК. Также рассматриваются альтернативы от NVIDIA и Apple, а также концепция выноса AI-вычислений на отдельный сетевой сервер.\",\\n  \"gist_evidence\": [\\n  \"s00380\",\\n  \"s00439\",\\n  \"s00489\",\\n  \"s00527\"\\n  ],\\n  \"topics\": [\\n    {\\n      \"text\": \"Возможности памяти AMD Ryzen AI Max\",\\n      \"evidence\": [\\n      \"s00382\",\\n      \"s00393\",\\n      \"s00400\",\\n      \"s00401\"\\n      ]\\n    },\\n    {\\n      \"text\": \"Сравнение программных платформ CUDA и ROCm\",\\n      \"evidence\": [\\n      \"s00405\",\\n      \"s00413\",\\",
+      "metrics_missing": "Run did not finish; harness persists generated brief/answers/metrics only at end, partial stages not recoverable."
+    }
+  ],
+  "cached_verification": {
+    "created_at_utc": "2026-10-07T09:12:22.135112+00:00",
+    "scope": "Verification probe, NOT another formal experiment or full extraction",
+    "source_sha256_before": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+    "source_sha256_after": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+    "warm_artifact_read_seconds": 0.002781333001621533,
+    "qa_system_sha256": "e448565b891f3f61d71d5f7163c647bc051c297b13f37edb0095b443d7b09c9a",
+    "counts": {
+      "extractor_calls": 0,
+      "non_llm_network_attempts": 0,
+      "ollama_requests": 2
+    },
+    "answers": [
+      {
+        "id": "q07",
+        "status": "completed",
+        "seconds": 2.1797094590001507,
+        "result": {
+          "answer": "Ролик предлагает использовать NAS вместо ноутбука, так как ноутбук неудобен для этих целей (при закрытии крышки работа прекращается), в то время как NAS работает дома 24/7, подключен к сети и хранит данные, с которыми должен работать AI. Из программных возможностей в Mini Scloud уже есть локальный ассистент, докер, виртуальные машины и поиск по изображениям и видео; поиск по всем типам файлов обещают добавить в конце третьего квартала 2026 года.",
+          "claims": [
+            {
+              "text": "Ноутбук не очень удобен для локального AI-ассистента, так как пользователь закрывает крышку и уходит.",
+              "kind": "author_statement",
+              "evidence": [
+                {
+                  "id": "s00511",
+                  "start_seconds": 1300.039,
+                  "duration_seconds": 4.841
+                },
+                {
+                  "id": "s00512",
+                  "start_seconds": 1301.4,
+                  "duration_seconds": 6.399
+                }
+              ]
+            },
+            {
+              "text": "NAS стоит дома 24/7, подключен к сети и хранит данные, с которыми должен работать AI.",
+              "kind": "author_statement",
+              "evidence": [
+                {
+                  "id": "s00513",
+                  "start_seconds": 1304.88,
+                  "duration_seconds": 4.44
+                },
+                {
+                  "id": "s00514",
+                  "start_seconds": 1307.799,
+                  "duration_seconds": 3.921
+                },
+                {
+                  "id": "s00515",
+                  "start_seconds": 1309.32,
+                  "duration_seconds": 4.76
+                }
+              ]
+            },
+            {
+              "text": "В Mini Scloud уже реализованы: локальный ассистент, поиск по изображениям и видео, докер и виртуальные машины.",
+              "kind": "author_statement",
+              "evidence": [
+                {
+                  "id": "s00518",
+                  "start_seconds": 1316.44,
+                  "duration_seconds": 4.479
+                },
+                {
+                  "id": "s00519",
+                  "start_seconds": 1319.08,
+                  "duration_seconds": 4.36
+                },
+                {
+                  "id": "s00520",
+                  "start_seconds": 1320.919,
+                  "duration_seconds": 5.161
+                }
+              ]
+            },
+            {
+              "text": "Поиск по всем типам файлов обещают добавить в конце третьего квартала 2026 года.",
+              "kind": "author_statement",
+              "evidence": [
+                {
+                  "id": "s00521",
+                  "start_seconds": 1323.44,
+                  "duration_seconds": 5.04
+                },
+                {
+                  "id": "s00522",
+                  "start_seconds": 1326.08,
+                  "duration_seconds": 4.36
+                }
+              ]
+            }
+          ],
+          "abstained": false
+        },
+        "provider_metadata": {
+          "model": "gemma4:31b",
+          "prompt_eval_count": 1200,
+          "eval_count": 459,
+          "total_duration": 1448968304
+        }
+      },
+      {
+        "id": "q08",
+        "status": "completed",
+        "seconds": 0.9648628329960047,
+        "result": {
+          "answer": "В предоставленных отрывках транскрипта нет данных о точной измеренной температуре под нагрузкой и времени автономной работы ноутбука ASUS.",
+          "claims": [],
+          "abstained": true
+        },
+        "provider_metadata": {
+          "model": "gemma4:31b",
+          "prompt_eval_count": 1214,
+          "eval_count": 51,
+          "total_duration": 521464908
+        }
+      }
+    ]
+  },
+  "evidence_paths": {
+    "manifest": "/Users/alexbeketov/video-briefing/docs/research/openresearch-manifest.json",
+    "audit": "/Users/alexbeketov/video-briefing/artifacts/private/comparison-audit/run-audit.json",
+    "source_contexts": "/Users/alexbeketov/video-briefing/artifacts/private/source-review-contexts.txt",
+    "observed_brief": "/Users/alexbeketov/video-briefing/reports/observed-baseline-briefing.md"
+  },
+  "project_spec_verdict": "FAIL_WITH_PRECISE_GAPS; independent quality review/hardening/final audit not released while this task is blocked"
+}
