@@ -2,19 +2,19 @@
   "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
   "video_id": "DvSwvJVens8",
   "case_study_n_videos": 1,
-  "created_at_utc": "2026-10-07T09:24:21.884048+00:00",
+  "created_at_utc": "2026-10-07T09:40:32.033027+00:00",
   "protocol_id": "DvSwvJVens8-caption-case-v1",
   "evaluation_sha256": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
   "reference_segments_sha256": "64bb79566e062fa5b46bea6272d78af436835e51c43f2ae390098b448ef6fcd0",
   "reference_raw_sha256": "c08f0e724cbe45db65aa1c30f338085b420f55e17d29f309272eb3580c5002ab",
   "schema_version": 1,
-  "status": "BLOCKED_BENCHMARK_READINESS",
+  "status": "COMPLETED_COMPARISON_WITH_GAPS",
   "successful_original_language_head_to_head": false,
   "recommendation": {
     "winner": "none",
     "provisional_extractor": "captions_api",
     "reason": "Original566 RU segments match fixed reference exactly. This is extraction viability, not reliable generation/quality superiority. Root output completed but has material rubric gaps; sibling generation failed twice.",
-    "next_action": "needs_input: route concrete citation/provider-diagnostics and full-source retrieval defects to implementer, repair before any further formal runs; do not exceed retry cap."
+    "next_action": "Release pre-created independent code-quality review t_9c90bf74 and hardening t_b57e77ae; no further C experiments after cap without readiness repair/explicit go-ahead."
   },
   "run_count": 6,
   "status_counts": {
@@ -1337,5 +1337,8 @@
     "source_contexts": "/Users/alexbeketov/video-briefing/artifacts/private/source-review-contexts.txt",
     "observed_brief": "/Users/alexbeketov/video-briefing/reports/observed-baseline-briefing.md"
   },
-  "project_spec_verdict": "FAIL_WITH_PRECISE_GAPS; independent quality review/hardening/final audit not released while this task is blocked"
+  "project_spec_verdict": "FAIL_WITH_PRECISE_GAPS; comparison phase complete; independent review/hardening/final audit remain required",
+  "project_readiness": "SPEC_FAIL",
+  "C_next_run_gate": "needs_input_after_two_answerless_attempts; no further experiment before readiness repair/explicit go-ahead",
+  "next_review_task": "t_9c90bf74"
 }

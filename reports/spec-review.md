@@ -2,7 +2,7 @@
 
 Дата: 2026-10-07. Проверяющий: research `t_93e3976e`, не автор реализации. Проверка выполнена после реальных comparison runs, без coding edits и nested reviewers. Это отдельный spec-verdict, не будущий fresh code-quality review `t_9c90bf74`.
 
-**SPEC: FAIL / REQUEST_CHANGES. PROJECT READY: NO.** Formal tracked evidence существует, но benchmark readiness нестабилен: C sibling дважды не дал результата, достигнут stop cap. Эта карточка остаётся blocked/needs_input до решения о repair. Не приравнивать сохранённый partial comparison к принятию всего проекта.
+**SPEC: FAIL / REQUEST_CHANGES. PROJECT READY: NO.** Formal tracked evidence существует, но benchmark readiness нестабилен: C sibling дважды не дал результата, достигнут stop cap; следующие C runs требуют readiness repair/explicit go-ahead. Research comparison phase завершена с accurate negative/partial results, что прямо допускает её контракт. Завершение этой карточки освобождает pre-created независимое review, не утверждает проект готовым и не обходит C cap.
 
 ## Проверенные команды и первичные артефакты
 
@@ -16,7 +16,7 @@
 - Supported HTTP import/readback: project ID `9ddfb26b-139f-400e-8acf-6760aecc3c14`, exact repoPath, githubSyncEnabled=false, githubPublicationError=null.
 - `orx exp run <id> --backend local`, followed by `orx exp wait`, `orx runs`, `orx logs`;6 persisted immutable attempts,2 done/4 failed. Full logs и completed metrics/brief/answers прочитаны, hashes checked.
 - Instrumented real cached lookup/q07/q08: source hash unchanged; extractor calls0, non-LLM network attempts0, real Ollama calls2; q08 abstained.
-- `git remote -v` → pre-existing origin `https://github.com/AlekseyBeketov/video-briefing.git`. Requirement no remote НЕ выполнен; remote untouched, no push/fetch.
+- `git remote -v` → pre-existing origin `https://github.com/AlekseyBeketov/video-briefing.git`. Поздний coordinator comment1791361841 на t_57ebfc61 подтверждает user-approved private repo; историческое no-remote условие superseded. Remote untouched, no new push/fetch.
 
 Detailed IDs/absolute paths/UTC timestamps/hash checks — `docs/research/openresearch-manifest.json`; human interpretation — `reports/comparison.md`, machine audit/labels — `reports/comparison.json`.
 
@@ -38,10 +38,10 @@ Detailed IDs/absolute paths/UTC timestamps/hash checks — `docs/research/openre
 | Metrics effective-config/hashes/model/usage/setup/cold-warm | PARTIAL/FAIL harness, research supplement supplied | exported source-grounded manifest adequate for these runs; code omits dynamic prompt/per-response metadata, partial failures, stage setup; misleading extract_cold label; usage last brief response only |
 | Declared CLI commands/help/JSON/local transcript | FAIL required surface | cli.py:21–63 only YouTube URLs and extract/brief/ask/benchmark/doctor; no timed-transcript input mode, no --json switch for all public commands, brief renders plain text |
 | Reproducible project-local setup/locks | PARTIAL | Python dependencies pinned uv.lock; summarize archive verified, Bun version checked. External existing Baoyu path hardcoded, runtime source pin/hash not enforced; fixed recipe explicitly supplies external tools/Python |
-| Local Git no remote/publication | FAIL no-remote; PASS no new publication here | Pre-existing origin found at orientation. API import disables sync, no remote/global/auth changes in this phase |
+| Local Git/approved private origin, no new publication | PASS current policy; historical no-remote superseded | t_57ebfc61 coordinator comment1791361841 confirms owner-approved repo. Pre-existing origin unchanged; API sync disabled, no new push/fetch/global/auth changes |
 | Privacy/raw media ignored | PASS for current outputs | .gitignore data/,artifacts/private/,media,.env/cookies; recorded snapshots exclude private source/tools/venv; tracked report only bounded generated brief/analysis, no full transcript/audio |
 | Skill canonical+default/full-copy loader audit | PENDING downstream, NOT PASS | design.md:40–41, plan tasks14–15; intentionally not deployed in this research phase |
-| Fresh code review/hardening/final audit | PENDING gated | child t_9c90bf74 not released while this card blocked; do not claim approval |
+| Fresh code review/hardening/final audit | PENDING downstream | Research completion releases child t_9c90bf74; review/hardening/final audit have not been performed and are not approved by this report |
 
 ## Точные дефекты и acceptance для implementer
 
@@ -97,9 +97,9 @@ Files: `cli.py:21–63` lacks local timed input and common --json; C metadata `c
 
 Acceptance: align documented supported scope or implement promised surface, explicit path/provenance/error contracts; validate all bundle metadata and setup dependency checks, source-language versus summary-language separation. Не расширять scope ASR/vision/MCP без user decision.
 
-### G07 POLICY/STATE — no remote requirement не выполнен
+### G07 POLICY/STATE — историческое no-remote условие superseded, не blocker
 
-Origin existed before researcher changes. It was neither removed nor used. Need owner's decision/reconciliation for exact no-remote spec, not stealth edit to `.git/config` and not retrospective no-publication claim. Downstream can keep no-new-publication evidence separate from no-remote criterion.
+Origin existed before researcher changes. Поздний coordinator comment1791361841 на t_57ebfc61 сообщает owner approval private GitHub repo. Поэтому исторический no-remote текст не должен порождать повторный запрос уже принятого решения или stealth edit `.git/config`. Remote не удалён/изменён/использован этой фазой, новых push/fetch нет; import githubSyncEnabled=false. Будущая публикация требует отдельных instructions.
 
 ### G08 PENDING — canonical/default skill и final audit
 
@@ -109,4 +109,4 @@ Origin existed before researcher changes. It was neither removed nor used. Need 
 
 Сохранены completed baseline и B actual outputs,6 logs/config/snapshots с real IDs/hashes и human content labels. `reports/observed-baseline-briefing.md` — exact existing generated baseline, **not approved final artifact**. Raw transcript не прикладывается.
 
-Implementer notified via durable comments on `t_57ebfc61`. Further local experiment retries stopped at C cap. Needs input: authorize/reroute concrete readiness repairs and reconcile inherited remote policy, затем возобновить эту comparison card с соблюдением fixed contract/immutable history. Никаких fabricated orx result, pending cost/cookie default or arbitrary timeout approval.
+Implementer notified via durable comments on `t_57ebfc61`. Further C experiment retries stopped at cap. Research handoff освобождает pre-created independent review `t_9c90bf74` и затем hardening `t_b57e77ae`; project acceptance остаётся FAIL. Next-run gate C — readiness repair/explicit go-ahead, fixed contract/immutable history обязательны. Нового вопроса о private origin не требуется: owner approval уже записан. Никаких fabricated orx result, pending cost/cookie default or arbitrary timeout approval.

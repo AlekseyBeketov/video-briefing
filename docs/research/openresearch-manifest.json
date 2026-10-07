@@ -2,7 +2,7 @@
   "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
   "video_id": "DvSwvJVens8",
   "case_study_n_videos": 1,
-  "created_at_utc": "2026-10-07T09:24:21.884048+00:00",
+  "created_at_utc": "2026-10-07T09:40:32.033027+00:00",
   "protocol_id": "DvSwvJVens8-caption-case-v1",
   "evaluation_sha256": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
   "reference_segments_sha256": "64bb79566e062fa5b46bea6272d78af436835e51c43f2ae390098b448ef6fcd0",
@@ -934,5 +934,12 @@
     "B": "answered but original-RU comparability failed,branch71ffd10 unchanged",
     "C": "two answerless attempts, provisional unchanged, stopped pending repair decision"
   },
-  "privacy": "No source.raw/transcript/audio in tracked reports; source evidence remains private. Manifests include source hashes/paths only."
+  "privacy": "No source.raw/transcript/audio in tracked reports; source evidence remains private. Manifests include source hashes/paths only.",
+  "completion_scope": "Research comparison phase complete with negative/partial results; project SPEC fails; C further runs gated after cap.",
+  "remote_policy": {
+    "origin_preexisting": true,
+    "private_repo_approved_in_coordinator_comment": "t_57ebfc61 comment at1791361841",
+    "new_publication_in_this_phase": false,
+    "historical_no_remote_requirement": "superseded by owner-approved private repository; do not remove origin"
+  }
 }

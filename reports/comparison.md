@@ -4,9 +4,9 @@
 
 ## Вывод
 
-**BLOCKED_BENCHMARK_READINESS. Победитель не установлен.** Реальные local orx runs выполнены: 6 попыток, 2 `done`, 4 `failed`. Original-RU baseline captions_api завершился, но его brief/Q&A не проходят содержательный rubric. Оба запуска sibling C упали в генерации; после двух answerless attempts дальнейшие повторы прекращены. A недоступен с HTTP429. B завершился с timed содержанием, но language=`und`, текст преимущественно английский, есть искажения относительно русского reference. Это **не успешный original-language head-to-head**, не универсальный рейтинг и не готовый проект.
+**COMPLETED_COMPARISON_WITH_GAPS. Победитель не установлен; проект SPEC FAIL.** Реальные local orx runs выполнены: 6 попыток, 2 `done`, 4 `failed`. Original-RU baseline captions_api завершился, но его brief/Q&A не проходят содержательный rubric. Оба запуска sibling C упали в генерации; после двух answerless attempts дальнейшие повторы прекращены, C next-run gate=needs-input. A недоступен с HTTP429. B завершился с timed содержанием, но language=`und`, текст преимущественно английский, есть искажения относительно русского reference. Это **не успешный original-language head-to-head**, не универсальный рейтинг и не готовый проект. Исследовательская карточка принимает accurate completed comparison с отрицательными результатами и освобождает существующую review/hardening цепочку; новые C runs этим не разрешаются.
 
-Предварительная рекомендация только по extraction: `captions_api` сохраняет все 566 исходных RU segments с точным совпадением текста/start/duration reference. Путь пригоден для дальнейшего исправления, а не доказанно лучший стабильный пользовательский workflow. Корректная блокировка требуется из-за generation/grounding readiness, не из-за отсутствия исходного видео, credentials или доступа к модели.
+Предварительная рекомендация только по extraction: `captions_api` сохраняет все 566 исходных RU segments с точным совпадением текста/start/duration reference. Путь пригоден для дальнейшего исправления, а не доказанно лучший стабильный пользовательский workflow. Generation/grounding readiness блокирует принятие проекта и следующие C experiments, но не передачу готовых research findings в независимое review. Исходное видео и существующая модель доступны, credentials не требуются.
 
 ## 1. Метод и неизменные условия
 
@@ -89,7 +89,7 @@ Evidence: `artifacts/private/comparison-audit/cached-verification/result.json`, 
 
 ## 6. IDs, failures и стоп
 
-Project `9ddfb26b-139f-400e-8acf-6760aecc3c14`, dashboard http://127.0.0.1:4791. Supported `POST /api/projects` folder import с explicit githubSyncEnabled=false; exact GET returned ID/path verified. Origin pre-existed и **не** удалён/пушен; strict no-remote requirement остаётся gap. Старый daemon отсутствовал; восстановлен только loopback `--no-agent --no-browser --no-telemetry`, новых agent processes нет.
+Project `9ddfb26b-139f-400e-8acf-6760aecc3c14`, dashboard http://127.0.0.1:4791. Supported `POST /api/projects` folder import с explicit githubSyncEnabled=false; exact GET returned ID/path verified. Origin pre-existed и **не** удалён/пушен. Поздний coordinator comment1791361841 на t_57ebfc61 фиксирует одобренный пользователем private repo: это изменение исторического no-remote условия, а не новый blocker; новые push/publication не разрешены. Старый daemon отсутствовал; восстановлен только loopback `--no-agent --no-browser --no-telemetry`, новых agent processes нет.
 
 | Node | Experiment ID | Run ID | Recorded commit/result |
 |---|---|---|---|
@@ -104,7 +104,7 @@ Full logs реально прочитаны. Абсолютные original/expor
 
 ## 7. Следующий шаг и артефакты
 
-Не запускать больше экспериментов до решения/repair: schema+validation согласовать, безопасно обработать malformed/missing-evidence response без ослабления grounding, сохранять progress/question-id/full bounded provider diagnostics; исправить retrieval и source-language enforcement. Конкретные дефекты переданы durable comments implementation card и перечислены в `reports/spec-review.md`. Любой новый scientific branch сохраняет immutable answered history и fixed contract; pipeline repairs не маскируют прошлые failures.
+Не запускать больше C experiments до readiness repair/explicit go-ahead: schema+validation согласовать, безопасно обработать malformed/missing-evidence response без ослабления grounding, сохранять progress/question-id/full bounded provider diagnostics; исправить retrieval и source-language enforcement. Конкретные дефекты переданы durable comments implementation card и перечислены в `reports/spec-review.md`. Исследовательская фаза завершается с accurate negative/partial results; pre-created независимое review t_9c90bf74 → hardening t_b57e77ae выполняют следующую фазу, не duplicated same-card review. Любой новый scientific branch сохраняет immutable answered history и fixed contract; pipeline repairs не маскируют прошлые failures.
 
 `reports/observed-baseline-briefing.md` — byte-identical **actual generated** baseline artifact, SHA256 `5ba1b78bf1af9bb0a801df9054d22f1f442200341fcac15a5ecf089c353391f2`. Он **не approved final brief**, содержит описанные недостатки. Не улучшен вручную и не является fabricated substitute. Raw copyrighted transcript/audio не прикладываются.
 

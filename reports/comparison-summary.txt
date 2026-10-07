@@ -1,0 +1,22 @@
+Результат t_93e3976e: COMPLETED_COMPARISON_WITH_GAPS; проект SPEC FAIL. C дальнейшие runs остановлены после cap; готовые findings передаются в pre-created review t_9c90bf74, затем hardening t_b57e77ae.
+
+Реальные OpenResearch attempts: 6; completed 2, failed 4. Это single-video case study, не успешное original-RU head-to-head сравнение.
+
+A Baoyu: HTTP429, пустой output, valid source нет.
+B summarize: completed, 560 segments, language und, преимущественно EN; нельзя сравнивать с original RU. Q3 2020 в B source против2026 в оригинале.
+C captions_api: 566 timed RU segments точно совпадают с reference. Root completed один раз после failure; sibling failed дважды, retry cap достигнут. Победителя нет; captions_api — только provisional extraction path.
+
+Completed C pipeline47.777401s: extract2.385863, brief31.957697, QA13.433841. B37.825542s на другом языке. Cold upstream не доказан; стоимость не измерена. Recorded usage — только последний brief response.
+
+Rubric C: brief6 supported/5 partial/1 unsupported; questions2 pass/4 partial/2 fail. Raw source usable, но retrieval теряет контекст, итоговые рекомендации и API; генерация нестабильна. SPEC FAIL, проект не готов.
+
+Real cached probe: extractor calls0, non-LLM network attempts0, Ollama calls2, source hash before=after. q08 корректно abstains. Audio accuracy/diarization не проверялись. 28 tests passed.
+
+Полный отчёт, JSON labels, manifest и SPEC review:
+/Users/alexbeketov/video-briefing/reports/comparison.md
+/Users/alexbeketov/video-briefing/reports/comparison.json
+/Users/alexbeketov/video-briefing/reports/spec-review.md
+/Users/alexbeketov/video-briefing/docs/research/openresearch-manifest.json
+Commit d528f94. No push; pre-existing origin не изменён.
+
+Observed baseline brief приложен отдельно как gzip: это byte-identical actual output, НЕ approved final brief. Требуется решение о repair evidence validation, provider diagnostics и retrieval; новые experiments после stop cap не выполнялись. Raw transcript/audio не прикладываются.
