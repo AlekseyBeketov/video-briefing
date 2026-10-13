@@ -27,7 +27,7 @@ For native tool calls, install the wheel's `mcp` extra and configure your agent'
 video-briefing ingest 'https://www.youtube.com/watch?v=VIDEO_ID'
 ```
 
-Default extraction is anonymous `youtube-transcript-api` captions in Russian. The tool does not read browser cookies, credentials, proxy settings, or use video descriptions. If YouTube reports an access block, authentication requirement, or missing captions, stop and report the exact structured error; do not retry through proxies, credentials, or client rotation. Optional legacy extractors require an explicit `--variant` choice and are never automatic fallbacks.
+Default extraction is anonymous `youtube-transcript-api` captions in Russian. The tool does not read browser cookies, credentials, proxy settings, or use video descriptions. If YouTube reports an access block, authentication requirement, or missing captions, stop and report the exact structured error; do not retry through proxies, credentials, or client rotation. The optional `baoyu` extractor requires explicit `--variant baoyu`; it is never an automatic fallback.
 
 ## Ingest a local MP4
 

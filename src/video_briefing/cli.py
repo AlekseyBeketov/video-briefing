@@ -43,14 +43,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     extract = subparsers.add_parser("extract", help="Fetch timed YouTube captions and persist source evidence")
     extract.add_argument("url")
-    extract.add_argument("--variant", choices=("baoyu", "summarize", "captions_api"), default="captions_api")
+    extract.add_argument("--variant", choices=("baoyu", "captions_api"), default="captions_api")
     extract.add_argument("--languages", default="ru")
     extract.add_argument("--store", type=Path, default=DEFAULT_STORE)
     extract.set_defaults(handler=_extract_command)
 
     ingest = subparsers.add_parser("ingest", help="Ingest YouTube captions or a local MP4 using explicit local ASR")
     ingest.add_argument("source", help="YouTube URL/ID or local MP4 path")
-    ingest.add_argument("--variant", choices=("baoyu", "summarize", "captions_api"), default="captions_api")
+    ingest.add_argument("--variant", choices=("baoyu", "captions_api"), default="captions_api")
     ingest.add_argument("--languages", default="ru")
     ingest.add_argument("--local-asr", action="store_true", help="Allow local-only ASR for an MP4 path")
     ingest.add_argument("--ffmpeg", default=os.environ.get("VIDEO_BRIEFING_FFMPEG", "ffmpeg"))
@@ -65,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
     search = subparsers.add_parser("search", help="Return bounded timed evidence; synthesis is the caller agent's task")
     search.add_argument("source", help="Cached YouTube URL/ID or local media SHA-256")
     search.add_argument("query")
-    search.add_argument("--variant", choices=("baoyu", "summarize", "captions_api", "local_asr"), default="captions_api")
+    search.add_argument("--variant", choices=("baoyu", "captions_api", "local_asr"), default="captions_api")
     search.add_argument("--language", default="ru")
     search.add_argument("--limit", type=int, default=12)
     search.add_argument("--store", type=Path, default=DEFAULT_STORE)
@@ -75,7 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
     read.add_argument("source", help="Cached YouTube URL/ID or local media SHA-256")
     read.add_argument("start_seconds", type=float)
     read.add_argument("end_seconds", type=float)
-    read.add_argument("--variant", choices=("baoyu", "summarize", "captions_api", "local_asr"), default="captions_api")
+    read.add_argument("--variant", choices=("baoyu", "captions_api", "local_asr"), default="captions_api")
     read.add_argument("--language", default="ru")
     read.add_argument("--limit", type=int, default=50)
     read.add_argument("--store", type=Path, default=DEFAULT_STORE)
@@ -93,7 +93,7 @@ def build_parser() -> argparse.ArgumentParser:
     ask = subparsers.add_parser("ask", help="Optional model-generated Q&A (requires explicit privacy opt-in)")
     ask.add_argument("url")
     ask.add_argument("question")
-    ask.add_argument("--variant", choices=("baoyu", "summarize", "captions_api"), default="captions_api")
+    ask.add_argument("--variant", choices=("baoyu", "captions_api"), default="captions_api")
     ask.add_argument("--languages", default="ru", help="Source language required for cache lookup (default: ru)")
     ask.add_argument("--store", type=Path, default=DEFAULT_STORE)
     ask.add_argument("--config", default="config/experiment.json")
@@ -112,7 +112,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _add_video_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("url")
-    parser.add_argument("--variant", choices=("baoyu", "summarize", "captions_api"), required=True)
+    parser.add_argument("--variant", choices=("baoyu", "captions_api"), required=True)
     parser.add_argument("--languages", default="ru")
     parser.add_argument("--store", type=Path, default=DEFAULT_STORE)
     parser.add_argument("--config", default="config/experiment.json")
@@ -169,12 +169,11 @@ def _run_extractor(url: str, variant: str, languages: str, store: ArtifactStore)
     if variant == "baoyu":
         from .adapters.baoyu import extract as extract_baoyu
         bundle = extract_baoyu(url, languages=languages, output_dir=_default_data_home() / "extractor-cache" / "baoyu")
-    elif variant == "summarize":
-        from .adapters.summarize import extract as extract_summarize
-        bundle = extract_summarize(url, language=languages.split(",")[0])
-    else:
+    elif variant == "captions_api":
         from .adapters.captions_api import extract as extract_captions
         bundle = extract_captions(url, language=languages.split(",")[0])
+    else:
+        raise ValueError(f"Unsupported extractor variant: {variant}")
     if bundle.platform != platform or bundle.video_id != video_id:
         raise ValueError("Extractor output identity does not match requested video")
     return store.save(bundle)

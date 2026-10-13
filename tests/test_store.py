@@ -18,7 +18,7 @@ def test_cache_identity_is_immutable_and_variant_isolated(tmp_path):
     assert store.load("youtube", "DvSwvJVens8", "en", "baoyu").metadata["title"] == "First title"
     with pytest.raises(ValueError, match="immutable cache identity conflict"):
         store.save(source("Changed title"))
-    other = store.save(source("Second", "summarize"))
+    other = store.save(source("Second", "other"))
     assert other.key != one.key
     cached = store.load("youtube", "DvSwvJVens8", "en", "baoyu")
     assert cached is not None

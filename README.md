@@ -30,7 +30,7 @@ video-briefing search 'https://www.youtube.com/watch?v=VIDEO_ID' 'вопрос �
 video-briefing read 'https://www.youtube.com/watch?v=VIDEO_ID' 120 240
 ```
 
-`youtube-transcript-api` — основной extractor. Используются только timed captions; нельзя подменять их описанием видео, поиском или памятью модели. Access block, auth requirement, отсутствие дорожки и rate limits — stop conditions: cookies, proxy и обход ограничений не используются. `baoyu` и `summarize` доступны только как явный `--variant`, без automatic fallback.
+`youtube-transcript-api` (`captions_api`) — extractor по умолчанию. Используются только timed captions; нельзя подменять их описанием видео, поиском или памятью модели. Access block, auth requirement, отсутствие дорожки и rate limits — stop conditions: cookies, proxy и обход ограничений не используются. `baoyu` доступен только при явном `--variant baoyu`; automatic fallback нет.
 
 ## Локальный MP4
 

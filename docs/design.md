@@ -3,17 +3,17 @@
 ## Результат для пользователя
 Ссылка без дополнительных вопросов → краткая суть, темы, полезные идеи, акценты и ограничения автора с таймкодами. Последующие вопросы читают полный сохранённый транскрипт и ближайший контекст. Целевой ответ компактный, по-русски, без пересказа каждой минуты.
 
-## Кандидаты
-A. Existing Baoyu (`/Users/alexbeketov/.hermes/skills/media/baoyu-youtube-transcript`) — direct captions + persistent files. Не копировать/исправлять upstream без provenance.
-B. steipete/summarize — extraction-only JSON/timestamps; его самостоятельный LLM-summary не использовать в основной apples-to-apples оценке. npm требует Node24+, текущий Node22 не подходит. Проверить standalone macOS release и project-local install.
-C. Необязательный третий: local ASR через yt-dlp + whisper.cpp, если captions отсутствуют/ошибочны или если проверяется независимый audio источник. Если ASR не нужен/непрактичен, допустим third captions extractor youtube-transcript-api. Выбор и причина фиксируются до сравнительных запусков; одновременно не делать C и D.
+## Источники и adapters
+YouTube: основной extractor — `youtube-transcript-api` через `captions_api`; `baoyu` доступен только как явно выбранный альтернативный адаптер. Автоматического fallback и извлечения доказательств из описания видео нет.
 
-Текущий CLI поддерживает YouTube URL/video ID через три extractor adapter и сохраняет их timed transcript. Импорт локального timed transcript пока не реализован и не считается поддержанной командой. Другие платформы, Gemini/vision — расширения, не обещание реализованного доступа. Не нужны frontend/MCP/vector DB.
+Локальный MP4: явный CPU-only ASR через пользовательские `ffmpeg`/`ffprobe`, CLI `transcribe.cpp` и модель GigaAM GGUF. Аудио не отправляется в облачный ASR; бинарник и модель устанавливаются отдельно и не входят в пакет. Границы чанков не являются пословным выравниванием.
+
+CLI поддерживает YouTube URL/video ID и локальный MP4 с явным opt-in к ASR. Необязательный MCP предоставляет ingestion и ограниченные инструменты работы с evidence; он не вызывает LLM. Другие платформы и Gemini/vision не являются реализованными возможностями.
 
 ## Структура
-Python CLI и common typed artifact schema; backend adapters через безопасные subprocess/HTTP без shell=True. Закреплённые зависимости в pyproject.toml/uv.lock. Project-local tools under .tools, persistent evidence under data (gitignored), tracked experiment configs/reports/prompts/tests/skill. Если существующий проект другого стека существенно проще — ADR до изменения контракта, а не лишняя перепись.
+Python CLI/package и общая типизированная схема артефактов; backend adapters используют безопасные subprocess/HTTP без `shell=True`. Закреплённые зависимости находятся в `pyproject.toml`/`uv.lock`. Пользователь устанавливает ASR runtime отдельно; постоянные evidence хранятся в системном каталоге данных. Конфигурации экспериментов, отчёты, prompts, тесты и skill отслеживаются в Git, если не содержат приватных данных. Если существующий проект другого стека существенно проще — ADR до изменения контракта, а не лишняя перепись.
 
-Предлагаемые modules: src/video_briefing/{cli,models,store,validation,retrieval,llm,briefing,benchmark}.py; adapters/{baoyu,summarize,asr_or_captions}.py. Все команды имеют --help; `doctor`, `extract`, `ask`, `benchmark` выводят JSON, а `brief --json` включает структурированный brief, citations и model metadata.
+В `src/video_briefing/` находятся CLI, модели, хранилище, валидация, retrieval, briefing, benchmark, локальный ASR и MCP. YouTube adapters: `baoyu` и `captions_api`. Адаптера и установщика `summarize` больше нет.
 
 ## Единый evidence bundle
 Video identity: validated platform + exact id DvSwvJVens8, original URL, identified source language, extraction variant/version. Cache key не зависит от title и summary language; persistent cache требует полного serialized raw source и запрещает overwrite при изменении hash.

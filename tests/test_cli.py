@@ -18,6 +18,21 @@ def test_cli_exposes_workflow_commands():
     assert any(action.dest == "local_asr" for action in ingest._actions)
 
 
+def test_cli_variant_choices_exclude_removed_summarize_adapter():
+    commands = build_parser()._subparsers._group_actions[0].choices
+    expected = {
+        "extract": {"baoyu", "captions_api"},
+        "ingest": {"baoyu", "captions_api"},
+        "search": {"baoyu", "captions_api", "local_asr"},
+        "read": {"baoyu", "captions_api", "local_asr"},
+        "brief": {"baoyu", "captions_api"},
+        "ask": {"baoyu", "captions_api"},
+    }
+    for command, expected_choices in expected.items():
+        variant = next(action for action in commands[command]._actions if action.dest == "variant")
+        assert set(variant.choices) == expected_choices
+
+
 def test_errors_use_stable_json_schema_and_reject_agent_url_ssrf(capsys, tmp_path):
     code = main(["search", "http://127.0.0.1:8080/private", "q", "--store", str(tmp_path)])
     captured = capsys.readouterr()

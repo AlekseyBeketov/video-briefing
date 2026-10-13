@@ -13,6 +13,7 @@ from . import __version__
 
 EXPECTED_URL = "https://www.youtube.com/watch?v=DvSwvJVens8"
 EXPECTED_ID = "DvSwvJVens8"
+SUPPORTED_VARIANTS = frozenset({"baoyu", "captions_api"})
 
 
 def load_config(path: str | Path) -> dict:
@@ -24,8 +25,8 @@ def load_config(path: str | Path) -> dict:
         raise ValueError(f"Benchmark target must be exactly {EXPECTED_ID}")
     if canonical != EXPECTED_URL:
         raise ValueError(f"Benchmark URL must be exactly {EXPECTED_URL}")
-    if config.get("variant") not in {"baoyu", "summarize", "captions_api"}:
-        raise ValueError("Benchmark variant must be baoyu, summarize, or captions_api")
+    if config.get("variant") not in SUPPORTED_VARIANTS:
+        raise ValueError("Benchmark variant must be baoyu or captions_api")
     if not config.get("questions_file"):
         raise ValueError("Committed fixed questions_file is required; no synthetic fallback")
     config["_config_dir"] = str(config_path.parent)
@@ -54,6 +55,8 @@ def _save_progress(output_dir: Path | None, progress: dict) -> None:
 def run_benchmark(config: dict, *, root: Path, artifact_root: Path, progress_dir: Path | None = None) -> dict:
     overall_started = time.perf_counter()
     variant = config["variant"]
+    if variant not in SUPPORTED_VARIANTS:
+        raise ValueError(f"Unsupported benchmark variant: {variant}")
     store = ArtifactStore(artifact_root)
     requested_language = config.get("languages", config.get("language", "ru")).split(",")[0].strip()
     llm_settings = config["llm"]
@@ -82,12 +85,11 @@ def run_benchmark(config: dict, *, root: Path, artifact_root: Path, progress_dir
             if variant == "baoyu":
                 from .adapters.baoyu import extract
                 bundle = extract(config["video_url"], languages=config.get("languages", "en,ru"), output_dir=root / ".tools/baoyu-cache")
-            elif variant == "summarize":
-                from .adapters.summarize import extract
-                bundle = extract(config["video_url"], language=requested_language)
-            else:
+            elif variant == "captions_api":
                 from .adapters.captions_api import extract
                 bundle = extract(config["video_url"], language=requested_language)
+            else:
+                raise ValueError(f"Unsupported benchmark variant: {variant}")
             extractor_wrapper_seconds = time.perf_counter() - started
             store.save(bundle)
             extractor_calls = 1

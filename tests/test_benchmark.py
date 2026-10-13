@@ -25,6 +25,30 @@ def test_benchmark_requires_fixed_target_and_question_file(tmp_path):
         raise AssertionError("mismatched fixed target must fail")
 
 
+def test_benchmark_config_rejects_removed_summarize_adapter(tmp_path):
+    config = {
+        "video_url": "https://www.youtube.com/watch?v=DvSwvJVens8",
+        "video_id": "DvSwvJVens8",
+        "variant": "summarize",
+        "questions_file": "questions.json",
+    }
+    path = tmp_path / "experiment.json"
+    path.write_text(json.dumps(config))
+    with pytest.raises(ValueError, match="Benchmark variant must be baoyu or captions_api"):
+        load_config(path)
+
+
+def test_benchmark_runner_rejects_unsupported_variant_before_cache_lookup(tmp_path):
+    config = {
+        "variant": "summarize",
+        "languages": "ru",
+        "questions_file": "questions.json",
+        "llm": {"base_url": "http://127.0.0.1:11434", "model": "test", "temperature": 0},
+    }
+    with pytest.raises(ValueError, match="Unsupported benchmark variant"):
+        benchmark.run_benchmark(config, root=tmp_path, artifact_root=tmp_path / "evidence")
+
+
 def test_failed_benchmark_persists_phase_and_failure_without_losing_source(tmp_path, monkeypatch):
     # Force the multi-part path independently of the production context budget.
     original_chunks = briefing.chunk_segments
