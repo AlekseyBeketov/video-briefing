@@ -4,6 +4,7 @@ import hashlib
 import pytest
 
 from video_briefing import benchmark
+from video_briefing import briefing
 from video_briefing.benchmark import load_config
 from video_briefing.models import EvidenceBundle, TranscriptSegment
 from video_briefing.store import ArtifactStore
@@ -25,6 +26,9 @@ def test_benchmark_requires_fixed_target_and_question_file(tmp_path):
 
 
 def test_failed_benchmark_persists_phase_and_failure_without_losing_source(tmp_path, monkeypatch):
+    # Force the multi-part path independently of the production context budget.
+    original_chunks = briefing.chunk_segments
+    monkeypatch.setattr(briefing, "chunk_segments", lambda bundle: original_chunks(bundle, max_chars=22000))
     source_text = "\n".join(f"synthetic fixture segment {index} " + "x" * 120 for index in range(1, 301))
     segments = [TranscriptSegment(f"s{index:05d}", f"synthetic fixture segment {index} " + "x" * 120, index, 2) for index in range(1, 301)]
     bundle = EvidenceBundle("youtube", "DvSwvJVens8", "https://www.youtube.com/watch?v=DvSwvJVens8", "ru", "captions_api", "fixture", "test", segments, hashlib.sha256(source_text.encode()).hexdigest(), raw_text=source_text)
@@ -46,7 +50,7 @@ def test_failed_benchmark_persists_phase_and_failure_without_losing_source(tmp_p
             self.calls += 1
             if self.calls > 1:
                 raise ValueError("intentional synthetic late-chunk failure")
-            return {"gist": "Synthetic test claim", "gist_evidence": ["s00001"], "topics": [], "useful_ideas": [], "emphases": [], "caveats": []}
+            return {"carry_forward": [{"text": "Synthetic test claim", "evidence": ["s00001"], "kind": "source"}]}
 
     monkeypatch.setattr(benchmark, "OllamaClient", BrokenLLM)
     progress_dir = tmp_path / "run"

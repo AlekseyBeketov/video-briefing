@@ -87,9 +87,12 @@ def parse_summarize_output(stdout: str, video_id: str, language: str) -> Evidenc
 
 def extract(url: str, *, language: str = "en", executable: str | Path | None = None) -> EvidenceBundle:
     _, video_id, canonical_url = parse_video_url(url)
-    binary = Path(executable or os.environ.get("VIDEO_BRIEFING_SUMMARIZE", ".tools/summarize/summarize")).expanduser().resolve()
+    configured = executable or os.environ.get("VIDEO_BRIEFING_SUMMARIZE")
+    if not configured:
+        raise FileNotFoundError("Optional summarize adapter requires an explicit VIDEO_BRIEFING_SUMMARIZE binary path")
+    binary = Path(configured).expanduser().resolve()
     if not binary.is_file():
-        raise FileNotFoundError(f"Pinned project-local summarize binary missing: {binary}. Run scripts/setup-tools.sh")
+        raise FileNotFoundError("Configured summarize executable is not a file")
     version_run = subprocess.run([str(binary), "--version"], capture_output=True, text=True, timeout=30, check=False)
     if version_run.returncode != 0:
         raise RuntimeError(f"summarize --version failed: {version_run.stderr.strip()}")

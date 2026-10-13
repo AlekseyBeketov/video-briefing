@@ -6,7 +6,7 @@ import re
 import time
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 
 class JsonLLM(Protocol):
@@ -36,6 +36,11 @@ def _parse_json_object(message: Any) -> dict[str, Any]:
     return value
 
 
+class _NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 class OllamaClient:
     def __init__(self, base_url: str, model: str, temperature: float = 0.0, timeout: float = 180):
         self.base_url = base_url.rstrip("/")
@@ -44,6 +49,7 @@ class OllamaClient:
         self.timeout = timeout
         self.last_response: dict[str, Any] = {}
         self.responses: list[dict[str, Any]] = []
+        self._opener = build_opener(ProxyHandler({}), _NoRedirect())
 
     def generate_json(self, *, system: str, prompt: str, timeout: float | None = None, schema: dict[str, Any] | None = None) -> dict[str, Any]:
         request_body = {
@@ -57,7 +63,7 @@ class OllamaClient:
                           headers={"Content-Type": "application/json"}, method="POST")
         started = time.perf_counter()
         try:
-            with urlopen(request, timeout=timeout or self.timeout) as response:
+            with self._opener.open(request, timeout=timeout or self.timeout) as response:
                 self.last_response = json.loads(response.read().decode("utf-8"))
         except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
             raise RuntimeError(f"Ollama request failed: {exc}") from exc

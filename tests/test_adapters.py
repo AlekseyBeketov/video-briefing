@@ -35,8 +35,11 @@ def test_baoyu_does_not_accept_old_output_when_invocation_writes_nothing(tmp_pat
         return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(baoyu.subprocess, "run", run)
+    skill_root = tmp_path / "baoyu"
+    (skill_root / "scripts").mkdir(parents=True)
+    (skill_root / "scripts" / "main.ts").write_text("// fixture")
     with pytest.raises(ValueError, match="without raw transcript JSON"):
-        baoyu.extract("https://www.youtube.com/watch?v=DvSwvJVens8", languages="ru", output_dir=tmp_path / "output", bun=bun)
+        baoyu.extract("https://www.youtube.com/watch?v=DvSwvJVens8", languages="ru", output_dir=tmp_path / "output", bun=bun, skill_dir=skill_root)
     assert calls == 2
     invocation_dirs = list(stale_root.iterdir())
     assert len(invocation_dirs) == 2

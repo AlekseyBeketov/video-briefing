@@ -11,21 +11,28 @@ from pathlib import Path
 from ..models import EvidenceBundle, TranscriptSegment
 from ..validation import parse_video_url, validate_bundle
 
-BAOYU_DIR = Path(os.environ.get("VIDEO_BRIEFING_BAOYU", Path.home() / ".hermes/skills/media/baoyu-youtube-transcript")).expanduser()
-
-
-def extract(url: str, *, languages: str = "en,ru", output_dir: str | Path, bun: str | Path | None = None) -> EvidenceBundle:
+def extract(url: str, *, languages: str = "en,ru", output_dir: str | Path,
+            bun: str | Path | None = None, skill_dir: str | Path | None = None) -> EvidenceBundle:
+    configured_skill = skill_dir or os.environ.get("VIDEO_BRIEFING_BAOYU")
+    if not configured_skill:
+        raise FileNotFoundError("Optional Baoyu adapter requires VIDEO_BRIEFING_BAOYU to point at its installed skill")
+    baoyu_dir = Path(configured_skill).expanduser().resolve()
+    configured_bun = bun or os.environ.get("VIDEO_BRIEFING_BUN")
+    if not configured_bun:
+        raise FileNotFoundError("Optional Baoyu adapter requires an explicit Bun executable path")
     platform, video_id, canonical_url = parse_video_url(url)
-    bun_path = Path(bun or os.environ.get("VIDEO_BRIEFING_BUN", ".tools/bun/node_modules/.bin/bun")).expanduser().resolve()
+    bun_path = Path(configured_bun).expanduser()
     if not bun_path.is_file():
-        raise FileNotFoundError(f"Pinned project-local Bun runtime missing: {bun_path}. Run scripts/setup-tools.sh")
+        raise FileNotFoundError("Configured Bun executable is not a file")
+    if not (baoyu_dir / "scripts/main.ts").is_file():
+        raise FileNotFoundError("Configured Baoyu skill is missing scripts/main.ts")
     runtime = subprocess.run([str(bun_path), "--version"], capture_output=True, text=True, timeout=30, check=False)
     if runtime.returncode != 0:
         raise RuntimeError(f"Bun --version failed: {runtime.stderr.strip()}")
     output_root = (Path(output_dir).expanduser().resolve() / video_id / languages.split(",")[0] / uuid.uuid4().hex)
     output_root.mkdir(parents=True, exist_ok=True)
     run = subprocess.run(
-        [str(bun_path), str(BAOYU_DIR / "scripts/main.ts"), canonical_url, "--languages", languages,
+        [str(bun_path), str(baoyu_dir / "scripts/main.ts"), canonical_url, "--languages", languages,
          "--format", "srt", "--output-dir", str(output_root)],
         capture_output=True, text=True, timeout=300, check=False,
     )

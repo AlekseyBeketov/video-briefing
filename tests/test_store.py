@@ -1,4 +1,5 @@
 import hashlib
+from concurrent.futures import ThreadPoolExecutor
 import pytest
 
 from video_briefing.models import EvidenceBundle, TranscriptSegment
@@ -41,3 +42,27 @@ def test_find_can_select_the_requested_source_language(tmp_path):
     store.save(russian)
 
     assert store.find("DvSwvJVens8", "captions_api", language="ru").segments[0].text == "Русский"
+
+
+def test_concurrent_saves_are_atomic_and_identity_immutable(tmp_path):
+    store = ArtifactStore(tmp_path)
+    candidate = source("same content", "captions_api")
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        saved = list(pool.map(lambda _: store.save(candidate), range(24)))
+    assert all(item.raw_sha256 == candidate.raw_sha256 for item in saved)
+    loaded = store.load("youtube", "DvSwvJVens8", "en", "captions_api")
+    assert loaded is not None and loaded.raw_text == "same content"
+    assert not list((tmp_path / ".locks").glob("*.lock"))
+    if __import__("os").name != "nt":
+        assert (tmp_path.stat().st_mode & 0o777) == 0o700
+
+
+def test_lock_wait_is_bounded(tmp_path):
+    store = ArtifactStore(tmp_path)
+    candidate = source("lock", "captions_api")
+    key = store.key(candidate.platform, candidate.video_id, candidate.language, candidate.variant)
+    lock = tmp_path / ".locks" / f"{key}.lock"
+    lock.mkdir(parents=True)
+    with pytest.raises(TimeoutError):
+        with store._identity_lock(key, timeout=0.01):
+            pass

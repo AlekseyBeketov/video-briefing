@@ -1,19 +1,28 @@
 [project]
 name = "video-briefing"
-version = "0.1.0"
+version = "0.2.0"
 description = "Evidence-first Russian video briefings with cached grounded Q&A"
 requires-python = ">=3.11,<3.15"
 dependencies = ["requests==2.34.2", "youtube-transcript-api==1.2.4"]
 
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project.optional-dependencies]
 dev = ["pytest==8.4.2"]
+mcp = ["mcp>=2.0,<3"]
 
 [project.scripts]
 video-briefing = "video_briefing.cli:main"
+video-briefing-mcp = "video_briefing.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["video_briefing*"]
+
+[tool.setuptools.package-data]
+video_briefing = ["resources/*.md"]
 
 [tool.uv]
 package = true
