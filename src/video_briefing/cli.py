@@ -196,10 +196,12 @@ def _doctor(args: argparse.Namespace) -> int:
               "data_home": str(_default_data_home()), "store": str(DEFAULT_STORE),
               "network_probes": False, "model_inference": False,
               "youtube_transcript_api": None, "local_asr_tools": {}}
+    required_dependency_available = True
     try:
         report["youtube_transcript_api"] = {"available": True, "version": package_version("youtube-transcript-api")}
     except PackageNotFoundError:
         report["youtube_transcript_api"] = {"available": False}
+        required_dependency_available = False
     for name in ("ffmpeg", "ffprobe"):
         path = os.environ.get("VIDEO_BRIEFING_FFMPEG" if name == "ffmpeg" else "VIDEO_BRIEFING_FFPROBE", name)
         try:
@@ -211,7 +213,7 @@ def _doctor(args: argparse.Namespace) -> int:
         path = os.environ.get(variable, "")
         report["local_asr_tools"][name] = {"configured": bool(path), "available": bool(path and Path(path).is_file())}
     print(json.dumps(report, ensure_ascii=False, indent=2))
-    return 0
+    return 0 if required_dependency_available else 1
 
 
 def _extract_command(args: argparse.Namespace) -> int:

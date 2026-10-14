@@ -1,5 +1,8 @@
 import json
+from importlib.metadata import PackageNotFoundError
+from types import SimpleNamespace
 
+import video_briefing.cli as cli
 from video_briefing.cli import _llm, build_parser, main
 
 
@@ -64,3 +67,29 @@ def test_model_endpoint_credentials_are_rejected_even_with_cloud_opt_in():
     config = {"llm": {"provider": "ollama", "base_url": "http://user:pass@127.0.0.1:11434", "model": "m", "cloud_backed": False}}
     with pytest.raises(ValueError, match="credential-free"):
         _llm(config, allow_cloud=True)
+
+
+def test_doctor_returns_nonzero_when_required_captions_dependency_is_missing(monkeypatch, capsys):
+    def missing_package(_name):
+        raise PackageNotFoundError
+
+    monkeypatch.setattr(cli, "package_version", missing_package)
+    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=0))
+
+    code = main(["doctor"])
+
+    report = json.loads(capsys.readouterr().out)
+    assert report["youtube_transcript_api"] == {"available": False}
+    assert code == 1
+
+
+def test_doctor_keeps_zero_status_when_only_optional_local_asr_tools_are_missing(monkeypatch, capsys):
+    monkeypatch.setattr(cli, "package_version", lambda _name: "1.2.3")
+    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=1))
+
+    code = main(["doctor"])
+
+    report = json.loads(capsys.readouterr().out)
+    assert report["youtube_transcript_api"] == {"available": True, "version": "1.2.3"}
+    assert report["local_asr_tools"]["ffmpeg"]["available"] is False
+    assert code == 0
