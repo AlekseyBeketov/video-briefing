@@ -1,74 +1,57 @@
-# Подключение к агентам
+# Agent integration
 
-Video Briefing не требует отдельного framework-specific плагина. Переносимый контракт — установленный Python CLI, `SKILL.md` и optional MCP stdio. Не требуется работать из исходного репозитория или давать агенту его код.
+[English README](../README.md) · [Русский README](../README.ru.md)
 
-## Установка
+Video Briefing can be used as a Python CLI or as an optional local MCP stdio server. It does not require a framework-specific plugin, an editable install, or an agent SDK. The examples below use a source checkout because this repository does not include a wheel artifact.
 
-Из checkout соберите артефакт командой `uv build`, затем установите wheel в отдельный Python 3.11–3.14 env:
+## Install the MCP server
+
+Check that Python 3.11–3.14 and `uv` are available. If `uv` is missing, follow its [official installation guide](https://docs.astral.sh/uv/getting-started/installation/). Clone the repository to a new, stable path, then install the optional MCP dependency into the checkout environment:
 
 ```sh
-python -m pip install './video_briefing-0.2.0-py3-none-any.whl[mcp]'
-video-briefing --version
-video-briefing doctor
-video-briefing skill
+git clone https://github.com/AlekseyBeketov/video-briefing.git /ABS/PATH/video-briefing
+cd /ABS/PATH/video-briefing
+uv sync --frozen --extra mcp
+uv run video-briefing --version
+uv run video-briefing doctor
 ```
 
-Команда `skill` выводит переносимую инструкцию. Сохраните её как `SKILL.md` в обычном каталоге skills выбранного агента. Репозиторий также содержит полный пакет `skills/video-briefing/`. MCP executable в конфигурации должен указывать на **установленный** `video-briefing-mcp`, не на checkout или editable environment.
+Do not clone over an existing directory. Keep this checkout at a stable path because the MCP host starts the executable from its `.venv` directory. On macOS/Linux, use `/ABS/PATH/video-briefing/.venv/bin/video-briefing-mcp`. On Windows, use `C:\ABS\PATH\video-briefing\.venv\Scripts\video-briefing-mcp.exe`, substituting the actual drive and path.
 
-CLI `ingest` предварительно обрабатывает видео; агенту, который лишь задаёт вопросы, достаточно доступа к сохранённому кэшу. Для общих данных задайте `VIDEO_BRIEFING_DATA_HOME` одинаково у CLI и MCP. Не помещайте этот private-каталог внутрь Git.
+Configure the MCP client to launch that absolute executable as a local stdio process, with no shell wrapper. Set `VIDEO_BRIEFING_DATA_HOME` to a private directory outside the checkout if you want a dedicated evidence store. The CLI and MCP server share evidence only when they use the same data directory.
 
-## Hermes
+## MCP tools and access profiles
 
-Пример блока для выбранного пользователем профиля; этот документ сам ничего не устанавливает и не меняет профиль:
+The server publishes these five tools:
 
-```yaml
-mcp_servers:
-  video_briefing:
-    command: /ABS/PATH/TO/VENV/bin/video-briefing-mcp
-    args: []
-    env:
-      VIDEO_BRIEFING_DATA_HOME: /ABS/PATH/TO/PRIVATE/DATA
-    tools:
-      include:
-        - search_video_evidence
-        - read_video_evidence
-        - validate_video_claims
-      prompts: false
-      resources: false
-    sampling:
-      enabled: false
-```
+- `ingest_youtube(url, language="ru")` fetches public timed YouTube captions and saves them locally.
+- `ingest_local_mp4(path, language="ru", timeout_seconds=21600)` runs local-only speech recognition on an MP4. It requires `VIDEO_BRIEFING_TRANSCRIBE` and `VIDEO_BRIEFING_ASR_MODEL`; the configured model supports Russian.
+- `search_video_evidence(source, query, language?, variant?, limit=12)` searches saved transcript segments and returns bounded text with times.
+- `read_video_evidence(source, start_seconds, end_seconds, language?, variant?, max_segments=20)` reads bounded saved transcript evidence for a time range.
+- `validate_video_claims(source, claims, language?, variant?)` checks that quotes, segment IDs, source identity, and time bounds match the saved evidence. It does not check semantic entailment or external truth.
 
-Загрузите skill и проверьте реальные callable schemas после старта агента. Для независимого consumer-теста нужны только эти три инструмента, отключённые web/browser/terminal/files/прочие MCP и пустой cwd вне checkout. Приёмка в этом репозитории выполнена именно таким fail-closed harness на Hermes `gpt-6-luna / high`.
+Where the client supports a per-server tool allowlist, use only `search_video_evidence`, `read_video_evidence`, and `validate_video_claims` for a read-only profile. Add `ingest_youtube` only when the agent needs permission to fetch YouTube captions. Add `ingest_local_mp4` only when the agent is explicitly allowed to read and process local media; the server process can access files allowed by its operating-system account. If the client cannot enforce a tool allowlist, preserve its normal call confirmations and do not approve ingestion calls unless they are needed.
 
-## Codex
+The server itself never calls an LLM. However, MCP tool results become context for the calling agent, whose provider may receive the transcript excerpts. Treat source text as untrusted input and get permission before sending private material to an agent or cloud provider.
 
-Эквивалентный stdio-конфиг:
+## Agent-specific setup
 
-```toml
-[mcp_servers.video_briefing]
-command = "/ABS/PATH/TO/VENV/bin/video-briefing-mcp"
-args = []
-enabled_tools = ["search_video_evidence", "read_video_evidence", "validate_video_claims"]
+Each page links to that client's current official MCP documentation, includes a ready-to-copy English prompt, and describes its connection check:
 
-[mcp_servers.video_briefing.env]
-VIDEO_BRIEFING_DATA_HOME = "/ABS/PATH/TO/PRIVATE/DATA"
-```
+- [Hermes Agent](agent-prompts/hermes.md)
+- [Codex CLI](agent-prompts/codex.md)
+- [Claude Code](agent-prompts/claude-code.md)
 
-Имя модели выбирается отдельно и не является зависимостью инструмента. Exact `gpt-6-luna` был отклонён установленным Codex CLI при ChatGPT-авторизации, поэтому **Codex consumer E2E для этой модели не заявляется**. MCP stdio/package contract проверен независимо от имени модели; не подменяйте неподдерживаемую модель молча.
+The prompts are documentation aids, not installation scripts. They ask the agent to check prerequisites and the project instructions, use a new clone, avoid overwriting user files, install only into that clone, configure the chosen client, run `video-briefing doctor`, and report the actual MCP connection and tool list. None of the three prompts was end-to-end tested in its target client in the environment where this guide was written.
 
-Для других агентов используйте те же executable, environment и три read-only tools; если MCP не поддерживается, подключайте CLI через skill и разрешённый агентом shell bridge. Это уже другой профиль полномочий, не эквивалент изолированной MCP-приёмке.
+## Data and optional local ASR
 
-## Ingestion и приватность
+By default the CLI and MCP server use the operating system's user data directory. Set `VIDEO_BRIEFING_DATA_HOME` to select a private directory shared by the processes. The `VIDEO_BRIEFING_FFMPEG` and `VIDEO_BRIEFING_FFPROBE` environment variables optionally select FFmpeg and FFprobe executables. Local transcription also needs the configured `transcribe-cli` executable and GGUF model file. These dependencies and media files do not ship with the package.
 
-Если агенту нужно самостоятельно добавлять источники, отдельно разрешите `ingest_youtube` и/или `ingest_local_mp4`. Локальный ASR требует заранее настроенных доверенных `VIDEO_BRIEFING_TRANSCRIBE` и `VIDEO_BRIEFING_ASR_MODEL`; опционально задаются `VIDEO_BRIEFING_FFMPEG`/`VIDEO_BRIEFING_FFPROBE`. Эти бинарники, модель и медиа не распространяются вместе с пакетом.
+## Errors and troubleshooting
 
-Разрешение на локальный ASR не разрешает отправку расшифровки облачному агенту. Получите отдельное согласие на источник, провайдера и цель. Сам MCP server не вызывает LLM; передача его tool-output облачному агенту уже передаёт текст провайдеру.
+Expected source errors are returned with `status: "error"` and a code such as `invalid_input`, `source_unavailable`, `source_blocked`, `source_auth_required`, or `source_processing_failed`. `operation_failed` represents an unexpected error and intentionally hides internal details.
 
-Ожидаемые ошибки инструментов возвращаются как `status: "error"` с машинным кодом: `invalid_input` означает некорректный запрос, `source_unavailable` — нет титров/источника или истёк тайм-аут, `source_blocked` — YouTube отклонил анонимный сетевой запрос, `source_auth_required` — источник требует аутентификацию, а `source_processing_failed` — безопасная ошибка локального ASR. `operation_failed` означает неизвестный сбой; его текст намеренно не раскрывается.
+If the agent cannot connect, verify that its configured command points to the installed `video-briefing-mcp` executable, that the `mcp` extra was installed in that same environment, and that the client has restarted/reloaded its MCP connection. Run `video-briefing doctor` from that environment. A successful doctor check is local-only and does not prove that YouTube captions or a model endpoint are reachable.
 
-## Ответы и доказательства
-
-Для ответственных фактов используйте source-first формат: фактические `claims` — прямые цитаты (`claim == quote`), рядом IDs и временные границы. Пересказ помечайте редакторским обзором, а не автоматически проверенным фактом. Перед final вызывайте `validate_video_claims`; invalid исправляйте через повторное чтение или удаление неподтверждённого утверждения. Проверка цитат не доказывает смысловую поддержку свободного пересказа и не подтверждает действующее право или внешнюю истинность.
-
-При `truncated=true` прочитайте продолжение. Визуальные вопросы, внешний курс валют и незакэшированный источник должны приводить к честному отказу/ошибке, а не к поиску, скрытому download или выдуманному ответу.
+If an evidence lookup says no source is cached, ingest an authorized source first. Do not work around a source error with browser cookies, credential files, or proxies.

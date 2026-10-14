@@ -23,11 +23,14 @@ The observable result is a set of checked-in documentation pages and a passing p
 - [x] (2026-10-14) Confirm exact repository slug and remote: `AlekseyBeketov/video-briefing`, `https://github.com/AlekseyBeketov/video-briefing.git`.
 - [x] (2026-10-14) Audit existing README, integration guide, architecture notes, pending decisions, package resources, CLI help, and Python package metadata.
 - [x] (2026-10-14) Agree on the documentation design and commit `docs/plans/2026-10-14-public-docs-design.md` as `4c72895`.
-- [ ] Commit this implementation plan before editing public or maintained documentation.
-- [ ] Replace the Russian-only root README with an accurate English entry point and add its Russian counterpart.
-- [ ] Add shared MCP guidance and separate English copyable prompts for Hermes, Codex CLI, and Claude Code.
-- [ ] Correct stale design/decision/plan text and add automated packaged-resource parity coverage.
-- [ ] Verify links, commands, content consistency, relevant tests and quality checks; review the exact diff and push each change to `origin/main`.
+- [x] (2026-10-14) Commit this implementation plan as `f146066`; correct its Hermes sampling note in `07c68c8` after checking the current official reference.
+- [x] (2026-10-14) Draft an English README and a Russian counterpart; command and claim review remains in final validation.
+- [x] (2026-10-14) Draft shared MCP guidance and separate English copyable prompts for Hermes, Codex CLI, and Claude Code; client E2E runs remain unavailable.
+- [x] (2026-10-14) Correct the stale skill setup instructions in both tracked copies and align architecture, pending-decision, and historical-plan text.
+- [x] (2026-10-14) Add a parameterized test for byte parity of the three packaged Markdown resources; focused and full test runs remain.
+- [x] (2026-10-14) Verify 11 changed documentation files' relative links, CLI help/doctor claims, and the packaged wheel's three resource files.
+- [x] (2026-10-14) Run parity tests (3 passed), full pytest suite (187 passed), Ruff, offline wheel/sdist build, and `git diff --check`.
+- [ ] Review the exact changed-file diff, commit each documentation group, push to `origin/main`, and confirm the final repository state.
 
 ## Surprises & Discoveries
 
@@ -41,6 +44,10 @@ The observable result is a set of checked-in documentation pages and a passing p
   Evidence: `uv sync` failed resolving `pypi.org`; Hermes reported a locked install-state path; `claude` was not found. The installed Codex CLI's `codex mcp --help` succeeded.
 - Observation: Rechecking the current Hermes documentation corrected the earlier design assumption: `sampling` is a supported key and sampling defaults to enabled, while `sampling.enabled: false` is a documented way to disable it per server.
   Evidence: official Hermes MCP guide section “MCP Sampling Support” and MCP Config Reference list `sampling` as a supported mapping (checked 2026-10-14).
+- Observation: The portable source skill still instructed users to install a wheel named with a version placeholder and claimed the package had no checkout-path dependency, which contradicted the actual tracked installation guidance.
+  Evidence: `skills/video-briefing/SKILL.md` and its byte-identical package resource before this change; checkout setup in `README.md` and `pyproject.toml`.
+- Observation: The skill compatibility launcher also returned a user-facing message that specifically required a wheel, although its actual runtime contract is only that the CLI be on `PATH`.
+  Evidence: `skills/video-briefing/scripts/video_briefing.py` calls `shutil.which("video-briefing")` and then executes the resolved CLI.
 
 ## Decision Log
 
@@ -53,6 +60,12 @@ The observable result is a set of checked-in documentation pages and a passing p
 - Decision: Preserve `sampling.enabled: false` in the Hermes config example because it is officially supported and opts out of server-initiated model inference.
   Rationale: Video Briefing's MCP server does not use MCP sampling, so denying that capability follows least privilege without inventing a product feature.
   Date/Author: 2026-10-14 / official Hermes documentation rechecked.
+- Decision: Update both portable skill copies to describe source checkout installation and the stable project environment instead of a placeholder wheel install.
+  Rationale: The current repository provides no wheel in its checkout, while `uv sync --frozen` and the optional MCP extra are the verifiable installation path.
+  Date/Author: 2026-10-14 / current project metadata and CLI.
+- Decision: Change the skill wrapper's missing-CLI message to direct users to the README and the actual PATH requirement.
+  Rationale: The old message incorrectly implied that the wrapper itself required or installed a wheel; its code only looks up the executable.
+  Date/Author: 2026-10-14 / launcher source.
 - Decision: Mark each client prompt as not end-to-end tested in its actual client in this environment.
   Rationale: Source review and CLI help are not proof that an agent host successfully connects. Hermes is not writable, Claude Code is absent, and the planned prompts are being authored in this work.
   Date/Author: 2026-10-14 / implementation evidence.
@@ -128,7 +141,7 @@ All commands run from `/Users/alexbeketov/video-briefing`. Follow the repository
 
        rtk env UV_CACHE_DIR=/private/tmp/video-briefing-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/video-briefing-final-py311-env uv run --no-sync pytest tests/test_resource_parity.py -q
 
-   Expected result: one parity test passes and checks all three pairs. Then run the full suite and Ruff as permitted by the prepared environment:
+   Expected result: three parameterized parity cases pass, one for each source/package pair. Then run the full suite and Ruff as permitted by the prepared environment:
 
        rtk env UV_CACHE_DIR=/private/tmp/video-briefing-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/video-briefing-final-py311-env uv run --no-sync --extra dev --extra mcp pytest
        rtk env UV_CACHE_DIR=/private/tmp/video-briefing-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/video-briefing-final-py311-env uv run --no-sync --extra dev ruff check .
@@ -171,7 +184,7 @@ Repository and package facts confirmed during planning:
     primary CLI: video-briefing
     MCP executable: video-briefing-mcp
 
-Baseline verification: `--help`, `--version` (`0.2.0`), `doctor`, `skill`, and Codex CLI MCP help succeeded in the previously prepared Python 3.11/Codex environment. A fresh package sync failed because sandbox DNS could not resolve PyPI. The exact prompts are not end-to-end tested with client applications in this environment.
+Baseline and implementation verification: the existing prepared Python 3.11 environment returned CLI version `0.2.0`; `doctor` reported `youtube-transcript-api 1.2.4`, `network_probes: false`, and no model inference. Three resource-parity cases passed, the full test suite returned `187 passed`, Ruff returned `All checks passed!`, and an offline `uv build` produced both an sdist and wheel in `/private/tmp/video-briefing-docs-dist`. The built wheel's `SKILL.md`, `brief.md`, and `qa.md` bytes matched the source package resources. A fresh `uv sync` could not reach PyPI because sandbox DNS failed. Codex CLI MCP help was available; Hermes could not write its install state and Claude Code was absent. Therefore none of the three new prompts was end-to-end tested with its target client.
 
 ## Interfaces and Dependencies
 
