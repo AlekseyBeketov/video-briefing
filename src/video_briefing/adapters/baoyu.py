@@ -20,7 +20,7 @@ def extract(url: str, *, languages: str = "en,ru", output_dir: str | Path,
     configured_bun = bun or os.environ.get("VIDEO_BRIEFING_BUN")
     if not configured_bun:
         raise FileNotFoundError("Optional Baoyu adapter requires an explicit Bun executable path")
-    platform, video_id, canonical_url = parse_video_url(url)
+    _, video_id, canonical_url = parse_video_url(url)
     bun_path = Path(configured_bun).expanduser()
     if not bun_path.is_file():
         raise FileNotFoundError("Configured Bun executable is not a file")

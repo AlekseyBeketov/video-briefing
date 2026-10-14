@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import os
@@ -8,10 +7,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-
-mcp = pytest.importorskip("mcp")
-from mcp import Client
-from mcp.client.stdio import StdioServerParameters
 
 from video_briefing.models import EvidenceBundle, TranscriptSegment
 from video_briefing.store import ArtifactStore
@@ -22,6 +17,12 @@ from video_briefing.adapters.captions_api import (
 )
 from video_briefing.local_asr import LocalASRError
 from video_briefing.mcp_server import _safe_call
+
+try:
+    from mcp import Client
+    from mcp.client.stdio import StdioServerParameters
+except ImportError:
+    pytest.skip("install video-briefing[mcp] for MCP integration tests", allow_module_level=True)
 
 
 @pytest.mark.parametrize(

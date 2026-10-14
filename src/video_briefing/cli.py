@@ -167,17 +167,6 @@ def _llm(config: dict, *, allow_cloud: bool = False) -> OllamaClient:
                         float(settings.get("timeout_seconds", 300)))
 
 
-def _tool_version(path: Path) -> dict:
-    if not path.is_file():
-        return {"available": False, "path": str(path)}
-    try:
-        result = subprocess.run([str(path), "--version"], capture_output=True, text=True, timeout=15, check=False)
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        return {"available": False, "path": str(path), "error": f"{type(exc).__name__}: {exc}"}
-    return {"available": result.returncode == 0, "path": str(path),
-            "version": (result.stdout.strip() or result.stderr.strip()), "exit_code": result.returncode}
-
-
 def _run_extractor(url: str, variant: str, languages: str, store: ArtifactStore):
     platform, video_id, _ = parse_video_url(url)
     if variant == "baoyu":

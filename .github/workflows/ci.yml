@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Check the lock file
+        run: uv lock --check
+
+      - name: Install package and test extras
+        run: uv sync --locked --extra dev --extra mcp
+
+      - name: Run Ruff
+        run: uv run --frozen --extra dev --extra mcp ruff check src tests
+
+      - name: Run tests
+        run: uv run --frozen --extra dev --extra mcp pytest
+
+      - name: Compile Python files
+        run: uv run --frozen --extra dev --extra mcp python -m compileall -q src tests
+
+      - name: Build wheel and source distribution
+        run: uv build --out-dir "$RUNNER_TEMP/video-briefing-dist"
