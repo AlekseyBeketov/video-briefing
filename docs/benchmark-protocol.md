@@ -24,6 +24,8 @@ Research фиксирует metadata/access/source language и формируе�
 ## Выход каждого запуска
 metrics.json, effective-config.json, prompt hashes, source bundle reference/hash, briefing.md, answers.json/md, runtime versions, stdout/stderr diagnostic logs, OpenResearch run/experiment ids and recorded commit. Raw transcript/audio are private gitignored; portable tracked reports refer to those local evidence and contain only bounded examples.
 
+CLI `benchmark --output-dir PATH` treats `PATH` as a run container and creates a unique `run-<UTC timestamp>-<id>` subdirectory for every attempt, including failures. The run directory is private (`0700` on POSIX), result and progress files are private (`0600`), and failed-run diagnostics stay at `progress.json` inside that directory. Repeated runs therefore retain earlier outputs; the CLI prints the actual result paths.
+
 ## Выбор
 Сначала hard gates: actual content (не description), valid timed evidence, no unsupported attribution, cached Q&A path, passing tests. После этого compare actual latency/setup complexity + grounded usefulness. Equal extraction from same captions may honestly yield no material content advantage; don't manufacture a winner.
 

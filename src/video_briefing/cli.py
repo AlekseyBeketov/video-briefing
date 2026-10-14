@@ -7,9 +7,11 @@ import re
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version as package_version
 from importlib.resources import files
 from pathlib import Path
+from uuid import uuid4
 
 from . import __version__
 from .briefing import brief_bundle, render_brief
@@ -31,6 +33,18 @@ def _default_data_home() -> Path:
 
 
 DEFAULT_STORE = _default_data_home() / "evidence"
+
+
+def _new_run_dir(output_root: Path) -> Path:
+    output_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    while True:
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        run_dir = output_root / f"run-{timestamp}-{uuid4().hex[:8]}"
+        try:
+            run_dir.mkdir(mode=0o700)
+        except FileExistsError:
+            continue
+        return run_dir
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -324,11 +338,20 @@ def _ask(args: argparse.Namespace) -> int:
     return 0
 
 
+class BenchmarkRunError(RuntimeError):
+    """Safe CLI error that identifies where a failed run's local diagnostics live."""
+
+
 def _benchmark(args: argparse.Namespace) -> int:
     from .benchmark import load_config, run_benchmark, write_run
     config = load_config(args.config)
-    output_dir = args.output_dir.resolve()
-    result = run_benchmark(config, root=args.root.resolve(), artifact_root=args.artifact_root.resolve(), progress_dir=output_dir)
+    output_dir = _new_run_dir(args.output_dir.resolve())
+    try:
+        result = run_benchmark(config, root=args.root.resolve(), artifact_root=args.artifact_root.resolve(), progress_dir=output_dir)
+    except Exception as exc:
+        raise BenchmarkRunError(
+            f"Benchmark failed ({type(exc).__name__}); run directory: {output_dir}"
+        ) from exc
     paths = write_run(result, output_dir)
     print(json.dumps({"status": result["metrics"]["status"], "variant": result["metrics"]["variant"], "source_sha256": result["metrics"]["source_sha256"], "paths": {name: str(path) for name, path in paths.items()}}, ensure_ascii=False, indent=2))
     return 0

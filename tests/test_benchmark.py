@@ -1,5 +1,7 @@
 import json
 import hashlib
+import os
+import stat
 
 import pytest
 
@@ -87,3 +89,29 @@ def test_failed_benchmark_persists_phase_and_failure_without_losing_source(tmp_p
     assert len(progress["partial_brief_parts"]) == 1
     assert progress["source_sha256"] == bundle.raw_sha256
     assert progress["error"]["type"] == "ValueError"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are not portable to Windows")
+def test_benchmark_outputs_use_private_modes_and_leave_no_temporary_files(tmp_path):
+    output_dir = tmp_path / "run"
+    benchmark._save_progress(output_dir, {"status": "running"})
+    paths = benchmark.write_run(
+        {"metrics": {"status": "completed"}, "briefing_markdown": "Fixture brief.\n", "answers": []},
+        output_dir,
+    )
+
+    assert stat.S_IMODE(output_dir.stat().st_mode) == 0o700
+    for path in [output_dir / "progress.json", *paths.values()]:
+        assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    assert not list(output_dir.glob(".*.tmp"))
+
+
+def test_progress_writer_removes_unique_temporary_file_when_replace_fails(tmp_path, monkeypatch):
+    def fail_replace(_source, _destination):
+        raise OSError("fixture replace failure")
+
+    monkeypatch.setattr(benchmark.os, "replace", fail_replace)
+    with pytest.raises(OSError, match="fixture replace failure"):
+        benchmark._save_progress(tmp_path / "run", {"status": "running"})
+
+    assert not list((tmp_path / "run").iterdir())

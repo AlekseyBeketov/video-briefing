@@ -1,8 +1,13 @@
 import json
 from importlib.metadata import PackageNotFoundError
+import os
+import stat
+from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 import video_briefing.cli as cli
+from video_briefing import benchmark
 from video_briefing.cli import _llm, build_parser, main
 
 
@@ -93,3 +98,61 @@ def test_doctor_keeps_zero_status_when_only_optional_local_asr_tools_are_missing
     assert report["youtube_transcript_api"] == {"available": True, "version": "1.2.3"}
     assert report["local_asr_tools"]["ffmpeg"]["available"] is False
     assert code == 0
+
+
+def test_benchmark_cli_allocates_and_reports_a_unique_run_directory(tmp_path, monkeypatch, capsys):
+    run_directories = []
+    monkeypatch.setattr(benchmark, "load_config", lambda _path: {})
+    monkeypatch.setattr(
+        benchmark,
+        "run_benchmark",
+        lambda config, *, root, artifact_root, progress_dir: run_directories.append(progress_dir)
+        or {"metrics": {"status": "completed", "variant": "captions_api", "source_sha256": "a" * 64}},
+    )
+    monkeypatch.setattr(
+        benchmark,
+        "write_run",
+        lambda result, output_dir: {name: output_dir / f"{name}.json" for name in ("metrics", "answers")},
+    )
+    args = SimpleNamespace(
+        config="fixture.json", root=tmp_path, artifact_root=tmp_path / "evidence", output_dir=tmp_path / "runs",
+    )
+
+    for _ in range(2):
+        assert cli._benchmark(args) == 0
+        result = json.loads(capsys.readouterr().out)
+        metrics_path = Path(result["paths"]["metrics"])
+        assert all(Path(path).parent == metrics_path.parent for path in result["paths"].values())
+
+    assert len(run_directories) == 2
+    assert run_directories[0] != run_directories[1]
+    assert all(path.parent == args.output_dir for path in run_directories)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are not portable to Windows")
+def test_new_benchmark_run_directories_are_unique_and_private(tmp_path):
+    first = cli._new_run_dir(tmp_path / "runs")
+    second = cli._new_run_dir(tmp_path / "runs")
+
+    assert first != second
+    assert stat.S_IMODE(first.stat().st_mode) == 0o700
+    assert stat.S_IMODE(second.stat().st_mode) == 0o700
+
+
+def test_benchmark_cli_reports_run_directory_without_exposing_failure_details(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(benchmark, "load_config", lambda _path: {})
+
+    def fail_benchmark(*args, **kwargs):
+        raise ValueError("private transcript-derived detail")
+
+    monkeypatch.setattr(benchmark, "run_benchmark", fail_benchmark)
+    code = main([
+        "benchmark", "--config", "fixture.json", "--root", str(tmp_path),
+        "--artifact-root", str(tmp_path / "evidence"), "--output-dir", str(tmp_path / "runs"),
+    ])
+
+    error = json.loads(capsys.readouterr().err)["error"]
+    assert code == 2
+    assert error["code"] == "benchmark_run_error"
+    assert str(tmp_path / "runs" / "run-") in error["message"]
+    assert "private transcript-derived detail" not in error["message"]

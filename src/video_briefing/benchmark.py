@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 import time
 from pathlib import Path
 
@@ -14,6 +16,21 @@ from . import __version__
 EXPECTED_URL = "https://www.youtube.com/watch?v=DvSwvJVens8"
 EXPECTED_ID = "DvSwvJVens8"
 SUPPORTED_VARIANTS = frozenset({"baoyu", "captions_api"})
+
+
+def _atomic_write_text(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
+    )
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as temporary:
+            temporary.write(content)
+            temporary.flush()
+            os.fsync(temporary.fileno())
+        os.replace(temporary_name, path)
+    finally:
+        Path(temporary_name).unlink(missing_ok=True)
 
 
 def load_config(path: str | Path) -> dict:
@@ -46,10 +63,9 @@ def _questions(path: Path) -> list[dict]:
 def _save_progress(output_dir: Path | None, progress: dict) -> None:
     if output_dir is None:
         return
-    output_dir.mkdir(parents=True, exist_ok=True)
-    temporary = output_dir / ".progress.json.tmp"
-    temporary.write_text(json.dumps(progress, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(output_dir / "progress.json")
+    output_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    content = json.dumps(progress, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    _atomic_write_text(output_dir / "progress.json", content)
 
 
 def run_benchmark(config: dict, *, root: Path, artifact_root: Path, progress_dir: Path | None = None) -> dict:
@@ -157,7 +173,7 @@ def run_benchmark(config: dict, *, root: Path, artifact_root: Path, progress_dir
 
 def write_run(result: dict, output_dir: Path) -> dict[str, Path]:
     """Persist the machine-readable result and human-readable output atomically."""
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     paths = {
         "metrics": output_dir / "metrics.json",
         "briefing": output_dir / "briefing.md",
@@ -169,7 +185,5 @@ def write_run(result: dict, output_dir: Path) -> dict[str, Path]:
         "answers": json.dumps(result["answers"], ensure_ascii=False, sort_keys=True, indent=2) + "\n",
     }
     for name, path in paths.items():
-        temporary = path.with_suffix(path.suffix + ".tmp")
-        temporary.write_text(payloads[name], encoding="utf-8")
-        temporary.replace(path)
+        _atomic_write_text(path, payloads[name])
     return paths
