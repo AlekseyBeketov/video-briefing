@@ -36,11 +36,11 @@ Agent prompts проверяют `video-briefing doctor`, наличие `video-
 
 - [Codex CLI MCP](https://developers.openai.com/codex/mcp) — `codex mcp add/list`, user/project config, `enabled_tools` allowlist.
 - [Claude Code MCP](https://code.claude.com/docs/en/mcp) — stdio config, local scope и connection checks; prompt сохраняет штатное подтверждение tool calls.
-- [Hermes Agent MCP](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp) и [reference config](https://hermes-agent.nousresearch.com/docs/reference/mcp-config-reference/) — `mcp_servers`, `tools.include`, `hermes mcp test`. Текущий официальный schema reference не содержит поля `sampling`, поэтому старое неподтверждённое поле удаляется.
+- [Hermes Agent MCP](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp) и [reference config](https://hermes-agent.nousresearch.com/docs/reference/mcp-config-reference/) — `mcp_servers`, `tools.include`, `sampling.enabled` и `hermes mcp test`. Hermes включает MCP sampling по умолчанию; конфигурация явно отключает его, поскольку Video Briefing не просит модельные ответы от хоста.
 - [uv installation](https://docs.astral.sh/uv/getting-started/installation/) — prerequisites и установка `uv`.
 
 ## Проверка
 
 В текущем checkout CLI `--help`, `--version` (`0.2.0`), `doctor` и вывод packaged skill выполнены на ранее установленном Python 3.11 окружении. `doctor` не делает network probes и сообщил обязательную captions dependency доступной. Установленный skill совпадает с обоими tracked экземплярами по SHA-256. В этой среде новый `uv sync` не удалось завершить из-за DNS недоступности PyPI; предыдущий успешный CI и package/wheel acceptance остаются отдельными датированными доказательствами, не заменяют эту попытку. `hermes` CLI недоступен для записи install state, `claude` CLI не найден; установленный `codex mcp --help` доступен. Поэтому три конкретных prompts будут отмечены как не прошедшие end-to-end запуск в соответствующем клиенте.
 
-Дата сверки внешних agent/uv docs и локальной CLI: 2026-10-14.
+Дата сверки внешних agent/uv docs и локальной CLI: 2026-10-14. При повторной сверке выяснено, что актуальная документация Hermes поддерживает `sampling.enabled: false`; параметр останется как fail-closed privacy setting.

@@ -31,14 +31,16 @@ The observable result is a set of checked-in documentation pages and a passing p
 
 ## Surprises & Discoveries
 
-- Observation: The current README and integration guide describe installing a wheel, but the repository does not contain a wheel or publish an install artifact from this checkout. The integration guide hardcodes version `0.2.0` and includes a Hermes `sampling` field that is absent from the current official Hermes config schema.
-  Evidence: `README.md`, `docs/agent-integration.md`, and the current Hermes MCP config reference.
+- Observation: The current README and integration guide describe installing a wheel, but the repository does not contain a wheel or publish an install artifact from this checkout. The integration guide hardcodes version `0.2.0`. Current Hermes documentation supports `sampling.enabled: false`; keeping it explicitly disables host model sampling for this server.
+  Evidence: `README.md`, `docs/agent-integration.md`, [Hermes sampling guide](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp), and [MCP config reference](https://hermes-agent.nousresearch.com/docs/reference/mcp-config-reference/).
 - Observation: Three copies are deliberate: `skills/video-briefing/SKILL.md` and `prompts/{brief,qa}.md` are mirrored under `src/video_briefing/resources/` so the package can ship and print them. The skill copies have matched SHA-256 `cc15ea039194aa1bc3c13d3b1d692da98973811a0ba38c876d68b338540d02c4` in the baseline.
   Evidence: `video-briefing skill` output and byte comparison of repository and packaged files.
 - Observation: `video-briefing --help` shows that normal source/evidence work is separate from optional model-generated `brief` and `ask`; these optional commands require an explicit privacy opt-in for cloud-backed endpoints.
   Evidence: the local Python 3.11 CLI printed the commands `doctor`, `extract`, `ingest`, `search`, `read`, `skill`, `brief`, `ask`, and `benchmark`.
 - Observation: A fresh dependency sync could not reach PyPI because DNS resolution failed in the sandbox. Hermes cannot write its install state in this environment, and Claude Code is not installed. Client-specific prompts therefore cannot be declared end-to-end tested here.
   Evidence: `uv sync` failed resolving `pypi.org`; Hermes reported a locked install-state path; `claude` was not found. The installed Codex CLI's `codex mcp --help` succeeded.
+- Observation: Rechecking the current Hermes documentation corrected the earlier design assumption: `sampling` is a supported key and sampling defaults to enabled, while `sampling.enabled: false` is a documented way to disable it per server.
+  Evidence: official Hermes MCP guide section “MCP Sampling Support” and MCP Config Reference list `sampling` as a supported mapping (checked 2026-10-14).
 
 ## Decision Log
 
@@ -48,6 +50,9 @@ The observable result is a set of checked-in documentation pages and a passing p
 - Decision: Use a fresh project clone and isolated project environment for prompt-driven setup; never overwrite an existing clone, skill, or agent config. On a name/path conflict, stop and ask. Do not read or print secrets, cookies, or unrelated config values.
   Rationale: `uv sync` acts on the current project's environment and may remove extraneous packages there; a dedicated non-existing clone path bounds that effect and makes the installed MCP command stable.
   Date/Author: 2026-10-14 / user-approved design.
+- Decision: Preserve `sampling.enabled: false` in the Hermes config example because it is officially supported and opts out of server-initiated model inference.
+  Rationale: Video Briefing's MCP server does not use MCP sampling, so denying that capability follows least privilege without inventing a product feature.
+  Date/Author: 2026-10-14 / official Hermes documentation rechecked.
 - Decision: Mark each client prompt as not end-to-end tested in its actual client in this environment.
   Rationale: Source review and CLI help are not proof that an agent host successfully connects. Hermes is not writable, Claude Code is absent, and the planned prompts are being authored in this work.
   Date/Author: 2026-10-14 / implementation evidence.
@@ -89,7 +94,7 @@ Official client guidance reviewed for the agent pages:
 
 First add this plan as its own commit and push it to `origin/main`. Then write `README.md` and `README.ru.md` from the observed CLI/package behavior. Both files must match on supported Python versions, setup, useful commands, MCP names, privacy boundaries, the lack of a license, and known limits. Keep language navigation links at the top. Include one safe YouTube example using a placeholder ID, one cached search/read example, and a local MP4 example clearly labelled as requiring separately installed local ASR dependencies. Mention that actual captions/network access may fail and that a doctor check does not test network access.
 
-Rewrite `docs/agent-integration.md` to remove the hardcoded wheel assumption and obsolete Hermes field. Explain the current source checkout install (`uv sync --frozen --extra mcp`) and the executable/configuration model. Document tool names and the distinction between read-only and ingestion permissions. Include a privacy note that tool output may be sent to the calling agent's model. Link to the three client pages.
+Rewrite `docs/agent-integration.md` to remove the hardcoded wheel assumption and retain the officially supported Hermes `sampling.enabled: false` safeguard. Explain the current source checkout install (`uv sync --frozen --extra mcp`) and the executable/configuration model. Document tool names and the distinction between read-only and ingestion permissions. Include a privacy note that tool output may be sent to the calling agent's model. Link to the three client pages.
 
 Create one page per supported client. Each page must name the official setup reference, provide a ready-to-copy English prompt, and show the relevant configuration shape based on current official docs. A prompt must first inspect prerequisites and the project README, verify the exact project remote, choose a new unique clone and isolated project environment, install only through project instructions, and run `video-briefing --version`, `video-briefing doctor`, MCP executable checks, and the client-specific MCP connection/tool-catalog check. It must never overwrite existing config/skill/clone files, reveal secrets, read browser cookies, install global system packages, make cloud calls without opt-in, ingest private media, or broaden permissions silently. On conflicts or any destructive step, stop and ask. If the client or live source cannot be tested, report the precise missing test instead of claiming success. State that these prompts were not run end-to-end in the authoring environment.
 
@@ -143,7 +148,7 @@ All commands run from `/Users/alexbeketov/video-briefing`. Follow the repository
 
 Acceptance is observable when both READMEs link to each other and describe commands present in the current CLI; `video-briefing --help` includes the documented commands; and `video-briefing doctor` reports local dependency availability without implying a network test. MCP instructions use `video-briefing-mcp` and the five current tool names, with a separate read-only profile containing `search_video_evidence`, `read_video_evidence`, and `validate_video_claims`.
 
-Each client page must include the official documentation link, an English prompt, configuration guidance that agrees with that source, safety stop conditions, explicit runtime checks, and the honest statement that it was not end-to-end tested in the actual client here. The Hermes example must not contain the unsupported `sampling` key. No prompt may say it has installed or connected successfully before reporting command output that proves it.
+Each client page must include the official documentation link, an English prompt, configuration guidance that agrees with that source, safety stop conditions, explicit runtime checks, and the honest statement that it was not end-to-end tested in the actual client here. The Hermes example may set the documented `sampling.enabled: false` field to disable server-requested model inference. No prompt may say it has installed or connected successfully before reporting command output that proves it.
 
 The parity test must pass for all three source/package pairs. The available full test suite and Ruff should pass if the prepared Python environment has the locked dev/MCP dependencies. `git diff --check` must pass. A failed network install is not a test pass; record the DNS/PyPI reason separately. No claim is made that Codex, Hermes, or Claude Code client setup was end-to-end tested by this implementation.
 
@@ -180,4 +185,4 @@ The parity test should expose one test function in `tests/test_resource_parity.p
 
 Markdown paths are relative to the repository root. Agent executable/config examples must follow each linked official client guide and the existing server's stdio contract. Configuration shown for a client must not claim that the project automatically edits that client's configuration.
 
-Plan history: created on 2026-10-14 after the user approved the recommended documentation scope. The worktree had existing unrelated report and indexing artifacts before this plan was added; all implementation commits must use explicit paths.
+Plan history: created on 2026-10-14 after the user approved the recommended documentation scope. The official Hermes docs were rechecked on 2026-10-14 and corrected an early assumption about the `sampling` field; the supported field is retained as an explicit deny setting. The worktree had existing unrelated report and indexing artifacts before this plan was added; all implementation commits must use explicit paths.
