@@ -30,7 +30,8 @@ The observable result is a set of checked-in documentation pages and a passing p
 - [x] (2026-10-14) Add a parameterized test for byte parity of the three packaged Markdown resources; focused and full test runs remain.
 - [x] (2026-10-14) Verify 11 changed documentation files' relative links, CLI help/doctor claims, and the packaged wheel's three resource files.
 - [x] (2026-10-14) Run parity tests (3 passed), full pytest suite (187 passed), Ruff, offline wheel/sdist build, and `git diff --check`.
-- [ ] Review the exact changed-file diff, commit each documentation group, push to `origin/main`, and confirm the final repository state.
+- [x] (2026-10-14) Review exact paths, commit each documentation group, and push all implementation commits to `origin/main`.
+- [x] (2026-10-14) Repeat full pytest, Ruff, offline build, CLI doctor, relative-link checks, and final Git/remote review.
 
 ## Surprises & Discoveries
 
@@ -78,7 +79,11 @@ The observable result is a set of checked-in documentation pages and a passing p
 
 ## Outcomes & Retrospective
 
-Pending. Update this section after implementation and final validation. Record the exact commits pushed, actual test results, which prompts were and were not checked in their clients, and any remaining network limitation.
+Implemented English and Russian READMEs, shared MCP setup guidance, copyable prompts for Hermes/Codex CLI/Claude Code, synchronized portable/package skill instructions, a package-resource parity test, current source-first architecture and pending-decision notes, and a historical banner for the superseded 2026-10-05 plan. The wrapper's missing-CLI message now matches its actual PATH lookup. Existing research records, reports, rubrics, and pre-existing user modifications were left untouched.
+
+The final checks returned 187 passing tests, `All checks passed!` from Ruff, a successful offline source-distribution and wheel build, a successful `video-briefing doctor`, and resolved relative links in 13 checked Markdown files. The built wheel's `SKILL.md`, `brief.md`, and `qa.md` exactly match the repository resource copies. The planned commits `4c72895`, `f146066`, `07c68c8`, `af7857d`, `4a35e4f`, and `a7b0e01` were pushed in order to `origin/main`.
+
+The agent prompts remain explicitly unverified end-to-end in their respective clients: Hermes could not write its install state, Claude Code was absent, and Codex CLI help alone does not prove a client connection. A fresh dependency sync could not resolve PyPI because sandbox DNS was unavailable; the already-prepared Python 3.11 environment supported the tests and packaging checks. These are verification limits, not claims of successful client setup or fresh-install testing.
 
 ## Context and Orientation
 
@@ -184,7 +189,7 @@ Repository and package facts confirmed during planning:
     primary CLI: video-briefing
     MCP executable: video-briefing-mcp
 
-Baseline and implementation verification: the existing prepared Python 3.11 environment returned CLI version `0.2.0`; `doctor` reported `youtube-transcript-api 1.2.4`, `network_probes: false`, and no model inference. Three resource-parity cases passed, the full test suite returned `187 passed`, Ruff returned `All checks passed!`, and an offline `uv build` produced both an sdist and wheel in `/private/tmp/video-briefing-docs-dist`. The built wheel's `SKILL.md`, `brief.md`, and `qa.md` bytes matched the source package resources. A fresh `uv sync` could not reach PyPI because sandbox DNS failed. Codex CLI MCP help was available; Hermes could not write its install state and Claude Code was absent. Therefore none of the three new prompts was end-to-end tested with its target client.
+Baseline and implementation verification: the existing prepared Python 3.11 environment returned CLI version `0.2.0`; final `doctor` reported `youtube-transcript-api 1.2.4`, `network_probes: false`, and no model inference. Three resource-parity cases passed, the full test suite returned `187 passed`, Ruff returned `All checks passed!`, and the final offline `uv build` produced both an sdist and wheel in `/private/tmp/video-briefing-docs-final-dist`. The built wheel's `SKILL.md`, `brief.md`, and `qa.md` bytes matched the source package resources. Relative links resolved in all 13 checked documentation files. A fresh `uv sync` could not reach PyPI because sandbox DNS failed. Codex CLI MCP help was available; Hermes could not write its install state and Claude Code was absent. Therefore none of the three new prompts was end-to-end tested with its target client.
 
 ## Interfaces and Dependencies
 
