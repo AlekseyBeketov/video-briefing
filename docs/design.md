@@ -1,7 +1,7 @@
 # Архитектура и границы решения
 
-## Результат для пользователя
-Ссылка без дополнительных вопросов → краткая суть, темы, полезные идеи, акценты и ограничения автора с таймкодами. Последующие вопросы читают полный сохранённый транскрипт и ближайший контекст. Целевой ответ компактный, по-русски, без пересказа каждой минуты.
+## Текущий пользовательский сценарий
+Пользователь получает доступный YouTube-транскрипт с таймкодами или явно включает локальную обработку MP4, затем ищет и читает сохранённые исходные сегменты. Сам CLI/MCP не составляет ответ по умолчанию: вызывающий агент синтезирует ответ из возвращённых фрагментов и указывает их источники. Необязательные CLI-команды `brief` и `ask` создают модельный текст отдельно и не входят в обычный evidence-first сценарий.
 
 ## Источники и adapters
 YouTube: основной extractor — `youtube-transcript-api` через `captions_api`; `baoyu` доступен только как явно выбранный альтернативный адаптер. Автоматического fallback и извлечения доказательств из описания видео нет.
@@ -22,20 +22,23 @@ Normalized timing нельзя выдавать за forced alignment; Baoyu sen
 Generated briefing includes claims/evidence segment ids. Follow-up answers contain citation references resolved to actual source intervals, and a distinction between author statement and inference.
 
 ## Pipeline
-validate URL → choose adapter → timed source → verify/provenance → immutable file bundle → chunk full source when needed → common LLM brief → validate cited segment ids → render concise Russian output.
-Q&A: open artifact → search saved transcript using terms/aliases + context windows → common LLM grounded claims → validate cited IDs → render only cited claim text. Search miss is not proof of absence from full video; unknown answer stays qualified. No automatic re-extraction on follow-up.
+Загрузка: validate URL → получить доступные timed captions через выбранный extractor или явно включить локальный ASR для MP4 → проверить identity, время и provenance → сохранить immutable evidence bundle локально. В режиме по умолчанию запросы `search`/`read` и MCP-инструменты возвращают ограниченные исходные сегменты, временные границы и provenance; вызывающий агент отвечает сам. MCP `validate_video_claims` проверяет совпадение буквальных цитат, segment IDs, identity и времени.
 
-## Model path
-Available local Ollama endpoint http://127.0.0.1:11434 has gemma4:31b-cloud. This model is CLOUD-backed, not offline. Use one fixed explicitly recorded model/settings/prompt hash across extractor comparisons if real smoke succeeds; never pull another model or add API keys automatically. Inference is plain API, not nested autonomous agents. If unavailable, document provider blocker; a manual agent evidence-reading result may be separately labelled but cannot replace scripted benchmark/model logs.
-Coding profile: configured gpt-6-luna + reasoning_effort max through openai-codex. User wording luna-6-max is recorded literally; runtime model/settings mapping follows inspected profile and cached model metadata, not silent invented provider names.
+Follow-up: открыть сохранённый artifact → найти исходные сегменты с соседним контекстом → показать их вызывающему агенту. Пропуск в выдаче поиска не доказывает отсутствие темы во всём видео. Последующий вопрос не запускает автоматическую повторную загрузку источника. Опциональные `brief`/`ask` используют настроенную модель только как отдельный workflow с явным согласием для cloud-backed или non-loopback endpoint.
 
-## OpenResearch
-orx 0.2.13 is installed; telemetry already disabled. Local dashboard is initially stopped. Start loopback only with --no-agent --no-browser to avoid exceeding agent cap. Import local Git through supported local API/dashboard (discover actual schema); never edit internal SQLite directly. No managed compute/login/publication.
-Set one fixed run command after implementation exists, e.g. uv run --frozen python -m video_briefing.benchmark --config config/experiment.json (example contract, coder establishes actual package entrypoint). Same environment across all nodes. Committed config selects variant/cache/run mode; no command/env per-node changes.
+## Optional model generation
+Model inference is not part of the default source/evidence workflow. The optional `brief` and `ask` commands accept the Ollama-compatible endpoint and model settings from the selected experiment config. A non-loopback endpoint or one marked cloud-backed is rejected unless the user explicitly passes `--allow-cloud`; source excerpts and questions may then leave the machine. Never download another model, add API keys, or switch providers automatically. The caller agent can also synthesize from MCP evidence, but that sends tool output to the agent's provider under that provider's own data policy.
+
+## Research and benchmark tooling
+OpenResearch and the fixed-target benchmark configuration support a bounded comparison experiment; they are not needed for ordinary CLI/MCP use and do not change the default source-first behavior. Historical run details and dated outcomes remain in `docs/research/` and `reports/`.
+
+The earlier research protocol used a loopback-only dashboard and did not use managed compute, account login, or publication. Those run-specific settings and tool versions are historical; for any new comparison, inspect the currently installed OpenResearch version and its supported interface first. Never edit its internal SQLite database directly.
+
+The current CLI exposes `video-briefing benchmark --config config/experiment.json`. This is an experiment command, not part of normal installation or evidence lookup. The previous formal comparison used one committed config and command across its nodes; retain its exact settings and caveats with the dated research records instead of copying them as a general user recipe.
 Baseline: shared harness controls. Round one: at most three sibling extractor variants. Follow-up winner child only if an actual hypothesis improves grounding/retrieval/cache; no tree decoration. Read final logs and metrics, not statuses alone. Answered experiment branches remain frozen forever. Review/hardening uses main/new branch outside frozen nodes.
 
 ## Privacy and safety
 No global updates; public target video only; no cookies, proxies, auth file reads or credential display. Bind all services 127.0.0.1. Abort on unavailable network/access instead of bypassing. Normal dependency downloads are allowed in the project; substantial model downloads/paid services or user policy changes go to pending-decisions. Keep exact sources/pins/checksums/license provenance.
 
-## Completion
-Actual CLI link→brief and cached follow-up answer on supplied video, inspected evidence citations, comparison table with measured not invented timing, OpenResearch ids/commits/logs, reproducible setup, passing tests, canonical+default full-copy skill, local Git with no remote. If external target content is genuinely inaccessible, task remains blocked with exact reason, not marked end-to-end done.
+## Acceptance of the current source-first workflow
+Confirm the locked setup, `video-briefing doctor`, successful ingestion for an authorized and reachable source, bounded `search`/`read` evidence with source identity and timestamps, and valid citation-boundary checks. Run the automated tests. A live model response or comparative benchmark is optional and must be reported separately; a successful source lookup does not prove that a free-form answer is semantically supported. If captions are blocked or unavailable, preserve the exact source error and do not substitute a title or description.

@@ -1,5 +1,7 @@
 # Video Briefing Implementation Plan
 
+> **Historical plan (2026-10-05).** This document records an earlier implementation proposal. Its task list, dependencies, setup directions, and acceptance conditions are superseded by the current source-first code and README. It is retained as project history; use the current README and `docs/design.md` for present-day behavior.
+
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
 **Goal:** Рабочий link→русский brief→grounded cached Q&A и воспроизводимое сравнение на DvSwvJVens8 в local OpenResearch, затем reusable skill в source of truth/default.
