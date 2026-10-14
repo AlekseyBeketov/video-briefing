@@ -15,6 +15,43 @@ from mcp.client.stdio import StdioServerParameters
 
 from video_briefing.models import EvidenceBundle, TranscriptSegment
 from video_briefing.store import ArtifactStore
+from video_briefing.adapters.captions_api import (
+    CaptionAuthenticationRequired,
+    CaptionSourceBlocked,
+    CaptionSourceUnavailable,
+)
+from video_briefing.local_asr import LocalASRError
+from video_briefing.mcp_server import _safe_call
+
+
+@pytest.mark.parametrize(
+    ("error", "code"),
+    [
+        (CaptionSourceUnavailable("No captions available"), "source_unavailable"),
+        (CaptionSourceBlocked("Request blocked"), "source_blocked"),
+        (CaptionAuthenticationRequired("Authentication required"), "source_auth_required"),
+        (LocalASRError("Invalid local audio"), "source_processing_failed"),
+    ],
+)
+def test_safe_call_preserves_safe_source_error_categories(error, code):
+    def fail():
+        raise error
+
+    result = _safe_call(fail)
+
+    assert result == {"status": "error", "error": {"code": code, "message": str(error)}}
+
+
+def test_safe_call_hides_unexpected_exception_details():
+    def fail():
+        raise RuntimeError("private internal detail")
+
+    result = _safe_call(fail)
+
+    assert result == {
+        "status": "error",
+        "error": {"code": "operation_failed", "message": "Operation failed; no source text was included."},
+    }
 
 
 def test_cli_and_mcp_use_identical_default_data_home(tmp_path, monkeypatch):

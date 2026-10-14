@@ -9,8 +9,13 @@ from pathlib import Path
 from typing import Any
 
 from .evidence_api import read_evidence as _read_evidence, search_evidence as _search_evidence
+from .adapters.captions_api import (
+    CaptionAuthenticationRequired,
+    CaptionSourceBlocked,
+    CaptionSourceUnavailable,
+)
 from .citation_validation import validate_citations
-from .local_asr import ingest_local_video
+from .local_asr import LocalASRError, ingest_local_video
 from .models import EvidenceBundle
 from .store import ArtifactStore
 from .validation import parse_video_url
@@ -55,6 +60,14 @@ def _safe_call(operation):
         return operation()
     except ValueError as exc:
         return {"status": "error", "error": {"code": "invalid_input", "message": str(exc)}}
+    except CaptionSourceUnavailable as exc:
+        return {"status": "error", "error": {"code": "source_unavailable", "message": str(exc)}}
+    except CaptionSourceBlocked as exc:
+        return {"status": "error", "error": {"code": "source_blocked", "message": str(exc)}}
+    except CaptionAuthenticationRequired as exc:
+        return {"status": "error", "error": {"code": "source_auth_required", "message": str(exc)}}
+    except LocalASRError as exc:
+        return {"status": "error", "error": {"code": "source_processing_failed", "message": str(exc)}}
     except (FileNotFoundError, TimeoutError) as exc:
         return {"status": "error", "error": {"code": "source_unavailable", "message": str(exc)}}
     except Exception:

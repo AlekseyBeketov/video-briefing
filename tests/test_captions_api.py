@@ -37,14 +37,14 @@ def test_captions_api_preserves_language_times_and_is_anonymous(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    ("error", "message"),
+    ("error", "error_type", "message"),
     [
-        (NoTranscriptFound("DvSwvJVens8", [], []), "No captions are available"),
-        (IpBlocked("blocked"), "blocked this network/IP"),
-        (CookieError("authentication required"), "does not read or use cookies"),
+        (NoTranscriptFound("DvSwvJVens8", [], []), captions_api.CaptionSourceUnavailable, "No captions are available"),
+        (IpBlocked("blocked"), captions_api.CaptionSourceBlocked, "blocked this network/IP"),
+        (CookieError("authentication required"), captions_api.CaptionAuthenticationRequired, "does not read or use cookies"),
     ],
 )
-def test_captions_api_reports_no_captions_network_and_auth_separately(monkeypatch, error, message):
+def test_captions_api_reports_no_captions_network_and_auth_separately(monkeypatch, error, error_type, message):
     class FailingApi:
         def __init__(self, *, http_client):
             pass
@@ -53,5 +53,5 @@ def test_captions_api_reports_no_captions_network_and_auth_separately(monkeypatc
             raise error
 
     monkeypatch.setattr(captions_api, "YouTubeTranscriptApi", FailingApi)
-    with pytest.raises(RuntimeError, match=message):
+    with pytest.raises(error_type, match=message):
         captions_api.extract("https://www.youtube.com/watch?v=DvSwvJVens8", language="ru")

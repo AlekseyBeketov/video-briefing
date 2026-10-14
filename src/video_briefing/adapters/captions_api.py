@@ -13,6 +13,18 @@ from ..models import EvidenceBundle, TranscriptSegment
 from ..validation import parse_video_url, validate_bundle
 
 
+class CaptionSourceUnavailable(RuntimeError):
+    """Safe-to-report error when the requested caption track is unavailable."""
+
+
+class CaptionSourceBlocked(RuntimeError):
+    """Safe-to-report error when YouTube blocks the anonymous network request."""
+
+
+class CaptionAuthenticationRequired(RuntimeError):
+    """Safe-to-report error when YouTube requires cookies or authentication."""
+
+
 class _TimeoutSession(requests.Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault("timeout", (10, 30))
@@ -29,11 +41,11 @@ def extract(url: str, *, language: str = "ru") -> EvidenceBundle:
         try:
             fetched = YouTubeTranscriptApi(http_client=session).fetch(video_id, languages=[language])
         except (NoTranscriptFound, TranscriptsDisabled) as exc:
-            raise RuntimeError(f"No captions are available for video {video_id!r} in language {language!r}; description-only fallback is forbidden") from exc
+            raise CaptionSourceUnavailable(f"No captions are available for video {video_id!r} in language {language!r}; description-only fallback is forbidden") from exc
         except (IpBlocked, RequestBlocked) as exc:
-            raise RuntimeError("YouTube blocked this network/IP request; retry later or stop—proxy/cookie bypass is not supported") from exc
+            raise CaptionSourceBlocked("YouTube blocked this network/IP request; retry later or stop—proxy/cookie bypass is not supported") from exc
         except CookieError as exc:
-            raise RuntimeError("YouTube requires authentication/cookies for this source; this workflow does not read or use cookies") from exc
+            raise CaptionAuthenticationRequired("YouTube requires authentication/cookies for this source; this workflow does not read or use cookies") from exc
     finally:
         session.close()
 

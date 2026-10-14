@@ -19,7 +19,8 @@
 - [x] (2026-10-14 14:26Z) Проверить точный slug и baseline. Репозиторий — `AlekseyBeketov/video-briefing`; `main` исходно совпадала с `origin/main` на `c6bec82d1cbaabc88c9612b669fd1df7bee916e0`. 172 теста прошли на Python 3.11, 3.13 и 3.14; `compileall`, offline lock-check и сборка успешны.
 - [x] (2026-10-14 14:26Z) Согласовать рекомендованный объём с пользователем, записать дизайн и отправить коммит `99821af` в `origin/main`.
 - [x] (2026-10-14 14:26Z) Зафиксировать до изменений состояние Git. Незатронутые пользовательские изменения: `reports/production-acceptance.md`, `.codegraph/`, `reports/citation-boundary-repair.*`, `reports/final-review.*`, `reports/retrieval-coverage-repair.*`.
-- [ ] (2026-10-14 14:34Z) Исправить `doctor` и отображение ожидаемых ошибок в MCP. `doctor` и два регрессионных теста готовы; 8 тестов `tests/test_cli.py` проходят. Осталось покрыть MCP, закоммитить и отправить оба блока.
+- [x] (2026-10-14 14:30Z) Исправить `doctor`: ненулевой код при отсутствии обязательного captions package, нулевой при отсутствии optional ASR. Новый тест сначала подтвердил прежний ошибочный код 0; все 8 тестов `tests/test_cli.py` прошли после фикса. Коммит `79bfcdd` отправлен в `origin/main`.
+- [ ] (2026-10-14 14:30Z) MCP-классификация и тесты готовы: 12 тестов адаптера и MCP прошли, включая проверку, что неизвестная ошибка не раскрывает детали. Осталось закоммитить и отправить этот блок.
 - [ ] Изолировать и защитить файлы benchmark-запусков, проверить поведение повторного и неудачного запуска, обновить протокол и отправить отдельный коммит.
 - [ ] Удалить подтверждённый мёртвый код, добавить Ruff и GitHub Actions workflow, обновить lock-файл и отправить отдельный коммит.
 - [ ] Повторить тесты, линтер, компиляцию, lock-check и сборку; проверить все diff и историю Git; записать итог и отправить завершающий коммит отчёта.
@@ -74,7 +75,7 @@
 
 ### Task 2: Передавать безопасные причины ошибок через MCP
 
-Файлы: `src/video_briefing/adapters/captions_api.py`, `src/video_briefing/mcp_server.py`, `tests/test_captions_api.py`, `tests/test_mcp_server.py`.
+Файлы: `src/video_briefing/adapters/captions_api.py`, `src/video_briefing/mcp_server.py`, `tests/test_captions_api.py`, `tests/test_mcp_server.py`, `docs/agent-integration.md`.
 
 Добавить отдельные типы ожидаемого отказа адаптера для недоступных титров, сетевой блокировки и обязательной аутентификации/cookies; сохранить существующие безопасные сообщения и ограничения анонимного доступа. В `_safe_call` сопоставить эти типы со стабильными кодами `source_unavailable`, `source_blocked` и `source_auth_required`. Сопоставить безопасный `LocalASRError` с `source_processing_failed`. `ValueError` остаётся `invalid_input`; неизвестное исключение остаётся `operation_failed` с обобщённым сообщением.
 
