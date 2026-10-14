@@ -6,7 +6,7 @@
 
 **Tech Stack:** Python 3.11–3.14, `uv`/`uv.lock`, pytest, Ruff, GitHub Actions.
 
-Этот ExecPlan следует `/Users/alexbeketov/.codex/Plans.md`. Он живой: разделы `Progress`, `Surprises & Discoveries`, `Decision Log` и `Outcomes & Retrospective` обновляются по мере работы. Все коммиты отправляются fast-forward в `origin/main`; force-push запрещён.
+Этот ExecPlan следует локальному стандарту ExecPlans, прочитанному перед началом работы. Он живой: разделы `Progress`, `Surprises & Discoveries`, `Decision Log` и `Outcomes & Retrospective` обновляются по мере работы. Все коммиты отправляются fast-forward в `origin/main`; force-push запрещён.
 
 ## Purpose / Big Picture
 
@@ -22,21 +22,21 @@
 - [x] (2026-10-14 14:30Z) Исправить `doctor`: ненулевой код при отсутствии обязательного captions package, нулевой при отсутствии optional ASR. Новый тест сначала подтвердил прежний ошибочный код 0; все 8 тестов `tests/test_cli.py` прошли после фикса. Коммит `79bfcdd` отправлен в `origin/main`.
 - [x] (2026-10-14 14:30Z) MCP-классификация и тесты готовы: 12 тестов адаптера и MCP прошли, включая проверку, что неизвестная ошибка не раскрывает детали. Коммит `607a93e` отправлен в `origin/main`.
 - [x] (2026-10-14 14:33Z) Benchmark outputs изолированы: каждый CLI запуск получает уникальную папку, progress и results пишутся приватно и атомарно, ошибку CLI сопровождает путь к run folder, протокол обновлён. 17 целевых тестов прошли; коммит `361755e` отправлен в `origin/main`.
-- [ ] (2026-10-14 14:36Z) Подтверждённый dead code удалён, Ruff 0.17.0 закреплён в dev extra, workflow проверяет четыре версии Python, lock-check/Ruff/YAML parse успешны, весь набор прошёл (184 теста). Остались `compileall`, сборка, итоговый просмотр и отправка коммита.
-- [ ] Повторить тесты, линтер, компиляцию, lock-check и сборку; проверить все diff и историю Git; записать итог и отправить завершающий коммит отчёта.
+- [x] (2026-10-14 14:37Z) Подтверждённый dead code удалён, Ruff 0.17.0 закреплён в dev extra, workflow проверяет четыре версии Python. Коммит `1d85eb6` отправлен; GitHub Actions run `38582072206` завершился успешно на Python 3.11–3.14.
+- [x] (2026-10-14 14:40Z) Финальная проверка: по 184 теста прошли локально на Python 3.11, 3.13 и 3.14; Ruff, разбор YAML, `compileall`, `uv lock --check --offline`, wheel/sdist build, `doctor` и `git diff --check` успешны. Python 3.12 локально не установлен, но CI проверил его. Итоги зафиксированы в этом документе.
 
 ## Surprises & Discoveries
 
 - `src/video_briefing/cli.py::_doctor` печатает `youtube_transcript_api.available=false`, но всё равно возвращает код 0. Зависимость обязательна в `pyproject.toml`, поэтому автоматическая проверка сейчас скрывает неработающую установку.
 - `src/video_briefing/mcp_server.py::_safe_call` сводит безопасные отказы титров к `operation_failed`. Адаптер уже различает отсутствие титров, блокировку сети и требование cookies, но MCP теряет это различие.
 - `src/video_briefing/benchmark.py` создаёт `progress.json` и итоговые файлы обычным `write_text`. В проверочном каталоге с обычной маской процесс создал файлы режима `0644`. CLI повторно использует один `runs` каталог и фиксированные имена, что затирает результаты предыдущего запуска.
-- В Ruff 0.17.0 с правилами `E4,E7,E9,F` найдены два неиспользуемых импорта и четыре `E402` в тесте опционального MCP SDK. Правило `E402` вызвано размещением `pytest.importorskip` перед SDK-импортами; тест нужно переставить так, чтобы правило осталось включённым.
+- Ruff 0.17.0 с правилами `E4,E7,E9,F` нашёл неиспользуемые импорты и `E402` из-за вызова `pytest.importorskip` перед MCP SDK-импортами. Импорты переставлены через module-level `try/except ImportError` и `pytest.skip`; правила не подавлялись, полный Ruff check проходит.
 - Новый тест `test_doctor_returns_nonzero_when_required_captions_dependency_is_missing` подтвердил дефект: до исправления `main(["doctor"])` печатал `available: false`, но возвращал 0. После фикса весь `tests/test_cli.py` прошёл.
 - Повторный benchmark использовал один и тот же `--output-dir` с фиксированными именами файлов. Тесты сначала упали на общем каталоге, неограниченных режимах и отсутствии пути диагностики; после выделения уникальной подпапки все 17 тестов benchmark и CLI прошли.
 - Ruff-совместимость MCP теста достигнута через `try/except ImportError` и module-level skip, без `noqa`. Ruff 0.17.0 проверил весь `src` и `tests` без диагностик; `uv lock --check --offline` разрешил 44 пакета.
 - Первый полный тестовый прогон в sandbox дал `183 passed, 1 failed`: существующий redirect regression test не смог bind `127.0.0.1` из-за sandbox policy. С разрешённым loopback тестированием тот же набор завершился `184 passed in 4.34s`.
 - Первоначальный `uv run` под sandbox не имел доступа к кэшу в `~/.cache/uv`. Один запуск также заменил существующий игнорируемый `.venv` с Python 3.9 пустым окружением Python 3.14. Последующие локальные проверки должны задавать отдельный `UV_PROJECT_ENVIRONMENT` в `/tmp`; пользовательскую `.venv` не восстанавливать и не удалять.
-- Нет GitHub Actions workflow и закреплённого Ruff в dev dependencies. В истории встречаются абсолютные `/Users/...` пути; это исторические записи, их не редактировать. Файл лицензии отсутствует; не добавлять лицензию без решения владельца.
+- Нет GitHub Actions workflow и закреплённого Ruff в dev dependencies. В истории встречаются персональные absolute home-directory paths; это исторические записи, их не редактировать. Файл лицензии отсутствует; не добавлять лицензию без решения владельца.
 - Git-индекс в основном checkout доступен только для чтения без эскалации. Пользователь прямо запросил коммиты и push в `main`; Git-операции требуют `require_escalated`. Согласованный дизайн уже успешно отправлен после проверки SHA удалённой ветки.
 
 ## Decision Log
@@ -50,11 +50,27 @@
 
 ## Outcomes & Retrospective
 
-Работа ещё не завершена. В `main` отправлены дизайн, план, исправления doctor, MCP taxonomy и приватная изоляция benchmark runs. Остаётся завершить commit lint/CI, выполнить финальные сборки и тесты на Python matrix, затем указать фактические результаты и ограничения.
+Подтверждённые проблемы исправлены. `doctor` теперь возвращает ненулевой код, если обязательная зависимость captions отсутствует. MCP передаёт безопасные и различимые причины ошибок источника и ASR, сохраняя обобщённый ответ для неизвестных исключений. Benchmark CLI создаёт новую закрытую папку на каждый запуск, атомарно пишет приватные файлы, больше не затирает прежние запуски и указывает папку диагностики при ошибке. Удалены только неиспользуемые импорты/привязка и helper `_tool_version`, у которого не было вызовов. Добавлены закреплённый Ruff, GitHub Actions для всех поддерживаемых версий и regression tests.
+
+Локально каждый из наборов на Python 3.11, 3.13 и 3.14 завершился `184 passed`; CI run `38582072206` завершился `success` на 3.11, 3.12, 3.13 и 3.14, включая lock-check, Ruff, pytest, compileall и сборку wheel/sdist. `doctor` в текущем окружении вернул JSON со всеми ожидаемыми установленными обязательными зависимостями и код 0. Локальные тесты требовали разрешить loopback для уже существующего HTTP regression test; один ограниченный sandbox прогон отказал на bind, тот же полный набор с разрешённым loopback прошёл.
+
+Не принято решений о лицензии. Персональные home-directory paths в исторических tracked-записях сохранены по границе задачи; их очистка требует отдельного решения. Python 3.12 не установлен локально, но проверен CI. Реальные обращения к YouTube, Baoyu, Ollama и облачным моделям не выполнялись: изменения проверены на fixture и локальном loopback. Начальный неудачный запуск `uv` заменил игнорируемый `.venv` с Python 3.9 на пустое окружение 3.14; дальнейшие проверки использовали `/tmp`, `.venv` не восстанавливался. В Git остались только перечисленные исходные пользовательские изменения.
+
+### Audit Inventory
+
+Reviewed package modules: `src/video_briefing/__init__.py`, `src/video_briefing/adapters/__init__.py`, `src/video_briefing/adapters/baoyu.py`, `src/video_briefing/adapters/captions_api.py`, `src/video_briefing/benchmark.py`, `src/video_briefing/briefing.py`, `src/video_briefing/citation_validation.py`, `src/video_briefing/cli.py`, `src/video_briefing/evidence_api.py`, `src/video_briefing/grounding.py`, `src/video_briefing/llm.py`, `src/video_briefing/local_asr.py`, `src/video_briefing/mcp_server.py`, `src/video_briefing/models.py`, `src/video_briefing/qa.py`, `src/video_briefing/resources/__init__.py`, `src/video_briefing/retrieval.py`, `src/video_briefing/source_guards.py`, `src/video_briefing/store.py`, and `src/video_briefing/validation.py`.
+
+Reviewed tests: `tests/test_adapters.py`, `tests/test_benchmark.py`, `tests/test_briefing.py`, `tests/test_cached_qna.py`, `tests/test_captions_api.py`, `tests/test_citation_validation.py`, `tests/test_cli.py`, `tests/test_evidence_api.py`, `tests/test_fixed_source_recall.py`, `tests/test_generation_coverage.py`, `tests/test_llm.py`, `tests/test_llm_safety.py`, `tests/test_local_asr.py`, `tests/test_mcp_server.py`, `tests/test_qa.py`, `tests/test_qa_citation_boundaries.py`, `tests/test_retrieval.py`, `tests/test_retrieval_windows.py`, `tests/test_source_guards.py`, `tests/test_store.py`, and `tests/test_validation.py`.
+
+Также изучены метаданные пакета и lock (`pyproject.toml`, `uv.lock`), `.gitignore`, `README.md`, `config/experiment.json`, `scripts/setup-tools.sh`, документы о дизайне/агентах/benchmark/отложенных решениях, исследовательские манифесты и evaluation, существующие review/release/comparison отчёты. В итоговые коммиты вошли только перечисленные в плане файлы, дизайн и этот отчёт; пользовательские изменения остались вне коммитов.
+
+### Security Review Notes
+
+Проект предоставляет локальный CLI и MCP stdio, а не HTTP UI: XSS, CSRF и браузерная авторизация не относятся к его интерфейсам. Проверены URL и модельные endpoint validation, отказ от loopback/private URL для недоверенного источника, запрет credentials в endpoint, явный privacy opt-in для облачной модели, ограничения и очищенное окружение локальных subprocess, immutable source cache и bounded citation validation. MCP не возвращает source text для неожиданных исключений; новые типы ошибок разрешают показывать только безопасные сообщения. SHA-256 используется для целостности и provenance данных, не как аутентификация. Тесты используют synthetic fixtures; живые YouTube/LLM-сервисы не проверялись.
 
 ## Context and Orientation
 
-Репозиторий находится в `/Users/alexbeketov/video-briefing`, package source — в `src/video_briefing/`, тесты — в `tests/`. `cli.py` объявляет команды и превращает исключения в JSON-ошибки; `benchmark.py` записывает промежуточный прогресс и итоговые JSON/Markdown файлы; `adapters/captions_api.py` обращается за публичными титрами; `mcp_server.py` преобразует операции в инструменты MCP. `local_asr.py` запускает локальный ASR и содержит `LocalASRError`. `store.py` уже показывает безопасный образец записи: ограниченная папка, временный файл и `os.replace`.
+Корень checkout — текущая рабочая директория; package source находится в `src/video_briefing/`, тесты — в `tests/`. `cli.py` объявляет команды и превращает исключения в JSON-ошибки; `benchmark.py` записывает промежуточный прогресс и итоговые JSON/Markdown файлы; `adapters/captions_api.py` обращается за публичными титрами; `mcp_server.py` преобразует операции в инструменты MCP. `local_asr.py` запускает локальный ASR и содержит `LocalASRError`. `store.py` уже показывает безопасный образец записи: ограниченная папка, временный файл и `os.replace`.
 
 `uv.lock` фиксирует версии зависимостей. В `pyproject.toml` уже есть Python-диапазон `>=3.11,<3.15`, extras `dev` и `mcp`, а также базовая конфигурация Ruff. Отчёт benchmark содержит source-derived текст, поэтому режимы доступа и сохранение предыдущих запусков имеют значение. `docs/benchmark-protocol.md` описывает отдельные артефакты каждого запуска.
 
@@ -138,7 +154,7 @@
 
 ## Artifacts and Notes
 
-Дизайн записан в `docs/plans/2026-10-14-codebase-audit-design.md` и отправлен коммитом `99821af`. Исполняемый план находится в этом документе. Базовые команды с результатами: 172 теста на каждой из Python 3.11, 3.13, 3.14; `compileall` успешен; `uv lock --check --offline` успешен; `uv build --offline` создал wheel и sdist; `video-briefing doctor` завершился с кодом 0 при доступной обязательной зависимости.
+Дизайн записан в `docs/plans/2026-10-14-codebase-audit-design.md` (коммит `99821af`), план/отчёт — в этом документе. Коммиты отправлены по порядку: `99821af`, `80383aa`, `79bfcdd`, `607a93e`, `361755e`, `1d85eb6`, затем коммит этого отчёта. Базовое состояние: `172` теста на Python 3.11, 3.13 и 3.14 проходили до правок. После изменений `184` теста прошли на каждой локально установленной версии. `ruff check src tests`, `python -m compileall -q src tests`, `uv lock --check --offline`, `git diff --check`, сборка wheel и sdist успешны. [CI run `38582072206`](https://github.com/AlekseyBeketov/video-briefing/actions/runs/38582072206) успешен на Python 3.11–3.14; `video-briefing doctor` smoke test вернул 0.
 
 ## Interfaces and Dependencies
 
