@@ -11,7 +11,8 @@ import sys
 def main() -> int:
     executable = shutil.which("video-briefing")
     if not executable:
-        print(json.dumps({"error": {"code": "not_installed", "message": "Install the video-briefing wheel and retry."}}), file=sys.stderr)
+        message = "Install Video Briefing and add its CLI executable to PATH; see the project README."
+        print(json.dumps({"error": {"code": "not_installed", "message": message}}), file=sys.stderr)
         return 2
     return subprocess.run([executable, *sys.argv[1:]], check=False).returncode
 

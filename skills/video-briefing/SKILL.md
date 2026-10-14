@@ -5,21 +5,23 @@ description: Use when an agent needs a transcript-grounded briefing or Q&A from 
 
 # Video Briefing
 
-Use the installed `video-briefing` CLI. Do not substitute web search, video descriptions, memory, or uncited summaries for transcript evidence. The default workflow never calls an LLM: the consuming agent reviews returned evidence and writes the answer itself.
+Use the installed `video-briefing` CLI. If it is not on `PATH`, use the executable in the dedicated project environment that was configured for this agent. Do not substitute web search, video descriptions, memory, or uncited summaries for transcript evidence. The default workflow never calls an LLM: the consuming agent reviews returned evidence and writes the answer itself.
 
 ## Install
 
-Install the supplied wheel into the agent's Python environment:
+Install Video Briefing from its official source repository into a new, dedicated checkout. Follow the repository README and use the locked project environment:
 
 ```sh
-python -m pip install ./video_briefing-<version>-py3-none-any.whl
-video-briefing --version
-video-briefing doctor
+git clone https://github.com/AlekseyBeketov/video-briefing.git /ABS/PATH/video-briefing
+cd /ABS/PATH/video-briefing
+uv sync --frozen
+uv run video-briefing --version
+uv run video-briefing doctor
 ```
 
-The package contains this skill and its prompts; no checkout path or editable install is required. Copy this skill file into the agent's normal skill directory if that agent supports portable skills.
+Use a path that does not already exist and keep the checkout at a stable location. From another working directory, use the absolute CLI executable inside the checkout's `.venv`; on macOS/Linux this is `.venv/bin/video-briefing`, and on Windows it is `.venv/Scripts/video-briefing.exe`. Install this skill directory into the agent's normal skill location only if its official documentation supports local skills and the destination does not already exist. Never overwrite an existing skill.
 
-For native tool calls, install the wheel's `mcp` extra and configure your agent's MCP host to launch `video-briefing-mcp` as a stdio server. The server exposes source ingestion and bounded evidence tools; it never calls an LLM. Configure `VIDEO_BRIEFING_TRANSCRIBE` and `VIDEO_BRIEFING_ASR_MODEL` in the server environment only if local ASR is needed. No project checkout path is required.
+For native tool calls, add the MCP extra in this checkout with `uv sync --frozen --extra mcp` and configure the agent's MCP host to launch this checkout's absolute `video-briefing-mcp` executable as a stdio server. The server exposes source ingestion and bounded evidence tools; it never calls an LLM. Configure `VIDEO_BRIEFING_TRANSCRIBE` and `VIDEO_BRIEFING_ASR_MODEL` in the server environment only if local ASR is needed. Keep the checkout path stable because the agent configuration points to it.
 
 ## Ingest YouTube captions
 
