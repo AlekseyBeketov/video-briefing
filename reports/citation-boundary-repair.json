@@ -1,0 +1,319 @@
+{
+  "task_id": "t_4eec35ee",
+  "scope": "Bounded citation-boundary and missing Q01/Q08 artifact repair only; whole-project acceptance pending independent rereview.",
+  "base_commit": "4de6fe19a19d55e756ea89cce161aa1a2aa037a6",
+  "code_file_sha256": {
+    "src/video_briefing/qa.py": "a0b1b9bd47d7b5be6796895b6bcb411c4ba55a61fda465c63fc491bc213c5012",
+    "prompts/qa.md": "c7eb7720aabdc7853c2fc9fc3f0c9e75031d69d70df1d3ce5f0a0c4a05c3e2cc",
+    "tests/test_qa_citation_boundaries.py": "f798f4a9d70aa34d80d41e24e5ecef60655b8e18e2f7038624c84e2661401119"
+  },
+  "code_revision_sha256": "82f44e76f49c1a78e20442555dd643b8711e948443b24192018fbe51124208e3",
+  "new_commit_created": false,
+  "revision_status": "Uncommitted working-tree repair; task explicitly prohibits commit changes. Base HEAD is not a commit containing this repair.",
+  "checks": [
+    {
+      "command": "uv run --frozen pytest",
+      "exit_code": 0,
+      "output": ".............................................                            [100%]\n45 passed in 0.06s"
+    },
+    {
+      "command": "uv run --frozen python -m compileall -q src tests",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "baseline_regression": {
+    "baseline_citation_ids": [
+      "s00498",
+      "s00499",
+      "s00500"
+    ],
+    "repaired_citation_ids": [
+      "s00497",
+      "s00498",
+      "s00499",
+      "s00500"
+    ],
+    "result": "Verified by executing HEAD qa.py in memory and repaired code with the same incomplete model response; no checkout/history modification."
+  },
+  "fixed_fixture": "Six exact caption segments s00496-s00501 and metadata matched against complete cached source; independently verified deterministic incomplete-citation repair on all 566 segments.",
+  "source_files_unchanged": {
+    "artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json": "65ce012ded3c7c66d5d998175c77f54895356cf9e2365b852d3f44f1b07e8232",
+    "artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/source.raw": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af"
+  },
+  "cached_smoke_runs": [
+    {
+      "label": "nas-installed",
+      "started_at_utc": "2026-10-07T11:07:51.253815+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --question 'Что автор говорит о NAS и какие функции Mini Scloud уже доступны или обещаны?' --variant captions_api --language ru",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/citation-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/nas-installed-citation-repair-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/production-nas-citation-repair.json",
+      "artifact_sha256": "b62edbaedc453a7e30f50349355ffe51b44d55fb7a005ac98fd240a85d8f4a75",
+      "artifact_bytes": 3882,
+      "source": {
+        "video_id": "DvSwvJVens8",
+        "language": "ru",
+        "variant": "captions_api",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "segments": 566,
+        "extractor_version": "youtube-transcript-api-1.2.4"
+      },
+      "elapsed_seconds": 2.1976621670037275,
+      "abstained": false,
+      "claims": 3,
+      "citation_ids": [
+        [
+          "s00497",
+          "s00498",
+          "s00499",
+          "s00500"
+        ],
+        [
+          "s00517",
+          "s00518",
+          "s00519",
+          "s00520"
+        ],
+        [
+          "s00520",
+          "s00521",
+          "s00522",
+          "s00523"
+        ]
+      ],
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "846c2602aa7e5c4b2e2b2366448ecc42cd41b61f1e577fb3bf6c32bce625bdf7",
+            "system_sha256": "585dd2ae840062a73a78ee222087a15dae435027bd3f6bdca5342122994c4f13",
+            "schema_sha256": "e2b402b64ae2b98919a9a99733a69f8a07d7a202693bee859261222baa4fb091",
+            "prompt_tokens": 1743,
+            "completion_tokens": 423,
+            "elapsed_seconds": 2.1885064160014736,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "guards_loaded": 2,
+      "allowed_ollama_connections": 1,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/nas-installed-citation-repair-audit.jsonl",
+      "audit_log_sha256": "be2ee07330d881ca450f63c35df608af2c949fca6d0122d54159c32171fdcd28"
+    },
+    {
+      "label": "nas-checkout",
+      "started_at_utc": "2026-10-07T11:07:53.572760+00:00",
+      "command": "python3 /Users/alexbeketov/video-briefing/skills/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --question 'Что автор говорит о NAS и какие функции Mini Scloud уже доступны или обещаны?' --variant captions_api --language ru",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/citation-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/nas-checkout-citation-repair-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/production-nas-checkout-citation-repair.json",
+      "artifact_sha256": "6853901dedbecd9f0c99f53109b4e9e396c9512e23aa82c68d27102678ddefba",
+      "artifact_bytes": 3845,
+      "source": {
+        "video_id": "DvSwvJVens8",
+        "language": "ru",
+        "variant": "captions_api",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "segments": 566,
+        "extractor_version": "youtube-transcript-api-1.2.4"
+      },
+      "elapsed_seconds": 1.912958000000799,
+      "abstained": false,
+      "claims": 3,
+      "citation_ids": [
+        [
+          "s00497",
+          "s00498",
+          "s00499",
+          "s00500"
+        ],
+        [
+          "s00517",
+          "s00518",
+          "s00519",
+          "s00520"
+        ],
+        [
+          "s00520",
+          "s00521",
+          "s00522",
+          "s00523"
+        ]
+      ],
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "846c2602aa7e5c4b2e2b2366448ecc42cd41b61f1e577fb3bf6c32bce625bdf7",
+            "system_sha256": "585dd2ae840062a73a78ee222087a15dae435027bd3f6bdca5342122994c4f13",
+            "schema_sha256": "e2b402b64ae2b98919a9a99733a69f8a07d7a202693bee859261222baa4fb091",
+            "prompt_tokens": 1743,
+            "completion_tokens": 417,
+            "elapsed_seconds": 1.9036456660032854,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "guards_loaded": 2,
+      "allowed_ollama_connections": 1,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/nas-checkout-citation-repair-audit.jsonl",
+      "audit_log_sha256": "000d74d5a18663e99bbf7b72dba53fb37605c0c007576498e187b2b35798b398"
+    },
+    {
+      "label": "q01",
+      "started_at_utc": "2026-10-07T11:07:55.617236+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --question 'На чём автор делает главный акцент при объяснении нового AI PC: на мощности NPU или на памяти? Какой компромисс он описывает у объединённой памяти?' --variant captions_api --language ru",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/citation-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/q01-citation-repair-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/production-q01.json",
+      "artifact_sha256": "163c2d758eb04c111018e75034b3157651de126fa0c83080847c705c444c5fc1",
+      "artifact_bytes": 3803,
+      "source": {
+        "video_id": "DvSwvJVens8",
+        "language": "ru",
+        "variant": "captions_api",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "segments": 566,
+        "extractor_version": "youtube-transcript-api-1.2.4"
+      },
+      "elapsed_seconds": 2.240466125003877,
+      "abstained": false,
+      "claims": 3,
+      "citation_ids": [
+        [
+          "s00151",
+          "s00152",
+          "s00153",
+          "s00154"
+        ],
+        [
+          "s00126",
+          "s00127",
+          "s00128",
+          "s00129"
+        ],
+        [
+          "s00126",
+          "s00127",
+          "s00128"
+        ]
+      ],
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "371d01dda64bce5b977b97d00109bb02c17a68383ed3fa2d77736842e4f81033",
+            "system_sha256": "585dd2ae840062a73a78ee222087a15dae435027bd3f6bdca5342122994c4f13",
+            "schema_sha256": "e2b402b64ae2b98919a9a99733a69f8a07d7a202693bee859261222baa4fb091",
+            "prompt_tokens": 1962,
+            "completion_tokens": 398,
+            "elapsed_seconds": 2.2314845410001,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "guards_loaded": 2,
+      "allowed_ollama_connections": 1,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/q01-citation-repair-audit.jsonl",
+      "audit_log_sha256": "6588be60572f750fbfb489c2ba1b0e28872c7d7793c4329feca0cd12417ebf3b"
+    },
+    {
+      "label": "q08",
+      "started_at_utc": "2026-10-07T11:07:57.989573+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --question 'Назови точную измеренную температуру под нагрузкой и время автономной работы в часах ноутбука ASUS на RTX Spark, приведённые в этом видео.' --variant captions_api --language ru",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/citation-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/q08-citation-repair-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/production-q08.json",
+      "artifact_sha256": "1b4e46e4c4c7d1ccad4f39ac5cb170812baf4933e4a698d69a33ed0609767b09",
+      "artifact_bytes": 1293,
+      "source": {
+        "video_id": "DvSwvJVens8",
+        "language": "ru",
+        "variant": "captions_api",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "segments": 566,
+        "extractor_version": "youtube-transcript-api-1.2.4"
+      },
+      "elapsed_seconds": 0.7855813339992892,
+      "abstained": true,
+      "claims": 0,
+      "citation_ids": [],
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "67ef8e41f85ffe562f2a512e9524a9cc83a29439f21483575f7442acf0479276",
+            "system_sha256": "585dd2ae840062a73a78ee222087a15dae435027bd3f6bdca5342122994c4f13",
+            "schema_sha256": "e2b402b64ae2b98919a9a99733a69f8a07d7a202693bee859261222baa4fb091",
+            "prompt_tokens": 1971,
+            "completion_tokens": 54,
+            "elapsed_seconds": 0.7770665830030339,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "guards_loaded": 2,
+      "allowed_ollama_connections": 1,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/q08-citation-repair-audit.jsonl",
+      "audit_log_sha256": "0f51df466811f36aaabeb40f8bfaf50283629925e09b34aad99ee85a395200b7"
+    }
+  ],
+  "limitations": [
+    "Lexical exact-phrase boundary repair, not general semantic entailment validation. Paraphrases and uncertain caption spelling are not independently validated.",
+    "Only supplied contiguous retrieval windows can add evidence; unknown IDs and model evidence outside context still rejected.",
+    "No extract/brief/orx run invoked. Python guards allowed only loopback Ollama inference; cloud-backed daemon network egress not measured.",
+    "Original Q01/Q08 artifacts were zero bytes; new outputs are reruns, not recovered historical results.",
+    "Skill, credentials, global configuration, Git remotes and commits untouched; private raw transcript/artifacts remain ignored.",
+    "No whole-project green-light; downstream t_1d07e629 performs independent rereview."
+  ]
+}

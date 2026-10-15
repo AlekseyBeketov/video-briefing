@@ -1,0 +1,95 @@
+{
+  "review_date": "2026-10-07",
+  "task_id": "t_1d07e629",
+  "review_revision": "pre-corrective-rereview",
+  "spec_status": "FAIL",
+  "quality_status": "REQUEST_CHANGES",
+  "project_ready": false,
+  "target": "https://www.youtube.com/watch?v=DvSwvJVens8",
+  "source": {
+    "video_id": "DvSwvJVens8",
+    "language": "ru",
+    "variant": "captions_api",
+    "segments": 566,
+    "sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af"
+  },
+  "repository": {
+    "path": "/Users/alexbeketov/video-briefing",
+    "branch": "main",
+    "head": "4de6fe19a19d55e756ea89cce161aa1a2aa037a6",
+    "production_hardening_commit": "f4012de75d92acb2457f398721cea6eedb9dee38",
+    "uncommitted_repair": "t_4eec35ee",
+    "existing_remote": "origin (pre-existing; unchanged; no push/fetch)",
+    "status": [
+      "M prompts/qa.md",
+      "M reports/production-acceptance.md",
+      "M src/video_briefing/qa.py",
+      "?? .codegraph/",
+      "?? reports/citation-boundary-repair.json",
+      "?? reports/citation-boundary-repair.md",
+      "?? tests/test_qa_citation_boundaries.py"
+    ]
+  },
+  "commands": [
+    {"command": "uv run --frozen pytest", "exit_code": 0, "result": "45 passed in 0.05s"},
+    {"command": "uv run --frozen python -m compileall -q src tests", "exit_code": 0},
+    {"command": "git diff --check", "exit_code": 0},
+    {"command": "uv run --frozen video-briefing --help", "exit_code": 0, "result": "doctor/extract/brief/ask/benchmark"},
+    {"command": "uv run --frozen video-briefing ask --help", "exit_code": 0},
+    {"command": "uv run --frozen video-briefing doctor", "exit_code": 0, "result": "Python 3.13.14; Ollama reachable; captions 1.2.4; Bun 1.4.2; summarize 0.25.1; Baoyu source present"},
+    {"command": "uv run --frozen video-briefing ask <fixed NAS question> --variant captions_api --languages ru", "exit_code": 0, "result": "3 claims; cached source hash unchanged; requested gemma4:31b-cloud, returned gemma4:31b; cloud-backed"},
+    {"command": "uv run --frozen video-briefing ask <fixed Q08 exact temperature/battery question> --variant captions_api --languages ru", "exit_code": 0, "result": "honest abstention, empty claims; source hash unchanged"},
+    {"command": "python3 ~/.hermes/skills/custom/video-briefing/scripts/video_briefing.py brief <target> --language ru --variant captions_api", "exit_code": 0, "result": "actual current-source brief; five inference calls; cloud-backed; missing several predeclared anchors"},
+    {"command": "orx runs 9ddfb26b-139f-400e-8acf-6760aecc3c14", "exit_code": 0, "result": "6 actual runs; 2 done, 4 failed"},
+    {"command": "git ls-files data artifacts", "exit_code": 0, "result": "empty"},
+    {"command": "git remote -v", "exit_code": 0, "result": "pre-existing origin visible; unchanged"}
+  ],
+  "openresearch": {
+    "project_id": "9ddfb26b-139f-400e-8acf-6760aecc3c14",
+    "current_cli_version": "0.2.17",
+    "historical_manifest_version": "0.2.15",
+    "run_count": 6,
+    "status_counts": {"done": 2, "failed": 4},
+    "all_original_log_hashes_verified": true,
+    "new_runs_launched": false,
+    "dashboard": "http://127.0.0.1:4791"
+  },
+  "retrieval_coverage": {
+    "q04_r0277_r0289": {"retrieved": 0, "expected_range_segments": 13},
+    "q04_r0334_r0345": {"retrieved": 0, "expected_range_segments": 12},
+    "q05_r0526_r0563": {"retrieved": 6, "expected_range_segments": 38},
+    "q06_r0460_r0463": {"retrieved": 0, "expected_range_segments": 4},
+    "q06_r0475_r0487": {"retrieved": 5, "expected_range_segments": 13},
+    "q03_r0199_r0201": {"retrieved": 0, "expected_range_segments": 3}
+  },
+  "findings": [
+    {
+      "id": "RR-01",
+      "severity": "HIGH",
+      "status": "confirmed",
+      "summary": "Current full-source retrieval misses essential evaluation ranges for conditional benchmark caveats, final recommendations, and the OpenAI-compatible API. Fresh brief still omits or materially compresses predeclared content anchors."
+    },
+    {
+      "id": "REMOTE-01",
+      "severity": "informational",
+      "status": "observed",
+      "summary": "An existing private origin remains configured; no remote operations performed. Prior handoff documents owner approval, so reviewer did not remove it."
+    }
+  ],
+  "skill": {
+    "canonical_path": "/Users/alexbeketov/skills/custom/video-briefing",
+    "installed_default_path": "/Users/alexbeketov/.hermes/skills/custom/video-briefing",
+    "tree_files_equal": true,
+    "symlinks": false,
+    "registry_profile_target": ["default"],
+    "default_loader_enabled": true,
+    "tree_sha256": "dc5e3c24064bbdfcafaf87637a10e02a78628723a9e38729c717ec9884e31d57"
+  },
+  "repair_task": "t_081ae46a",
+  "limitations": [
+    "Audit result is preliminary; rereview is required after t_081ae46a.",
+    "Captions-only workflow does not validate audio/visual content or exhaustive absence from the entire video.",
+    "Current successful OpenResearch output is from its recorded historical commit and does not validate the current changed source revision.",
+    "No raw transcript or raw transcript segment payloads are included in reports."
+  ]
+}

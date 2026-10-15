@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "runtime": {
+    "distribution": "transcribe-cpp",
+    "version": "0.4.0",
+    "decoder_distribution": "av",
+    "decoder_version": "18.1.0"
+  },
+  "models": [
+    {
+      "id": "gigaam-v3-e2e-rnnt-q8-0",
+      "display_name": "GigaAM v3 e2e-RNN-T Q8_0",
+      "language": "ru",
+      "language_name": "Russian",
+      "repository": "handy-computer/gigaam-v3-e2e-rnnt-gguf",
+      "revision": "b9b68a835993df09018237a11d2a9b8c1925844d",
+      "filename": "gigaam-v3-e2e-rnnt-Q8_0.gguf",
+      "size_bytes": 273724832,
+      "sha256": "78d63b47723b7f8d78c6113a6ef983b5a86e2a86f6c273e1f5cb6967b1c4467a",
+      "quantization": "Q8_0",
+      "license": "MIT",
+      "license_url": "https://huggingface.co/handy-computer/gigaam-v3-e2e-rnnt-gguf",
+      "attribution": "GigaAM-v3 by SaluteSpeech; GGUF conversion hosted by handy-computer",
+      "model_card": "https://github.com/handy-computer/transcribe.cpp/blob/main/docs/models/gigaam-v3-e2e-rnnt.md"
+    },
+    {
+      "id": "parakeet-tdt-ctc-110m-q8-0",
+      "display_name": "NVIDIA Parakeet TDT-CTC 110M Q8_0",
+      "language": "en",
+      "language_name": "English",
+      "repository": "handy-computer/parakeet-tdt_ctc-110m-gguf",
+      "revision": "766f172fe70eb66785e3371664f53762e0fbafaa",
+      "filename": "parakeet-tdt_ctc-110m-Q8_0.gguf",
+      "size_bytes": 135373280,
+      "sha256": "7dd44c74a331d788a4e5f8b16913b3feb29ced22cf5613aad0e0f6cd30516296",
+      "quantization": "Q8_0",
+      "license": "CC-BY-4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/",
+      "attribution": "NVIDIA Parakeet TDT-CTC 110M; GGUF conversion hosted by handy-computer",
+      "model_card": "https://huggingface.co/handy-computer/parakeet-tdt_ctc-110m-gguf"
+    }
+  ]
+}

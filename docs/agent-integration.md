@@ -25,7 +25,7 @@ Configure the MCP client to launch that absolute executable as a local stdio pro
 The server publishes these five tools:
 
 - `ingest_youtube(url, language="ru")` fetches public timed YouTube captions and saves them locally.
-- `ingest_local_mp4(path, language="ru", timeout_seconds=21600)` runs local-only speech recognition on an MP4. It requires `VIDEO_BRIEFING_TRANSCRIBE` and `VIDEO_BRIEFING_ASR_MODEL`; the configured model supports Russian.
+- `ingest_local_mp4(path, language?, timeout_seconds=21600)` runs local-only speech recognition on an MP4. It selects the verified GigaAM Russian or Parakeet English model installed by `setup-asr`. If both models are installed, pass the spoken source language; the server does not auto-detect it.
 - `search_video_evidence(source, query, language?, variant?, limit=12)` searches saved transcript segments and returns bounded text with times.
 - `read_video_evidence(source, start_seconds, end_seconds, language?, variant?, max_segments=20)` reads bounded saved transcript evidence for a time range.
 - `validate_video_claims(source, claims, language?, variant?)` checks that quotes, segment IDs, source identity, and time bounds match the saved evidence. It does not check semantic entailment or external truth.
@@ -46,7 +46,17 @@ The prompts are documentation aids, not installation scripts. They ask the agent
 
 ## Data and optional local ASR
 
-By default the CLI and MCP server use the operating system's user data directory. Set `VIDEO_BRIEFING_DATA_HOME` to select a private directory shared by the processes. The `VIDEO_BRIEFING_FFMPEG` and `VIDEO_BRIEFING_FFPROBE` environment variables optionally select FFmpeg and FFprobe executables. Local transcription also needs the configured `transcribe-cli` executable and GGUF model file. These dependencies and media files do not ship with the package.
+By default the CLI and MCP server use the operating system's user data directory. Set `VIDEO_BRIEFING_DATA_HOME` to select a private directory shared by the processes. To enable managed local ASR from an MCP checkout, install both optional extras and choose the language profile:
+
+```sh
+uv sync --frozen --extra mcp --extra asr
+uv run --frozen --extra mcp --extra asr video-briefing setup-asr --languages ru --yes
+uv run --frozen --extra mcp --extra asr video-briefing doctor
+```
+
+Use `en` for English or `ru,en` for both. The managed route downloads GigaAM v3 e2e-RNN-T Q8_0 (274 MB, MIT) and/or NVIDIA Parakeet TDT-CTC 110M Q8_0 (135 MB, CC-BY-4.0) into `<VIDEO_BRIEFING_DATA_HOME>/asr/models`. The Parakeet model attribution is shown by setup and recorded on its [Hugging Face model card](https://huggingface.co/handy-computer/parakeet-tdt_ctc-110m-gguf). Downloads use pinned revisions, exact file sizes, and SHA-256 checks. Processing an MP4 stays local and uses PyAV; FFmpeg and FFprobe are not required.
+
+`ingest_local_mp4` accepts `language="ru"` or `language="en"`. If exactly one verified profile is installed, the server can use that profile when the argument is omitted. If both are installed, omission returns a clear input error. Model setup language is not proof of the video language; ask or use available context to determine the spoken source language. Existing `VIDEO_BRIEFING_TRANSCRIBE`, `VIDEO_BRIEFING_ASR_MODEL`, `VIDEO_BRIEFING_FFMPEG`, and `VIDEO_BRIEFING_FFPROBE` overrides remain supported as an advanced legacy mode and must be provided as a complete transcribe-cli/model pair.
 
 ## Errors and troubleshooting
 

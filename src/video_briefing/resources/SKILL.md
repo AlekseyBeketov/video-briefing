@@ -21,7 +21,7 @@ uv run video-briefing doctor
 
 Use a path that does not already exist and keep the checkout at a stable location. From another working directory, use the absolute CLI executable inside the checkout's `.venv`; on macOS/Linux this is `.venv/bin/video-briefing`, and on Windows it is `.venv/Scripts/video-briefing.exe`. Install this skill directory into the agent's normal skill location only if its official documentation supports local skills and the destination does not already exist. Never overwrite an existing skill.
 
-For native tool calls, add the MCP extra in this checkout with `uv sync --frozen --extra mcp` and configure the agent's MCP host to launch this checkout's absolute `video-briefing-mcp` executable as a stdio server. The server exposes source ingestion and bounded evidence tools; it never calls an LLM. Configure `VIDEO_BRIEFING_TRANSCRIBE` and `VIDEO_BRIEFING_ASR_MODEL` in the server environment only if local ASR is needed. Keep the checkout path stable because the agent configuration points to it.
+For native tool calls, add the MCP extra in this checkout with `uv sync --frozen --extra mcp` and configure the agent's MCP host to launch this checkout's absolute `video-briefing-mcp` executable as a stdio server. The server exposes source ingestion and bounded evidence tools; it never calls an LLM. For local MP4 transcription, add the `asr` extra and run the managed model setup below. Keep the checkout path stable because the agent configuration points to it.
 
 ## Ingest YouTube captions
 
@@ -33,15 +33,18 @@ Default extraction is anonymous `youtube-transcript-api` captions in Russian. Th
 
 ## Ingest a local MP4
 
-Local ASR is opt-in, external binaries/models are user-provided, and this path makes no network requests:
+Local ASR is opt-in. Install the managed runtime and only the spoken-language model profile that is needed:
 
 ```sh
-video-briefing ingest '/path/to/local.mp4' --local-asr \
-  --ffmpeg ffmpeg --ffprobe ffprobe \
-  --transcribe-cli '/path/to/transcribe-cli' --model '/path/to/model.gguf'
+uv sync --frozen --extra asr
+uv run --frozen --extra asr video-briefing setup-asr --languages ru --yes
+uv run --frozen --extra asr video-briefing doctor
+uv run --frozen --extra asr video-briefing ingest '/path/to/local.mp4' --local-asr --source-language ru
 ```
 
-The complete audio duration is processed in bounded 24-second windows. Returned timestamps identify those windows, not word-level alignment. The transcript, raw evidence, and cache remain in the local private data directory. Never send local-media text to cloud ASR, LLMs, or another agent without explicit user approval.
+Use `en` for English or `ru,en` for both. GigaAM v3 e2e-RNN-T Q8_0 handles Russian (274 MB, MIT); NVIDIA Parakeet TDT-CTC 110M Q8_0 handles English (135 MB, CC-BY-4.0; see the [model card](https://huggingface.co/handy-computer/parakeet-tdt_ctc-110m-gguf)). These models require a known source-language hint; if both are installed, `--source-language` is required. Setup uses pinned revisions and checks exact size and SHA-256 before installing. Model downloads are the only network activity; media decoding and transcription stay local. If local MP4 support is enabled through MCP, install both extras with `uv sync --frozen --extra mcp --extra asr` and use the same private `VIDEO_BRIEFING_DATA_HOME` for CLI setup and the MCP process.
+
+The complete audio is processed in bounded 24-second windows. Returned timestamps identify those windows, not word-level alignment. The transcript, raw evidence, and cache remain in the local private data directory. Never send local-media text to cloud ASR, LLMs, or another agent without explicit user approval. Existing user-configured `transcribe-cli` and GGUF paths remain available as a legacy compatibility mode; do not ask new users to configure them manually.
 
 ## Retrieve evidence and answer
 

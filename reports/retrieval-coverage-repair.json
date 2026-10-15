@@ -1,0 +1,2032 @@
+{
+  "task_id": "t_081ae46a",
+  "stage": "corrective repair with independent-of-Gemma source verification; semantic completion blocked",
+  "generated_at_utc": "2026-10-08T16:35:04.415836+00:00",
+  "repair_acceptance": "135 deterministic tests and executable cached packet pass; fresh brief has one unsupported OS-to-benchmark relationship. Semantic PASS not established.",
+  "semantic_pass": false,
+  "rereview_task": "t_1d07e629",
+  "base_commit": "4de6fe19a19d55e756ea89cce161aa1a2aa037a6",
+  "branch": "main",
+  "new_commit_created": false,
+  "revision_status": "Uncommitted repairs preserved; protected history/source/evaluation/default wrapper untouched.",
+  "code_revision_digest_definition": "sha256 of compact, sorted JSON mapping changed code/test/prompt relative paths to sha256",
+  "code_file_sha256": {
+    "src/video_briefing/retrieval.py": "50f88f1a8a3e0e1f5e4ede5968f1f53e445b0cdf93006c52f0df9df4af14e856",
+    "src/video_briefing/briefing.py": "387b23fd45ced88a14b783286290e19324299ca08164153c3f70bd9aa8140959",
+    "src/video_briefing/qa.py": "1ae162d9cb650f3fa7ac3497450230d7099613ff9babf78c4af16849901ed4b0",
+    "src/video_briefing/grounding.py": "8d51dd7c1781504120a5213b4724abd50741e1531c52b2d31d0f10fd0c6bb54f",
+    "prompts/brief.md": "b7c41589f589e226da236b8b206b56d4832fcf06f7d42b80cfdc5cc9ce206000",
+    "prompts/qa.md": "0488bac7824ef9ca0ffa2dbdaff105e8fc4bcb27ba7156fe12f5ebdc2e548c8e",
+    "tests/test_fixed_source_recall.py": "0fbd5b5ae6ee8f5d3cef2f1c51cc152ddfef13ab37246eaa0d4358188b4cc82c",
+    "tests/test_retrieval_windows.py": "6edb4591a7d1edf32b8e5fb435ab855c4486413850996ed3c735197be0307504",
+    "tests/test_generation_coverage.py": "aa27249e42aa6de292a697c0c3e0de90270221879457f5f423334c4dc0717a7a",
+    "tests/test_benchmark.py": "53ef805ff46bf70c6431916711422cb601e311f880e3ddca7c8bbd451791710b",
+    "tests/test_briefing.py": "312e8d7ee0bb56795dd28e2753deaf257707fc94a19fb41d657d828b7997b208",
+    "tests/test_qa.py": "f4bf3ea629193cf0cb8fcd4ad782e625824a1ca460eb5fd6781f47926362982f",
+    "tests/test_qa_citation_boundaries.py": "bf087699b196ea54946dc84a83a1c1abe79408f75f7f0f5789f688f373ce119b",
+    "src/video_briefing/source_guards.py": "fe7c3a730f1610b1cbb6659a066e157063278d38856c82769f49d87186d548ae",
+    "tests/test_source_guards.py": "c1af7309edeb8a0504af45969cb7fab9a9cea0315c0fba9726f1009e0137859f"
+  },
+  "code_revision_sha256": "5b0d2f9e657e4360e9b863834490bcc13c4b6030022cb33a501228b586bdfe32",
+  "changed_paths": [
+    "src/video_briefing/retrieval.py",
+    "src/video_briefing/briefing.py",
+    "src/video_briefing/qa.py",
+    "src/video_briefing/grounding.py",
+    "prompts/brief.md",
+    "prompts/qa.md",
+    "tests/test_fixed_source_recall.py",
+    "tests/test_retrieval_windows.py",
+    "tests/test_generation_coverage.py",
+    "tests/test_benchmark.py",
+    "tests/test_briefing.py",
+    "tests/test_qa.py",
+    "tests/test_qa_citation_boundaries.py",
+    "src/video_briefing/source_guards.py",
+    "tests/test_source_guards.py",
+    "reports/retrieval-coverage-repair.md",
+    "reports/retrieval-coverage-repair.json"
+  ],
+  "changed_this_resume": [
+    "src/video_briefing/briefing.py",
+    "src/video_briefing/source_guards.py",
+    "tests/test_source_guards.py",
+    "tests/test_fixed_source_recall.py",
+    "reports/retrieval-coverage-repair.md",
+    "reports/retrieval-coverage-repair.json"
+  ],
+  "source": {
+    "video_id": "DvSwvJVens8",
+    "variant": "captions_api",
+    "language": "ru",
+    "segments": 566,
+    "raw_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+    "raw_and_bundle_immutable_during_smoke": true
+  },
+  "evaluation_sha256": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+  "verification": {
+    "uv run --frozen pytest": {
+      "exit_code": 0,
+      "result": "........................................................................ [ 53%]\n...............................................................          [100%]\n135 passed in 0.21s",
+      "log": "artifacts/private/retrieval-repair-semantic-v19/pytest.txt"
+    },
+    "uv run --frozen python -m compileall -q src tests": {
+      "exit_code": 0,
+      "result": "no diagnostics",
+      "log": "artifacts/private/retrieval-repair-semantic-v19/compileall.txt"
+    },
+    "git diff --check": {
+      "exit_code": 0,
+      "result": "no diagnostics",
+      "log": "artifacts/private/retrieval-repair-semantic-v19/diff-check.txt"
+    },
+    "RETRIEVAL_SMOKE_DIR=retrieval-repair-semantic-v19 uv run --frozen python artifacts/private/run_retrieval_repair_smoke.py > artifacts/private/retrieval-repair-semantic-v19.log 2>&1": {
+      "exit_code": 0,
+      "runs": 5,
+      "semantic_pass": false
+    }
+  },
+  "recall_all_frozen_ranges": {
+    "q01": {
+      "before_selected": 52,
+      "after_selected": 374,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0036",
+            "r0041"
+          ],
+          "total": 6,
+          "before": 5,
+          "after": 6
+        },
+        {
+          "reference": [
+            "r0078",
+            "r0087"
+          ],
+          "total": 10,
+          "before": 4,
+          "after": 10
+        },
+        {
+          "reference": [
+            "r0117",
+            "r0137"
+          ],
+          "total": 21,
+          "before": 7,
+          "after": 21
+        }
+      ]
+    },
+    "q02": {
+      "before_selected": 51,
+      "after_selected": 349,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0138",
+            "r0147"
+          ],
+          "total": 10,
+          "before": 9,
+          "after": 10
+        }
+      ]
+    },
+    "q03": {
+      "before_selected": 57,
+      "after_selected": 384,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0167",
+            "r0194"
+          ],
+          "total": 28,
+          "before": 17,
+          "after": 28
+        },
+        {
+          "reference": [
+            "r0199",
+            "r0201"
+          ],
+          "total": 3,
+          "before": 0,
+          "after": 3
+        },
+        {
+          "reference": [
+            "r0217",
+            "r0226"
+          ],
+          "total": 10,
+          "before": 4,
+          "after": 10
+        }
+      ]
+    },
+    "q04": {
+      "before_selected": 57,
+      "after_selected": 277,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0266",
+            "r0273"
+          ],
+          "total": 8,
+          "before": 5,
+          "after": 8
+        },
+        {
+          "reference": [
+            "r0277",
+            "r0289"
+          ],
+          "total": 13,
+          "before": 0,
+          "after": 13
+        },
+        {
+          "reference": [
+            "r0334",
+            "r0345"
+          ],
+          "total": 12,
+          "before": 0,
+          "after": 12
+        }
+      ]
+    },
+    "q05": {
+      "before_selected": 43,
+      "after_selected": 408,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0030",
+            "r0031"
+          ],
+          "total": 2,
+          "before": 0,
+          "after": 0
+        },
+        {
+          "reference": [
+            "r0228",
+            "r0239"
+          ],
+          "total": 12,
+          "before": 0,
+          "after": 12
+        },
+        {
+          "reference": [
+            "r0402",
+            "r0434"
+          ],
+          "total": 33,
+          "before": 0,
+          "after": 33
+        },
+        {
+          "reference": [
+            "r0526",
+            "r0563"
+          ],
+          "total": 38,
+          "before": 6,
+          "after": 38
+        }
+      ]
+    },
+    "q06": {
+      "before_selected": 51,
+      "after_selected": 341,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0202",
+            "r0208"
+          ],
+          "total": 7,
+          "before": 6,
+          "after": 7
+        },
+        {
+          "reference": [
+            "r0460",
+            "r0463"
+          ],
+          "total": 4,
+          "before": 0,
+          "after": 4
+        },
+        {
+          "reference": [
+            "r0475",
+            "r0487"
+          ],
+          "total": 13,
+          "before": 5,
+          "after": 13
+        }
+      ]
+    },
+    "q07": {
+      "before_selected": 45,
+      "after_selected": 252,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0503",
+            "r0525"
+          ],
+          "total": 23,
+          "before": 15,
+          "after": 23
+        }
+      ]
+    },
+    "q08": {
+      "before_selected": 52,
+      "after_selected": 280,
+      "source_ranges": [
+        {
+          "reference": [
+            "r0334",
+            "r0345"
+          ],
+          "total": 12,
+          "before": 0,
+          "after": 12
+        }
+      ]
+    }
+  },
+  "fixed_core_questions": {
+    "passed": 8,
+    "total": 8,
+    "actual_private_source_tests_skipped": 0
+  },
+  "reported_defect_ranges": {
+    "q04:r0277-r0289": "13/13 (0/13 at HEAD)",
+    "q04:r0334-r0345": "12/12 (0/12 at HEAD)",
+    "q05:r0526-r0563": "38/38 (6/38 at HEAD)",
+    "q06:r0460-r0463": "4/4 (0/4 at HEAD)",
+    "q06:r0475-r0487": "13/13 (5/13 at HEAD)"
+  },
+  "runs": [
+    {
+      "label": "brief",
+      "started_at_utc": "2026-10-08T16:25:20.792352+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py brief 'https://www.youtube.com/watch?v=DvSwvJVens8' --variant captions_api --language ru",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-semantic-v19/brief-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/retrieval-repair-semantic-v19/brief.json",
+      "artifact_sha256": "09f61cd2ba9fb48284dd6f9f9cb3b4863de006b29a70d05ea0055864c9236be5",
+      "artifact_bytes": 98125,
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "actual_model": "gemma4:31b",
+        "prompt_sha256": "b7c41589f589e226da236b8b206b56d4832fcf06f7d42b80cfdc5cc9ce206000",
+        "source_sha256": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+        "prompt_tokens": 15122,
+        "completion_tokens": 1840,
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "c5f609a3ff13cca4f02bc08aa304d1692f8f62913dba2126e426c441d59ab407",
+            "system_sha256": "b7c41589f589e226da236b8b206b56d4832fcf06f7d42b80cfdc5cc9ce206000",
+            "schema_sha256": "2769d55592244958cde32e7d51c5c054da5446f60e797cc90b79ec36a9f79be2",
+            "prompt_tokens": 19509,
+            "completion_tokens": 3497,
+            "elapsed_seconds": 19.20417237500078,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "553e0fa766404392bab2e5b355acb8e9878e8bcf2d16b2b775fccb498a9403a5",
+            "system_sha256": "bd3c5dc9187e628282d5a2815296604dce22d42e9a0021ecd0fe0c017bfbd049",
+            "schema_sha256": "e9349460ca4718743fabd8508a6f048f49b8590a3ababcd5f029614f275420a8",
+            "prompt_tokens": 10514,
+            "completion_tokens": 189,
+            "elapsed_seconds": 3.6475860829959856,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "dcee5288f9b85e56675e3ebfacbf8de2a795f0b36a81d3bf2968feb601ddf54e",
+            "system_sha256": "07ec572709b7bede60b71c00e5fcb9528dc538a3b9af1527b247b062a0696245",
+            "schema_sha256": "a0b15a8276241c653ee85f2b083d088e46a9cb31c486535d10a48d0eda3aa373",
+            "prompt_tokens": 15122,
+            "completion_tokens": 1840,
+            "elapsed_seconds": 5.206197332998272,
+            "cloud_backed": true
+          }
+        ],
+        "gist_citations_derived_from_topics": false,
+        "source_parts": 1,
+        "carry_forward_details": 0,
+        "grounding_audit_labels": {
+          "explicit": 30,
+          "inference": 6,
+          "unsupported": 0
+        },
+        "deterministic_source_repairs": [
+          {
+            "kind": "extractive_quantity_preservation",
+            "quantities": [
+              [
+                "128",
+                "gb"
+              ],
+              [
+                "96",
+                "gb"
+              ]
+            ],
+            "evidence": [
+              "s00382",
+              "s00383",
+              "s00384",
+              "s00385"
+            ],
+            "source_text": "В версии на 128 ГБ позволяет выделить встроенный Redeon до 96 ГБ как графическую  память, а в Linux можно пойти ещё дальше."
+          },
+          {
+            "kind": "extractive_uncertainty_preservation",
+            "evidence": [
+              "s00340",
+              "s00341",
+              "s00342",
+              "s00343",
+              "s00344",
+              "s00345",
+              "s00346"
+            ],
+            "source_text": "Сама же Nvidia обещает начало продаж RTX Spark PC в октябре. Сейчас нет полноценной картины по производительности, нагреву и автономности, но, думаю, скоро появится, в том числе и на Android дроидах."
+          }
+        ],
+        "elapsed_seconds": 28.56183045898797,
+        "usage_complete": true
+      },
+      "elapsed_seconds": 28.56183045898797,
+      "claims": 35,
+      "guards_loaded": 4,
+      "allowed_ollama_connections": 3,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/retrieval-repair-semantic-v19/brief-audit.jsonl",
+      "audit_log_sha256": "3be13ecbdc57a7d03403d80174e1078e62e72912814940b7ecbd5b383ad11578"
+    },
+    {
+      "label": "q05",
+      "started_at_utc": "2026-10-08T16:25:49.483369+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --variant captions_api --language ru --question 'Как меняется финальная рекомендация ведущего в зависимости от размера модели, операционной системы и нужного программного стека? Кому в источнике можно осторожно приписать эту рекомендацию?'",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-semantic-v19/q05-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/retrieval-repair-semantic-v19/q05.json",
+      "artifact_sha256": "3874582441b1e61b2e2dec59a7c0978731e65e88cf1098618f832b853482fca9",
+      "artifact_bytes": 13092,
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "6d76a79f26d5d9b4c5b8a361b0ed167643f34125e8749a952177d3194758d5ff",
+            "system_sha256": "41d40e52ae23887b142c31c3434ca8200ca3b2da724574e7ad64bd3a3697f5a1",
+            "schema_sha256": "bc5659429f385b34e31b99f8c896aa016ca800ff950399810aff4194073db17d",
+            "prompt_tokens": 14464,
+            "completion_tokens": 1108,
+            "elapsed_seconds": 5.1597827920049895,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "f13016681e0c0bb0dd852ea1416f660090d27fece7fdeedc4bb928bdf4e1e811",
+            "system_sha256": "07ec572709b7bede60b71c00e5fcb9528dc538a3b9af1527b247b062a0696245",
+            "schema_sha256": "229bf68e779506ee1338670c55d4c6393b70067443816f99493c9efda2644085",
+            "prompt_tokens": 2583,
+            "completion_tokens": 370,
+            "elapsed_seconds": 5.050207916996442,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "elapsed_seconds": 10.320236708008451,
+      "claims": 8,
+      "guards_loaded": 4,
+      "allowed_ollama_connections": 2,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/retrieval-repair-semantic-v19/q05-audit.jsonl",
+      "audit_log_sha256": "4a6e13446d1043115c71ce3f5d93c0c79990af82c1ddac99c4bcd89ec519115b"
+    },
+    {
+      "label": "q06",
+      "started_at_utc": "2026-10-08T16:25:59.920661+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --variant captions_api --language ru --question 'При объединении нескольких домашних ПК их память физически превращается в одну общую планку? Как ролик объясняет распределение модели и чем полезен OpenAI-совместимый API?'",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-semantic-v19/q06-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/retrieval-repair-semantic-v19/q06.json",
+      "artifact_sha256": "d86a40c6b7c9bd0f537123563a22edc46e381219a40a6d28f8f6f11f0441753a",
+      "artifact_bytes": 9227,
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "3e7b4707114924da75dfa51ca855782dd629a2dd7737020d3f390399d34bb193",
+            "system_sha256": "41d40e52ae23887b142c31c3434ca8200ca3b2da724574e7ad64bd3a3697f5a1",
+            "schema_sha256": "d7124a51dd38046d9d6f2d8367a344926cec33e56f1ed32dc8efb37f6842c5da",
+            "prompt_tokens": 12180,
+            "completion_tokens": 747,
+            "elapsed_seconds": 2.8362064590037335,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "87bba6c0ec763c9f69034559b3d7b4aaa9a5c39adda8be4dd048fec63056a832",
+            "system_sha256": "07ec572709b7bede60b71c00e5fcb9528dc538a3b9af1527b247b062a0696245",
+            "schema_sha256": "203625d8406d26ac9e94016e751d2a453dfa04484f3561e0dc3ca13a137bbc5c",
+            "prompt_tokens": 1781,
+            "completion_tokens": 299,
+            "elapsed_seconds": 1.256121083002654,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "elapsed_seconds": 4.1870569579914445,
+      "claims": 7,
+      "guards_loaded": 4,
+      "allowed_ollama_connections": 2,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/retrieval-repair-semantic-v19/q06-audit.jsonl",
+      "audit_log_sha256": "39a2edd372bc0e2968fccf3e59a793ae32e3ce4e73d26760da2cfc62635e058f"
+    },
+    {
+      "label": "q07",
+      "started_at_utc": "2026-10-08T16:26:04.228460+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --variant captions_api --language ru --question 'Почему ролик предлагает держать локального AI-ассистента на NAS, а не обязательно в ноутбуке? Какие software возможности описаны как уже имеющиеся, а какие только обещаны?'",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-semantic-v19/q07-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/retrieval-repair-semantic-v19/q07.json",
+      "artifact_sha256": "77cd4c54234f998db93a643dbd75438f6de9c4c715700e79f15ba35aefb1128b",
+      "artifact_bytes": 8895,
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "58b253bb54592875750aa9612cb1b7753c1cef1eff26c733029221bd3eee1a11",
+            "system_sha256": "41d40e52ae23887b142c31c3434ca8200ca3b2da724574e7ad64bd3a3697f5a1",
+            "schema_sha256": "f831497e504504abdc37a2fb3a709d385e9b157eed16023696c8ed440ea25169",
+            "prompt_tokens": 9186,
+            "completion_tokens": 642,
+            "elapsed_seconds": 2.8363978340057656,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "d2697c01e76c8585a7db0f1634cbafe715e02e4d8de15732de94ea3acfc05795",
+            "system_sha256": "07ec572709b7bede60b71c00e5fcb9528dc538a3b9af1527b247b062a0696245",
+            "schema_sha256": "13f2118de60642cd34c455639cf439a22df8d69be8d53c304e11b2f8bd14916b",
+            "prompt_tokens": 1465,
+            "completion_tokens": 222,
+            "elapsed_seconds": 1.0833628749969648,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "elapsed_seconds": 3.9727916669944534,
+      "claims": 4,
+      "guards_loaded": 4,
+      "allowed_ollama_connections": 2,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/retrieval-repair-semantic-v19/q07-audit.jsonl",
+      "audit_log_sha256": "d082a762851b6875a916b0d8ff125ed9521db2817bd3cfe9fab64faea0951361"
+    },
+    {
+      "label": "q08",
+      "started_at_utc": "2026-10-08T16:26:08.328011+00:00",
+      "command": "python3 /Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py ask 'https://www.youtube.com/watch?v=DvSwvJVens8' --variant captions_api --language ru --question 'Назови точную измеренную температуру под нагрузкой и время автономной работы в часах ноутбука ASUS на RTX Spark, приведённые в этом видео.'",
+      "environment": {
+        "UV_OFFLINE": "1",
+        "PYTHONPATH": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-guard:/Users/alexbeketov/video-briefing/src",
+        "CITATION_SMOKE_AUDIT_LOG": "/Users/alexbeketov/video-briefing/artifacts/private/retrieval-repair-semantic-v19/q08-audit.jsonl"
+      },
+      "exit_code": 0,
+      "stderr": "",
+      "artifact": "artifacts/private/retrieval-repair-semantic-v19/q08.json",
+      "artifact_sha256": "08da7358c9f04897b1e8d65e73e675e3db16d929e6bb44be2492ea7851bad7ee",
+      "artifact_bytes": 2563,
+      "model": {
+        "requested_model": "gemma4:31b-cloud",
+        "returned_model": "gemma4:31b",
+        "cloud_backed": true,
+        "inference_calls": [
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "6cf0ddd20777829ec78572128625363e121c2378b1a2fa720d8d1187deae76cc",
+            "system_sha256": "41d40e52ae23887b142c31c3434ca8200ca3b2da724574e7ad64bd3a3697f5a1",
+            "schema_sha256": "b7248c05468ffc92fba08d90709107d2ec246a275385528de17d0b27e7df2de8",
+            "prompt_tokens": 10130,
+            "completion_tokens": 201,
+            "elapsed_seconds": 1.3570369169901824,
+            "cloud_backed": true
+          },
+          {
+            "requested_model": "gemma4:31b-cloud",
+            "returned_model": "gemma4:31b",
+            "prompt_sha256": "96613a4c6ec73a17edb4890b136ca201d852f4cc5c05ec8ceb5205c1463c5df0",
+            "system_sha256": "07ec572709b7bede60b71c00e5fcb9528dc538a3b9af1527b247b062a0696245",
+            "schema_sha256": "6761b46ed9f9d91c1f43001073429c0859dd1a1e56d358105fb2f94e78f735e5",
+            "prompt_tokens": 554,
+            "completion_tokens": 52,
+            "elapsed_seconds": 0.5100852500036126,
+            "cloud_backed": true
+          }
+        ],
+        "usage_complete": true
+      },
+      "elapsed_seconds": 1.8907429579994641,
+      "claims": 1,
+      "guards_loaded": 4,
+      "allowed_ollama_connections": 2,
+      "guard_denials": 0,
+      "audit_log": "artifacts/private/retrieval-repair-semantic-v19/q08-audit.jsonl",
+      "audit_log_sha256": "5654c7280627eb81518a4505d2ff12c135187639766da983b1214a0bc79a7ccb"
+    }
+  ],
+  "protected_files_before_after": {
+    "/Users/alexbeketov/video-briefing/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/bundle.json": "65ce012ded3c7c66d5d998175c77f54895356cf9e2365b852d3f44f1b07e8232",
+    "/Users/alexbeketov/video-briefing/artifacts/private/evidence/b5/b55cb9ec76c959c39362b2f1abde9eb73e4394aa7f1b01c188ce27b094e6251b/source.raw": "940d5b89a1d24b30f256d352f97d3d6624a5f296a1707780b777dbdb17d1e3af",
+    "/Users/alexbeketov/video-briefing/docs/research/evaluation.json": "7abd485c1549e336497346a7cf571098a7ca18c8662ddf8f81ad781a0c94d1a1",
+    "/Users/alexbeketov/.hermes/skills/custom/video-briefing/scripts/video_briefing.py": "c1a92d5724df765d2cd873abaae0b45da83130737b89e5d39556fa8777eb92c0",
+    "/Users/alexbeketov/video-briefing/reports/final-review.md": "d8a4f8143d13cad8d31aafb39e4ec3a1aa2a2271ea9c3c19e4dd47dd8578f4d6",
+    "/Users/alexbeketov/video-briefing/reports/final-review.json": "1ec9e26e85bb694b27f30be7fddfafe1d9957b40ecb6bacce14f926e31f17f77",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/store.py": "561500fdd2bc4a950737dc2982702aa3eec92050f411ab5613573844bb7e3098",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/benchmark.py": "a363290039d518a0ad8df1b7c07b15642e13b5dcc7bd13cba0d77b8f074e75ce",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/models.py": "a9e5dc8491a5a5fdf5e85f8bb5b6bc26095072751ddf65fcdebd933b85587f4e",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/__init__.py": "7dc791f88481add007124eb913a8bfadaf3a4bb27f2a2bd452b2ddd9a1897762",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/llm.py": "90a5efc3a5388277b7b7fd5408acf77fbc8e8f157dbf69c8ac79901a49f63e8b",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/cli.py": "8ab70834421cbb6862b21e635a6d597af9b8aaff9bdd43c377871380dcfb6e87",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/retrieval.py": "50f88f1a8a3e0e1f5e4ede5968f1f53e445b0cdf93006c52f0df9df4af14e856",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/briefing.py": "387b23fd45ced88a14b783286290e19324299ca08164153c3f70bd9aa8140959",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/source_guards.py": "fe7c3a730f1610b1cbb6659a066e157063278d38856c82769f49d87186d548ae",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/grounding.py": "8d51dd7c1781504120a5213b4724abd50741e1531c52b2d31d0f10fd0c6bb54f",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/qa.py": "1ae162d9cb650f3fa7ac3497450230d7099613ff9babf78c4af16849901ed4b0",
+    "/Users/alexbeketov/video-briefing/src/video_briefing/validation.py": "4e60c4ea31d1ca0b5986c76ebbe04aa1e1b36d185de4e0bebe28c7479d7c7798",
+    "/Users/alexbeketov/video-briefing/prompts/qa.md": "0488bac7824ef9ca0ffa2dbdaff105e8fc4bcb27ba7156fe12f5ebdc2e548c8e",
+    "/Users/alexbeketov/video-briefing/prompts/brief.md": "b7c41589f589e226da236b8b206b56d4832fcf06f7d42b80cfdc5cc9ce206000"
+  },
+  "gold_context_check": {
+    "trace_files_checked": 5,
+    "evaluator_field_keys_in_model_requests": false,
+    "evaluation_read_by_model_runtime": false,
+    "limitation": "Field-key check alone is not a universal prose-leakage proof; source-only runtime guards contain no target values/ranges or video IDs."
+  },
+  "network": {
+    "allowed_ollama_connections": 11,
+    "guard_denials": 0,
+    "extractor_calls": 0,
+    "uv_offline": true,
+    "cloud_backed": true,
+    "daemon_egress_measured": false,
+    "cost_measured": false
+  },
+  "source_verification": {
+    "verifier": "This coder gpt-6.1-sol/openai-codex run, independent of Gemma generation/auditor, NOT independent implementation review or final project acceptance.",
+    "scope": "Every returned substantive claim read against exact cited original captions; source-relative frozen rubric unchanged.",
+    "inspection_log": "artifacts/private/retrieval-repair-semantic-v19/source-inspection.txt",
+    "inspection_script": "artifacts/private/inspect_semantic_compact.py"
+  },
+  "manual_claim_source_check": {
+    "brief": {
+      "claims_total": 36,
+      "counts": {
+        "supported": 28,
+        "partial": 7,
+        "unsupported": 1,
+        "unverifiable": 0
+      },
+      "claims": [
+        {
+          "index": 0,
+          "section": "gist",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Ведущий объясняет концепцию AI PC, подчеркивая переход от простых NPU-чипов к архитектуре объединенной памяти (UMA) для запуска тяжелых локальных LLM. Рассматриваются разные подходы Apple, NVIDIA и AMD к реализации общего пула памяти для CPU и GPU, а также возможности создания домашних кластеров из мини-ПК.",
+          "evidence_ids": [
+            "s00037",
+            "s00038",
+            "s00039",
+            "s00113",
+            "s00114",
+            "s00115",
+            "s00116",
+            "s00117",
+            "s00118",
+            "s00119",
+            "s00120",
+            "s00121",
+            "s00122",
+            "s00123",
+            "s00153",
+            "s00154",
+            "s00155",
+            "s00156",
+            "s00157",
+            "s00158",
+            "s00159",
+            "s00169",
+            "s00170",
+            "s00441",
+            "s00442",
+            "s00443",
+            "s00444",
+            "s00445",
+            "s00446",
+            "s00447",
+            "s00448",
+            "s00449"
+          ]
+        },
+        {
+          "index": 1,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Эволюция AI PC: от NPU к объединенной памяти",
+          "evidence_ids": [
+            "s00020",
+            "s00021",
+            "s00022",
+            "s00023",
+            "s00024",
+            "s00025",
+            "s00037",
+            "s00038",
+            "s00039",
+            "s00114",
+            "s00118",
+            "s00119",
+            "s00120",
+            "s00121",
+            "s00122",
+            "s00123"
+          ]
+        },
+        {
+          "index": 2,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Реализация UMA в экосистемах Apple, NVIDIA и AMD",
+          "evidence_ids": [
+            "s00025",
+            "s00026",
+            "s00027",
+            "s00028",
+            "s00029",
+            "s00030",
+            "s00157",
+            "s00158",
+            "s00159",
+            "s00162",
+            "s00163",
+            "s00164",
+            "s00165",
+            "s00242",
+            "s00352",
+            "s00353"
+          ]
+        },
+        {
+          "index": 3,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Масштабирование через локальные кластеры мини-ПК",
+          "evidence_ids": [
+            "s00441",
+            "s00442",
+            "s00443",
+            "s00444",
+            "s00445",
+            "s00446",
+            "s00447",
+            "s00465",
+            "s00473",
+            "s00474",
+            "s00475",
+            "s00476",
+            "s00480"
+          ]
+        },
+        {
+          "index": 4,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Специализированные AI-серверы для дома (Mini Sform)",
+          "evidence_ids": [
+            "s00496",
+            "s00497",
+            "s00498",
+            "s00515",
+            "s00516",
+            "s00517",
+            "s00518"
+          ]
+        },
+        {
+          "index": 5,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Объединенная память (UMA): объединение системной оперативки и видеопамяти в один массив для общего доступа CPU, GPU и NPU, чтобы вместить модель целиком",
+          "evidence_ids": [
+            "s00118",
+            "s00119",
+            "s00120",
+            "s00121",
+            "s00122",
+            "s00123",
+            "s00124",
+            "s00125",
+            "s00126",
+            "s00127",
+            "s00128",
+            "s00129"
+          ]
+        },
+        {
+          "index": 6,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Распределенный AI (кластеризация): разделение модели между несколькими узлами (ПК) с передачей данных по сети (USB 4, 5Гбит сеть), что позволяет запускать модели триллионного класса",
+          "evidence_ids": [
+            "s00020",
+            "s00021",
+            "s00022",
+            "s00023",
+            "s00024",
+            "s00025",
+            "s00206",
+            "s00207",
+            "s00208",
+            "s00209",
+            "s00210",
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457",
+            "s00461",
+            "s00462",
+            "s00463",
+            "s00464",
+            "s00465",
+            "s00501",
+            "s00502",
+            "s00503",
+            "s00504",
+            "s00505",
+            "s00506",
+            "s00507",
+            "s00508",
+            "s00509",
+            "s00510"
+          ]
+        },
+        {
+          "index": 7,
+          "section": "topics",
+          "label": "partial",
+          "note": "Archive/RAG functionality is described as the system purpose, but the source uses an illustrative scenario. Available features and promised full-file search must remain distinct.",
+          "text": "Mini Scloud (на базе Mini Sform N5 Max): создание домашнего AI-сервера 24/7 для индексации архивов, RAG по файлам и обработки запросов с других устройств",
+          "evidence_ids": [
+            "s00496",
+            "s00497",
+            "s00498",
+            "s00504",
+            "s00505",
+            "s00506",
+            "s00507",
+            "s00508",
+            "s00509",
+            "s00510",
+            "s00512",
+            "s00513",
+            "s00514",
+            "s00515",
+            "s00516",
+            "s00517",
+            "s00518"
+          ]
+        },
+        {
+          "index": 8,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерфейс кластера для приложений реализуется как один OpenAI-совместимый API, скрывающий распределение модели по нескольким ПК",
+          "evidence_ids": [
+            "s00200",
+            "s00201",
+            "s00202",
+            "s00203",
+            "s00204",
+            "s00205",
+            "s00206",
+            "s00207",
+            "s00208",
+            "s00482",
+            "s00483",
+            "s00484",
+            "s00485",
+            "s00486",
+            "s00487",
+            "s00488"
+          ]
+        },
+        {
+          "index": 9,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Mini Sform N5 Max предоставляет доступ к AI-функциям (поиск, ассистент) с ноутбуков и телефонов через сеть",
+          "evidence_ids": [
+            "s00496",
+            "s00497",
+            "s00498",
+            "s00505",
+            "s00506",
+            "s00507",
+            "s00508",
+            "s00509",
+            "s00510",
+            "s00511",
+            "s00512"
+          ]
+        },
+        {
+          "index": 10,
+          "section": "topics",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Соединение узлов кластера может осуществляться через USB 4 (40 Гбит/с) или 5-гигабитную сеть",
+          "evidence_ids": [
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457",
+            "s00468",
+            "s00469",
+            "s00470",
+            "s00471",
+            "s00472"
+          ]
+        },
+        {
+          "index": 11,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Грубый расчет необходимой видеопамяти: объем VRAM в ГБ должен примерно соответствовать количеству миллиардов параметров модели при 4-битном сжатии",
+          "evidence_ids": [
+            "s00089",
+            "s00090",
+            "s00091",
+            "s00092",
+            "s00093",
+            "s00094",
+            "s00095"
+          ]
+        },
+        {
+          "index": 12,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Принцип zero copy в UMA-архитектурах исключает постоянную пересылку данных между оперативной и видеопамятью через шину PCI Express, что снижает энергопотребление и ускоряет работу",
+          "evidence_ids": [
+            "s00130",
+            "s00131",
+            "s00132",
+            "s00133",
+            "s00134",
+            "s00135",
+            "s00136",
+            "s00137",
+            "s00138",
+            "s00171",
+            "s00172",
+            "s00173",
+            "s00174",
+            "s00175",
+            "s00176",
+            "s00177",
+            "s00178"
+          ]
+        },
+        {
+          "index": 13,
+          "section": "useful_ideas",
+          "label": "partial",
+          "note": "Source says models start reasoning well around a consensus threshold; the paraphrase turns that into a required 70-90B parameter range. This is not an independently established requirement.",
+          "text": "Для моделей с высоким уровнем рассуждений и низким уровнем галлюцинаций требуется от 70 до 90 млрд параметров",
+          "evidence_ids": [
+            "s00104",
+            "s00105",
+            "s00106",
+            "s00107",
+            "s00108",
+            "s00109"
+          ]
+        },
+        {
+          "index": 14,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Запуск модели GPT OSS 120B (117 млрд параметров) в версии MXFP4; 117 млрд параметров — размер модели; 5,1 млрд активных параметров на токен благодаря MOE; 80 ГБ — требуемый объем памяти для запуска",
+          "evidence_ids": [
+            "s00089",
+            "s00090",
+            "s00091",
+            "s00092",
+            "s00093",
+            "s00094",
+            "s00095",
+            "s00104",
+            "s00105",
+            "s00106",
+            "s00107",
+            "s00108",
+            "s00109",
+            "s00110",
+            "s00111",
+            "s00139",
+            "s00140",
+            "s00141",
+            "s00142",
+            "s00143",
+            "s00144",
+            "s00382",
+            "s00383",
+            "s00384",
+            "s00385",
+            "s00386",
+            "s00387",
+            "s00388",
+            "s00389",
+            "s00390",
+            "s00391"
+          ]
+        },
+        {
+          "index": 15,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Производительность NVIDIA DGX Spark на модели GPT OSS 120B в бенчмарке Lama CPP; 55-60 токенов в секунду — скорость генерации при малом/среднем контексте",
+          "evidence_ids": [
+            "s00263",
+            "s00264",
+            "s00265",
+            "s00266",
+            "s00267",
+            "s00268",
+            "s00269",
+            "s00270",
+            "s00271",
+            "s00272",
+            "s00273",
+            "s00274"
+          ]
+        },
+        {
+          "index": 16,
+          "section": "useful_ideas",
+          "label": "partial",
+          "note": "14 tok/s is vendor-reported (source s00470-s00472); the rendered claim does not retain that measurement provenance.",
+          "text": "Кластер из четырех мини-ПК Geekom на базе Ryzen AI Max Plus 395 для запуска модели Deeps V4 flash; 4 единицы — количество ПК в кластере; 128 ГБ — объем памяти в каждом ПК; 40 Гбит/с — скорость соединения через USB 4; 14 токенов в секунду — скорость генерации",
+          "evidence_ids": [
+            "s00018",
+            "s00019",
+            "s00020",
+            "s00021",
+            "s00022",
+            "s00023",
+            "s00024",
+            "s00025",
+            "s00144",
+            "s00145",
+            "s00146",
+            "s00147",
+            "s00148",
+            "s00149",
+            "s00150",
+            "s00186",
+            "s00187",
+            "s00188",
+            "s00189",
+            "s00190",
+            "s00191",
+            "s00192",
+            "s00193",
+            "s00194",
+            "s00195",
+            "s00268",
+            "s00269",
+            "s00270",
+            "s00271",
+            "s00272",
+            "s00273",
+            "s00274",
+            "s00441",
+            "s00442",
+            "s00443",
+            "s00444",
+            "s00445",
+            "s00446",
+            "s00447",
+            "s00448",
+            "s00449",
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457",
+            "s00465",
+            "s00466",
+            "s00467",
+            "s00468",
+            "s00469",
+            "s00470",
+            "s00471",
+            "s00472",
+            "s00473"
+          ]
+        },
+        {
+          "index": 17,
+          "section": "useful_ideas",
+          "label": "unsupported",
+          "note": "The source says Linux can go further in GPU memory allocation, then describes a 38 tok/s run without establishing its OS. Claim assigns that measurement to Linux; source s00382-s00389 does not establish the relationship.",
+          "text": "Запуск GPT OSS 120B на Framework Desktop с Ryzen AI Max Plus 395 в Linux через VM Studio; 38 токенов в секунду — скорость генерации; Деталь исходного примера (по captions): «В версии на 128 ГБ позволяет выделить встроенный Redeon до 96 ГБ как графическую  память, а в Linux можно пойти ещё дальше.»",
+          "evidence_ids": [
+            "s00266",
+            "s00267",
+            "s00268",
+            "s00269",
+            "s00270",
+            "s00271",
+            "s00272",
+            "s00273",
+            "s00274",
+            "s00382",
+            "s00383",
+            "s00384",
+            "s00385",
+            "s00386",
+            "s00387",
+            "s00388",
+            "s00389",
+            "s00390",
+            "s00391",
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457"
+          ]
+        },
+        {
+          "index": 18,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Для работы с небольшими моделями (до 32 ГБ VRAM) достаточно классического ПК с RTX 5090 или несколькими RTX 3090",
+          "evidence_ids": [
+            "s00528",
+            "s00529",
+            "s00530",
+            "s00531",
+            "s00532"
+          ]
+        },
+        {
+          "index": 19,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Mac рекомендуется, если устраивает macOS и софт работает через LM Studio, MLX или Metal",
+          "evidence_ids": [
+            "s00537",
+            "s00538",
+            "s00539",
+            "s00540",
+            "s00541",
+            "s00542",
+            "s00543"
+          ]
+        },
+        {
+          "index": 20,
+          "section": "useful_ideas",
+          "label": "partial",
+          "note": "More affordable loses the source as-a-rule hedge. Games capability is not fully cited: s00553 is absent from the returned evidence.",
+          "text": "Решения AMD (Ryzen AI Max Plus 395) рекомендуются для Windows/Linux как баланс между играми и AI за более низкую цену, чем у NVIDIA",
+          "evidence_ids": [
+            "s00359",
+            "s00361",
+            "s00362",
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457",
+            "s00546",
+            "s00547",
+            "s00548",
+            "s00549",
+            "s00550",
+            "s00552",
+            "s00554",
+            "s00555",
+            "s00556"
+          ]
+        },
+        {
+          "index": 21,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "RTX Spark или DGX Spark рекомендуются при необходимости использования экосистемы CUDA",
+          "evidence_ids": [
+            "s00266",
+            "s00267",
+            "s00268",
+            "s00269",
+            "s00270",
+            "s00271",
+            "s00340",
+            "s00341",
+            "s00342",
+            "s00406",
+            "s00407",
+            "s00408",
+            "s00409",
+            "s00410",
+            "s00556",
+            "s00557",
+            "s00558",
+            "s00559",
+            "s00560"
+          ]
+        },
+        {
+          "index": 22,
+          "section": "useful_ideas",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Масштабирование памяти через добавление новых мини-ПК в кластер с объединением их в один OpenAI-совместимый API",
+          "evidence_ids": [
+            "s00441",
+            "s00442",
+            "s00443",
+            "s00444",
+            "s00445",
+            "s00446",
+            "s00447",
+            "s00479",
+            "s00480",
+            "s00481",
+            "s00482",
+            "s00483",
+            "s00484",
+            "s00485"
+          ]
+        },
+        {
+          "index": 23,
+          "section": "emphases",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Объем памяти важнее пиковой скорости при запуске больших моделей, так как модель должна помещаться в память целиком",
+          "evidence_ids": [
+            "s00126",
+            "s00127",
+            "s00128",
+            "s00129"
+          ]
+        },
+        {
+          "index": 24,
+          "section": "emphases",
+          "label": "partial",
+          "note": "Caption spellings of the historical CUDA platform are interpreted without an inference marker; the derived NVIDIA advantage is not explicitly separated.",
+          "text": "Программная экосистема CUDA остается стандартом для профессионального AI-стека, что создает преимущество для NVIDIA",
+          "evidence_ids": [
+            "s00220",
+            "s00221",
+            "s00222",
+            "s00223",
+            "s00224",
+            "s00225",
+            "s00226",
+            "s00227",
+            "s00231",
+            "s00232",
+            "s00233",
+            "s00234",
+            "s00235"
+          ]
+        },
+        {
+          "index": 25,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Объединенная память по пиковой скорости существенно уступает специализированной памяти GDDR7",
+          "evidence_ids": [
+            "s00126",
+            "s00127",
+            "s00128",
+            "s00129"
+          ]
+        },
+        {
+          "index": 26,
+          "section": "caveats",
+          "label": "partial",
+          "note": "Windows/Linux stack limitation is supported, but the cited rows do not themselves establish the normalized ROCm name.",
+          "text": "Стек ROCm от AMD на Windows поддерживается не полностью, многие функции доступны только в Linux",
+          "evidence_ids": [
+            "s00425",
+            "s00426",
+            "s00427",
+            "s00428",
+            "s00429",
+            "s00430",
+            "s00431",
+            "s00546",
+            "s00547",
+            "s00548"
+          ]
+        },
+        {
+          "index": 27,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Ноутбуки на RTX Spark еще не прошли полноценного независимого тестирования по производительности, нагреву и автономности",
+          "evidence_ids": [
+            "s00335",
+            "s00336",
+            "s00337",
+            "s00340",
+            "s00341",
+            "s00342",
+            "s00343",
+            "s00344",
+            "s00345",
+            "s00346",
+            "s00347"
+          ]
+        },
+        {
+          "index": 28,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Скорость генерации DGX Spark (55-60 т/с) указана для небольшого и среднего контекста; при росте контекста скорость снижается",
+          "evidence_ids": [
+            "s00266",
+            "s00267",
+            "s00268",
+            "s00269",
+            "s00270",
+            "s00271",
+            "s00272",
+            "s00273",
+            "s00274"
+          ]
+        },
+        {
+          "index": 29,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "При использовании кластеров возникают задержки при передаче данных между узлами",
+          "evidence_ids": [
+            "s00208",
+            "s00209",
+            "s00210",
+            "s00463",
+            "s00464",
+            "s00465"
+          ]
+        },
+        {
+          "index": 30,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "DGX Spark позиционируется как инструмент для разработчиков и не подходит для обычных пользовательских задач",
+          "evidence_ids": [
+            "s00278",
+            "s00279",
+            "s00280",
+            "s00281",
+            "s00282",
+            "s00283",
+            "s00289",
+            "s00290",
+            "s00301",
+            "s00302",
+            "s00303",
+            "s00304",
+            "s00305",
+            "s00306",
+            "s00307",
+            "s00308",
+            "s00309"
+          ]
+        },
+        {
+          "index": 31,
+          "section": "caveats",
+          "label": "partial",
+          "note": "Future full-file search is correctly a promise, but its end-Q3-2026 schedule is absent from this brief claim (present in q07).",
+          "text": "Обещание в источнике: Поиск по всем типам файлов в Mini Scloud",
+          "evidence_ids": [
+            "s00518",
+            "s00519",
+            "s00520",
+            "s00521",
+            "s00522",
+            "s00523"
+          ]
+        },
+        {
+          "index": 32,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Обещание в источнике: Продажи RTX Spark PC",
+          "evidence_ids": [
+            "s00340",
+            "s00341",
+            "s00342"
+          ]
+        },
+        {
+          "index": 33,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Описано как имеющееся в источнике: Локальный ассистент, поиск по изображениям и видео, Docker и виртуальные машины в Mini Scloud",
+          "evidence_ids": [
+            "s00516",
+            "s00517",
+            "s00518",
+            "s00519",
+            "s00520",
+            "s00521",
+            "s00522",
+            "s00523"
+          ]
+        },
+        {
+          "index": 34,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Описано как имеющееся в источнике: Архитектура Apple Silicon с Unified Memory",
+          "evidence_ids": [
+            "s00162",
+            "s00163",
+            "s00164",
+            "s00165",
+            "s00167",
+            "s00168",
+            "s00169",
+            "s00170",
+            "s00260",
+            "s00261",
+            "s00262"
+          ]
+        },
+        {
+          "index": 35,
+          "section": "caveats",
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Оговорка источника (по captions): «Сама же Nvidia обещает начало продаж RTX Spark PC в октябре. Сейчас нет полноценной картины по производительности, нагреву и автономности, но, думаю, скоро появится, в том числе и на Android дроидах.»",
+          "evidence_ids": [
+            "s00340",
+            "s00341",
+            "s00342",
+            "s00343",
+            "s00344",
+            "s00345",
+            "s00346"
+          ]
+        }
+      ]
+    },
+    "q05": {
+      "claims_total": 8,
+      "counts": {
+        "supported": 8,
+        "partial": 0,
+        "unsupported": 0,
+        "unverifiable": 0
+      },
+      "claims": [
+        {
+          "index": 0,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Для небольших моделей, которые поместятся в 32 ГБ VRAM, достаточно классического ПК с одной RTX 5090 или несколькими старыми 3090.",
+          "evidence_ids": [
+            "s00528",
+            "s00529",
+            "s00530",
+            "s00531",
+            "s00532"
+          ]
+        },
+        {
+          "index": 1,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Mac Studio на 512 ГБ объединённой памяти в максимальной конфигурации будет способен ворочить триллионные модели.",
+          "evidence_ids": [
+            "s00537",
+            "s00538",
+            "s00539",
+            "s00540",
+            "s00541",
+            "s00542",
+            "s00543",
+            "s00544",
+            "s00545"
+          ]
+        },
+        {
+          "index": 2,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Рекомендуется Mac (от Mac Mini до Mac Studio), если пользователя устраивает Mac OS и нужный софт работает через LM Studio, MLX, Metal и так далее.",
+          "evidence_ids": [
+            "s00537",
+            "s00538",
+            "s00539",
+            "s00540",
+            "s00541",
+            "s00542",
+            "s00543"
+          ]
+        },
+        {
+          "index": 3,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Если нужна Windows или Linux, самым интересным вариантом назван Ryzen AI Max Plus 395 от AMD, который дает до 128 ГБ общей памяти в паре с классическим X86 процессором.",
+          "evidence_ids": [
+            "s00425",
+            "s00426",
+            "s00427",
+            "s00428",
+            "s00546",
+            "s00547",
+            "s00548",
+            "s00549",
+            "s00550",
+            "s00552"
+          ]
+        },
+        {
+          "index": 4,
+          "section": null,
+          "label": "supported",
+          "note": "CUDA remains inference. Evidence includes incomplete final condition and earlier NVIDIA software platform (s00405-s00409), not a verbatim CUDA quote.",
+          "text": "Интерпретация по расшифровке: Если нужна CUDA, рекомендуется покупать RTX Spark (как только появятся в продаже) или DGX Spark (если только под нейронки), в общем всё, что предлагает Nvidia.",
+          "evidence_ids": [
+            "s00405",
+            "s00406",
+            "s00407",
+            "s00408",
+            "s00409",
+            "s00554",
+            "s00555",
+            "s00556",
+            "s00557",
+            "s00558",
+            "s00559",
+            "s00560",
+            "s00561"
+          ]
+        },
+        {
+          "index": 5,
+          "section": null,
+          "label": "supported",
+          "note": "Neutral leading-speaker attribution only; exact identity/surname and per-segment linkage explicitly unverified.",
+          "text": "Оговорка об атрибуции: рекомендацию можно условно приписать ведущему объяснения; точная личность и фамилия не подтверждены, привязка отдельных реплик к говорящему не верифицирована.",
+          "evidence_ids": [
+            "s00101",
+            "s00102",
+            "s00103",
+            "s00562",
+            "s00563"
+          ]
+        },
+        {
+          "index": 6,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Цены на видеокарты сейчас «кусаются».",
+          "evidence_ids": [
+            "s00533",
+            "s00534",
+            "s00535"
+          ]
+        },
+        {
+          "index": 7,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Максимальная конфигурация Mac Studio получится дорогой.",
+          "evidence_ids": [
+            "s00537",
+            "s00538",
+            "s00539",
+            "s00540",
+            "s00541",
+            "s00542",
+            "s00543",
+            "s00544",
+            "s00545"
+          ]
+        }
+      ]
+    },
+    "q06": {
+      "claims_total": 7,
+      "counts": {
+        "supported": 7,
+        "partial": 0,
+        "unsupported": 0,
+        "unverifiable": 0
+      },
+      "claims": [
+        {
+          "index": 0,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Память нескольких обычных Mac Mini физически не сливается в одну планку",
+          "evidence_ids": [
+            "s00202",
+            "s00203",
+            "s00204",
+            "s00205",
+            "s00206",
+            "s00207",
+            "s00208"
+          ]
+        },
+        {
+          "index": 1,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "При объединении ПК софт делит модель между узлами и передает данные по сети",
+          "evidence_ids": [
+            "s00208",
+            "s00209",
+            "s00210"
+          ]
+        },
+        {
+          "index": 2,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "При распределении модели одна машина управляет процессом, а сама модель при загрузке разбивается на части",
+          "evidence_ids": [
+            "s00461",
+            "s00462",
+            "s00463"
+          ]
+        },
+        {
+          "index": 3,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "OpenAI-совместимый API позволяет программе отправлять запрос, не зная, что модель размётана по четырем компьютерам",
+          "evidence_ids": [
+            "s00482",
+            "s00483",
+            "s00484",
+            "s00485",
+            "s00486",
+            "s00487",
+            "s00488"
+          ]
+        },
+        {
+          "index": 4,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "При передаче данных в распределенной системе существуют задержки",
+          "evidence_ids": [
+            "s00171",
+            "s00172",
+            "s00173",
+            "s00174",
+            "s00463",
+            "s00464",
+            "s00465"
+          ]
+        },
+        {
+          "index": 5,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Систему можно масштабировать, добавляя новые компьютеры (коробки), если перестает хватать памяти",
+          "evidence_ids": [
+            "s00479",
+            "s00480",
+            "s00481",
+            "s00482"
+          ]
+        },
+        {
+          "index": 6,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Для соединения ПК могут использоваться обычная пятигигабитная сеть или USB 4 на 40 Гбит в секунду",
+          "evidence_ids": [
+            "s00454",
+            "s00455",
+            "s00456",
+            "s00457",
+            "s00468",
+            "s00469",
+            "s00470",
+            "s00471",
+            "s00472"
+          ]
+        }
+      ]
+    },
+    "q07": {
+      "claims_total": 4,
+      "counts": {
+        "supported": 3,
+        "partial": 1,
+        "unsupported": 0,
+        "unverifiable": 0
+      },
+      "claims": [
+        {
+          "index": 0,
+          "section": null,
+          "label": "partial",
+          "note": "Correct NAS rationale, but the labelled inference that a closed laptop will not work is overbroad; captions establish inconvenience, not universal shutdown.",
+          "text": "Интерпретация по расшифровке: Локального AI-ассистента предлагается держать на NAS (Mini Sforum N5 Max), потому что ноутбук неудобен: если закрыть крышку и уйти, он не будет работать, тогда как устройство дома работает 24/7, подключено к сети и хранит данные для работы AI.",
+          "evidence_ids": [
+            "s00496",
+            "s00497",
+            "s00498",
+            "s00499",
+            "s00500",
+            "s00505",
+            "s00506",
+            "s00507",
+            "s00508",
+            "s00509",
+            "s00510",
+            "s00511",
+            "s00512",
+            "s00513",
+            "s00514",
+            "s00515",
+            "s00516",
+            "s00517",
+            "s00518"
+          ]
+        },
+        {
+          "index": 1,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "В Mini Scloud O уже есть локальный ассистент, поиск по изображениям и видео, докер и виртуальные машины.",
+          "evidence_ids": [
+            "s00516",
+            "s00517",
+            "s00518",
+            "s00519",
+            "s00520",
+            "s00521",
+            "s00522",
+            "s00523"
+          ]
+        },
+        {
+          "index": 2,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Поиск по всем типам файлов компания обещает добавить в конце третьего квартала 2026 года.",
+          "evidence_ids": [
+            "s00518",
+            "s00519",
+            "s00520",
+            "s00521",
+            "s00522",
+            "s00523"
+          ]
+        },
+        {
+          "index": 3,
+          "section": null,
+          "label": "supported",
+          "note": "Source-caption support or clearly labelled contextual inference; no independent hardware/identity/release validation.",
+          "text": "Интерпретация по расшифровке: Ассистент на NAS может принимать запросы с ноутбука и телефона.",
+          "evidence_ids": [
+            "s00504",
+            "s00505",
+            "s00506",
+            "s00507",
+            "s00508",
+            "s00509",
+            "s00510",
+            "s00511",
+            "s00512"
+          ]
+        }
+      ]
+    },
+    "q08": {
+      "claims_total": 1,
+      "counts": {
+        "supported": 1,
+        "partial": 0,
+        "unsupported": 0,
+        "unverifiable": 0
+      },
+      "claims": [
+        {
+          "index": 0,
+          "section": null,
+          "label": "supported",
+          "note": "abstained=true and no invented temperature/battery-hours; limitation concerns captions at the source time, not independent current testing or audio/frames inspection.",
+          "text": "полноценной картины по производительности, нагреву и автономности сейчас нет",
+          "evidence_ids": [
+            "s00342",
+            "s00343",
+            "s00344",
+            "s00345",
+            "s00346"
+          ]
+        }
+      ]
+    }
+  },
+  "brief_anchor_source_check": {
+    "a01": "present",
+    "a02": "present",
+    "a03": "partial",
+    "a04": "present",
+    "a05": "partial",
+    "a06": "present",
+    "a07": "present",
+    "a08": "partial"
+  },
+  "brief_anchor_notes": {
+    "a03": "Mac software condition and CUDA history present, but Apple-specific large GPU-memory-pool explanation is heading-level; memory/software limitation remains incompletely articulated.",
+    "a04": "Conditional 55-60 tok/s benchmark, context decline and untested laptop performance/heat/battery limitation retained; explicit uncertainty source quote cannot be silently dropped.",
+    "a05": "AMD Windows/Linux recommendation and partial Windows stack support retained; a separate worked example incorrectly associates 38 tok/s with Linux.",
+    "a08": "Conditional alternatives and CUDA inference/source provenance retained. Some alternative-specific qualifications remain separated across claims; no universal best-PC claim."
+  },
+  "question_source_check": {
+    "q05": {
+      "label": "pass",
+      "note": "GPU size, Mac OS/software, AMD Windows/Linux, Nvidia/CUDA interpretation, neutral unverified speaker attribution retained."
+    },
+    "q06": {
+      "label": "pass",
+      "note": "Physical memory distinction, sharding, delays, add nodes and API abstraction retained."
+    },
+    "q07": {
+      "label": "partial",
+      "note": "All required NAS/current-versus-promised features and Q3-2026 promise retained; closed-laptop inference is overbroad, not an established universal shutdown rule."
+    },
+    "q08": {
+      "label": "pass",
+      "note": "Abstains from exact measurements; no external values or claims of audio/frames inspection."
+    }
+  },
+  "sr_status": {
+    "SR-01": {
+      "status": "covered omission resolved and regression gated",
+      "source_ids": [
+        "s00139",
+        "s00140",
+        "s00141",
+        "s00142",
+        "s00143",
+        "s00144"
+      ],
+      "note": "117B total, 5.1B active/token, 80GB retained in fresh brief claim 14. Preservation now runs after atomic citation repair and before folding."
+    },
+    "SR-02": {
+      "status": "covered quantity-transfer regression gated; no recurrence in v19",
+      "source_ids": [
+        "s00278",
+        "s00279",
+        "s00280",
+        "s00281",
+        "s00282",
+        "s00283",
+        "s00300"
+      ],
+      "note": "Original v8 claim 19 directly compared to unchanged source: 200B is assigned only to DJX/DGX. Narrow guards reject both shared- and single-subject transfers even under false-positive auditor; v19 makes no shared 200B claim."
+    },
+    "SR-03": {
+      "status": "resolved in fresh brief and q05",
+      "note": "Both CUDA inference items retain earlier NVIDIA software platform as provenance, also when vendor is omitted. Exact source product bridge retained when needed; CUDA never promoted to explicit caption."
+    }
+  },
+  "semantic_blockers": [
+    {
+      "id": "B-05",
+      "criterion": "quantity/prerequisite-to-device/OS relationship",
+      "claim_index": 17,
+      "observation": "The source says Linux can go further in GPU memory allocation, then describes a 38 tok/s run without establishing its OS. Claim assigns that measurement to Linux; source s00382-s00389 does not establish the relationship."
+    },
+    {
+      "id": "B-06",
+      "criterion": "full nonnumeric coverage and source qualifications",
+      "observation": "a03/a05/a08 are partial; necessity/source-provenance hedges, illustrative NAS usage and closed-laptop inference remain imprecise."
+    }
+  ],
+  "brief_concision": {
+    "section_counts": {
+      "topics": 10,
+      "useful_ideas": 12,
+      "emphases": 2,
+      "caveats": 11
+    },
+    "words_without_rendered_citations": 687,
+    "label": "partial",
+    "note": "Repetitive topic headings and numeric inventory; exact extractive qualifications protect grounding but do not produce a compact product-quality brief."
+  },
+  "failed_attempts": [
+    {
+      "command": "RETRIEVAL_SMOKE_DIR=retrieval-repair-final-verified-v6 uv run --frozen python artifacts/private/run_retrieval_repair_smoke.py > artifacts/private/retrieval-repair-final-v6.log 2>&1",
+      "exit_code": 1,
+      "reason": "q05 exceeded bounded structured generation retry with malformed provider JSON; brief succeeded; failure/log/partial artifacts preserved.",
+      "log": "artifacts/private/retrieval-repair-final-v6.log"
+    },
+    {
+      "directory": "artifacts/private/retrieval-repair-semantic-v13",
+      "exit_code": 1,
+      "log": "artifacts/private/retrieval-repair-semantic-v13.log",
+      "reason": "Brief citation repair returned IDs outside per-claim supplied context; fail-closed."
+    },
+    {
+      "directory": "artifacts/private/retrieval-repair-semantic-v14",
+      "exit_code": 1,
+      "log": "artifacts/private/retrieval-repair-semantic-v14.log",
+      "reason": "Bounded repeat also failed; claim 7 borrowed s00440 from another claim context. This led to per-claim schema and atomic bounded retry repair."
+    },
+    {
+      "directory": "artifacts/private/retrieval-repair-semantic-v16",
+      "exit_code": 1,
+      "reason": "Citation repair claim 12 used IDs outside per-claim context; actual error/trace preserved.",
+      "log": "artifacts/private/retrieval-repair-semantic-v16.log"
+    },
+    {
+      "directory": "artifacts/private/retrieval-repair-semantic-v17",
+      "exit_code": 1,
+      "reason": "Protected code fingerprint changed during inference due to executor editing briefing.py. Invalidated verification packet; not accepted as final smoke evidence.",
+      "log": "artifacts/private/retrieval-repair-semantic-v17.log"
+    },
+    {
+      "directory": "artifacts/private/retrieval-repair-semantic-v18",
+      "exit_code": 1,
+      "reason": "Brief returned exit 0, but q05 malformed JSON exceeded bounded runtime retry. No synthetic response substituted; partial logs preserved.",
+      "log": "artifacts/private/retrieval-repair-semantic-v18.log"
+    }
+  ],
+  "previous_report_snapshot": "artifacts/private/retrieval-repair-v15-report-snapshot.json",
+  "limitations": [
+    "One supplied cached caption source, not independent audio/visual/hardware/release truth.",
+    "135 tests pass with no skips here; private-source tests explicitly skip on machines without the supplied cache.",
+    "All eight core query ranges pass; q05 self-introduction r0030-r0031 remains 0/2, not all frozen ranges at 100%.",
+    "One final v19 packet per label plus reported failed attempts; no best-of output selected for semantic PASS.",
+    "Generator/auditor remain Gemma. This authorized OpenAI source-verifier run is not a replacement production inference backend.",
+    "Numeric/acronym/source-qualification guards are narrow preservation checks, not arbitrary entailment or OS-role validation."
+  ],
+  "protected_scope": "No extraction, formal orx runs, commits, push/fetch, history rewrite, global/profile/skill/registry/credential changes. reports/final-review.md/json preserved for independent reviewer.",
+  "pending_decision": "Independent OpenAI verifier and targeted deterministic gates already authorized and exercised. To go beyond the remaining false-positive generation/auditor relationship, decide whether to replace actual generation/audit with an existing available backend or approve a source-first extractive final numeric/non-numeric clause design. No new paid service, model/config/credentials change or open-ended repeated sampling is inferred."
+}

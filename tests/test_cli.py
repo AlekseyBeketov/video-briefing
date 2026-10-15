@@ -14,7 +14,7 @@ from video_briefing.cli import _llm, build_parser, main
 def test_cli_exposes_workflow_commands():
     parser = build_parser()
     assert set(parser._subparsers._group_actions[0].choices) == {
-        "doctor", "extract", "ingest", "search", "read", "skill", "brief", "ask", "benchmark"
+        "doctor", "setup-asr", "extract", "ingest", "search", "read", "skill", "brief", "ask", "benchmark"
     }
     brief = parser._subparsers._group_actions[0].choices["brief"]
     assert any(action.dest == "json" for action in brief._actions)
@@ -79,7 +79,7 @@ def test_doctor_returns_nonzero_when_required_captions_dependency_is_missing(mon
         raise PackageNotFoundError
 
     monkeypatch.setattr(cli, "package_version", missing_package)
-    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=0))
+    monkeypatch.setattr(cli.shutil, "which", lambda _path: None)
 
     code = main(["doctor"])
 
@@ -90,14 +90,50 @@ def test_doctor_returns_nonzero_when_required_captions_dependency_is_missing(mon
 
 def test_doctor_keeps_zero_status_when_only_optional_local_asr_tools_are_missing(monkeypatch, capsys):
     monkeypatch.setattr(cli, "package_version", lambda _name: "1.2.3")
-    monkeypatch.setattr(cli.subprocess, "run", lambda *args, **kwargs: SimpleNamespace(returncode=1))
+    monkeypatch.setattr(cli.shutil, "which", lambda _path: None)
+    monkeypatch.delenv("VIDEO_BRIEFING_FFMPEG", raising=False)
+    monkeypatch.delenv("VIDEO_BRIEFING_FFPROBE", raising=False)
 
     code = main(["doctor"])
 
     report = json.loads(capsys.readouterr().out)
     assert report["youtube_transcript_api"] == {"available": True, "version": "1.2.3"}
     assert report["local_asr_tools"]["ffmpeg"]["available"] is False
+    assert report["network_probes"] is False
+    assert report["model_inference"] is False
+    assert "ready_languages" in report["managed_asr"]
     assert code == 0
+
+
+def test_setup_asr_requires_languages_in_noninteractive_use(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(cli, "_asr_runtime_available", lambda: True)
+    monkeypatch.setenv("VIDEO_BRIEFING_DATA_HOME", str(tmp_path))
+
+    code = main(["setup-asr", "--yes"])
+
+    payload = json.loads(capsys.readouterr().err)
+    assert code == 2
+    assert "--languages" in payload["error"]["message"]
+
+
+def test_setup_asr_installs_only_the_selected_language(tmp_path, monkeypatch, capsys):
+    selected = []
+    monkeypatch.setattr(cli, "_asr_runtime_available", lambda: True)
+    monkeypatch.setattr(cli, "_default_data_home", lambda: tmp_path)
+    monkeypatch.setattr(cli, "installed_models", lambda _root: [
+        {"language": language, "installed": False} for language in ("ru", "en")
+    ])
+    monkeypatch.setattr(
+        cli, "install_models",
+        lambda languages, _root, **_kwargs: selected.extend(languages) or [{"status": "installed"}],
+    )
+
+    code = main(["setup-asr", "--languages", "en", "--yes"])
+
+    report = json.loads(capsys.readouterr().out)
+    assert code == 0
+    assert selected == ["en"]
+    assert report["languages"] == ["en"]
 
 
 def test_benchmark_cli_allocates_and_reports_a_unique_run_directory(tmp_path, monkeypatch, capsys):

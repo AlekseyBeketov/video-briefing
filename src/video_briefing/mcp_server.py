@@ -14,6 +14,7 @@ from .adapters.captions_api import (
     CaptionSourceBlocked,
     CaptionSourceUnavailable,
 )
+from .asr_setup import default_data_home
 from .citation_validation import validate_citations
 from .local_asr import LocalASRError, ingest_local_video
 from .models import EvidenceBundle
@@ -22,16 +23,7 @@ from .validation import parse_video_url
 
 
 def _store() -> ArtifactStore:
-    override = os.environ.get("VIDEO_BRIEFING_DATA_HOME")
-    if override:
-        root = Path(override).expanduser()
-    elif os.name == "nt":
-        root = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData/Local")) / "VideoBriefing"
-    elif os.uname().sysname == "Darwin":
-        root = Path.home() / "Library/Application Support/VideoBriefing"
-    else:
-        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "video-briefing"
-    return ArtifactStore(root / "evidence")
+    return ArtifactStore(default_data_home() / "evidence")
 
 
 def _bundle(bundle: EvidenceBundle) -> dict[str, Any]:
@@ -74,6 +66,24 @@ def _safe_call(operation):
         return {"status": "error", "error": {"code": "operation_failed", "message": "Operation failed; no source text was included."}}
 
 
+def _ingest_local_mp4(path: str, language: str | None, timeout_seconds: int) -> dict[str, Any]:
+    transcribe_cli = os.environ.get("VIDEO_BRIEFING_TRANSCRIBE")
+    model_path = os.environ.get("VIDEO_BRIEFING_ASR_MODEL")
+    if bool(transcribe_cli) != bool(model_path):
+        raise ValueError("legacy ASR mode requires both VIDEO_BRIEFING_TRANSCRIBE and VIDEO_BRIEFING_ASR_MODEL")
+    store = _store()
+    bundle = ingest_local_video(
+        Path(path), ffmpeg=os.environ.get("VIDEO_BRIEFING_FFMPEG", "ffmpeg"),
+        ffprobe=os.environ.get("VIDEO_BRIEFING_FFPROBE", "ffprobe"),
+        transcribe_cli=transcribe_cli or None, model_path=Path(model_path) if model_path else None,
+        language=language or ("ru" if transcribe_cli and model_path else None),
+        data_home=store.root.parent, work_root=store.root.parent / "work",
+        timeout_seconds=timeout_seconds,
+    )
+    store.save(bundle)
+    return _bundle(bundle)
+
+
 def create_server():
     """Build an MCPServer instance. Importing this module does not require the optional SDK."""
     try:
@@ -95,25 +105,9 @@ def create_server():
         return _safe_call(operation)
 
     @server.tool()
-    def ingest_local_mp4(path: str, language: str = "ru", timeout_seconds: int = 21600) -> dict[str, Any]:
-        """Run local-only ASR for an explicit MP4 path. Audio and transcript are not uploaded."""
-        def operation():
-            if language.casefold() != "ru":
-                raise ValueError("the configured local ASR model supports Russian only")
-            transcribe_cli = os.environ.get("VIDEO_BRIEFING_TRANSCRIBE")
-            model_path = os.environ.get("VIDEO_BRIEFING_ASR_MODEL")
-            if not transcribe_cli or not model_path:
-                raise ValueError("configure VIDEO_BRIEFING_TRANSCRIBE and VIDEO_BRIEFING_ASR_MODEL before local ASR")
-            store = _store()
-            bundle = ingest_local_video(
-                Path(path), ffmpeg=os.environ.get("VIDEO_BRIEFING_FFMPEG", "ffmpeg"),
-                ffprobe=os.environ.get("VIDEO_BRIEFING_FFPROBE", "ffprobe"),
-                transcribe_cli=transcribe_cli, model_path=Path(model_path),
-                work_root=store.root.parent / "work", timeout_seconds=timeout_seconds,
-            )
-            store.save(bundle)
-            return _bundle(bundle)
-        return _safe_call(operation)
+    def ingest_local_mp4(path: str, language: str | None = None, timeout_seconds: int = 21600) -> dict[str, Any]:
+        """Run local-only ASR for an explicit MP4. Set language to ru or en if both models are installed."""
+        return _safe_call(lambda: _ingest_local_mp4(path, language, timeout_seconds))
 
     @server.tool()
     def search_video_evidence(source: str, query: str, language: str | None = None,

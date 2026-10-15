@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -16,6 +17,7 @@ from video_briefing.adapters.captions_api import (
     CaptionSourceUnavailable,
 )
 from video_briefing.local_asr import LocalASRError
+import video_briefing.mcp_server as mcp_server
 from video_briefing.mcp_server import _safe_call
 
 try:
@@ -62,6 +64,38 @@ def test_cli_and_mcp_use_identical_default_data_home(tmp_path, monkeypatch):
     monkeypatch.delenv("VIDEO_BRIEFING_DATA_HOME", raising=False)
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
     assert _store().root == _default_data_home() / "evidence"
+
+
+def test_mcp_local_ingest_passes_spoken_language_to_managed_asr(tmp_path, monkeypatch):
+    calls = {}
+    stored = []
+    bundle = SimpleNamespace(
+        source_type="local-asr-chunk-transcript", video_id="media-id", variant="local_asr",
+        language="en", segments=[], raw_sha256="evidence-hash", metadata={},
+    )
+
+    class Store:
+        root = tmp_path / "evidence"
+
+        def save(self, value):
+            stored.append(value)
+
+    monkeypatch.setattr(mcp_server, "_store", lambda: Store())
+    monkeypatch.setattr(
+        mcp_server, "ingest_local_video",
+        lambda path, **kwargs: calls.update(path=path, **kwargs) or bundle,
+    )
+    for name in ("VIDEO_BRIEFING_TRANSCRIBE", "VIDEO_BRIEFING_ASR_MODEL"):
+        monkeypatch.delenv(name, raising=False)
+
+    report = mcp_server._ingest_local_mp4("/private/example.mp4", "en", 120)
+
+    assert calls["language"] == "en"
+    assert calls["data_home"] == tmp_path
+    assert calls["timeout_seconds"] == 120
+    assert stored == [bundle]
+    assert report["language"] == "en"
+    assert report["status"] == "ok"
 
 
 def _save_fixture(root: Path) -> str:

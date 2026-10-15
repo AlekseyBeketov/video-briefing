@@ -2,18 +2,29 @@ from __future__ import annotations
 
 import argparse
 import json
+import locale
 import os
 import re
-import subprocess
+import shutil
 import sys
 import time
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version as package_version
 from importlib.resources import files
+from importlib.util import find_spec
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 from . import __version__
+from .asr_setup import (
+    ASRSetupError,
+    default_data_home,
+    install_models,
+    installed_models,
+    load_model_manifest,
+    parse_languages,
+)
 from .briefing import brief_bundle, render_brief
 from .evidence_api import read_evidence, search_evidence
 from .llm import OllamaClient
@@ -22,14 +33,7 @@ from .store import ArtifactStore
 from .validation import parse_video_url
 
 def _default_data_home() -> Path:
-    override = os.environ.get("VIDEO_BRIEFING_DATA_HOME")
-    if override:
-        return Path(override).expanduser()
-    if os.name == "nt":
-        return Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData/Local")) / "VideoBriefing"
-    if sys.platform == "darwin":
-        return Path.home() / "Library/Application Support/VideoBriefing"
-    return Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "video-briefing"
+    return default_data_home()
 
 
 DEFAULT_STORE = _default_data_home() / "evidence"
@@ -55,6 +59,11 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.add_argument("--config", default="config/experiment.json", help=argparse.SUPPRESS)
     doctor.set_defaults(handler=_doctor)
 
+    setup_asr = subparsers.add_parser("setup-asr", help="Install the local ASR runtime models for Russian and/or English")
+    setup_asr.add_argument("--languages", help="Source languages to install: ru, en, or ru,en")
+    setup_asr.add_argument("--yes", action="store_true", help="Confirm downloading the displayed public model files")
+    setup_asr.set_defaults(handler=_setup_asr)
+
     extract = subparsers.add_parser("extract", help="Fetch timed YouTube captions and persist source evidence")
     extract.add_argument("url")
     extract.add_argument("--variant", choices=("baoyu", "captions_api"), default="captions_api")
@@ -62,11 +71,12 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--store", type=Path, default=DEFAULT_STORE)
     extract.set_defaults(handler=_extract_command)
 
-    ingest = subparsers.add_parser("ingest", help="Ingest YouTube captions or a local MP4 using explicit local ASR")
+    ingest = subparsers.add_parser("ingest", help="Ingest YouTube captions or an explicitly authorized local MP4")
     ingest.add_argument("source", help="YouTube URL/ID or local MP4 path")
     ingest.add_argument("--variant", choices=("baoyu", "captions_api"), default="captions_api")
     ingest.add_argument("--languages", default="ru")
     ingest.add_argument("--local-asr", action="store_true", help="Allow local-only ASR for an MP4 path")
+    ingest.add_argument("--source-language", choices=("ru", "en"), help="Spoken language of the local MP4")
     ingest.add_argument("--ffmpeg", default=os.environ.get("VIDEO_BRIEFING_FFMPEG", "ffmpeg"))
     ingest.add_argument("--ffprobe", default=os.environ.get("VIDEO_BRIEFING_FFPROBE", "ffprobe"))
     ingest.add_argument("--transcribe-cli", default=os.environ.get("VIDEO_BRIEFING_TRANSCRIBE", ""))
@@ -205,18 +215,127 @@ def _doctor(args: argparse.Namespace) -> int:
     except PackageNotFoundError:
         report["youtube_transcript_api"] = {"available": False}
         required_dependency_available = False
-    for name in ("ffmpeg", "ffprobe"):
-        path = os.environ.get("VIDEO_BRIEFING_FFMPEG" if name == "ffmpeg" else "VIDEO_BRIEFING_FFPROBE", name)
-        try:
-            available = subprocess.run([path, "-version"], capture_output=True, timeout=10).returncode == 0
-        except (OSError, subprocess.TimeoutExpired):
-            available = False
-        report["local_asr_tools"][name] = {"available": available}
-    for name, variable in (("transcribe_cli", "VIDEO_BRIEFING_TRANSCRIBE"), ("model", "VIDEO_BRIEFING_ASR_MODEL")):
-        path = os.environ.get(variable, "")
-        report["local_asr_tools"][name] = {"configured": bool(path), "available": bool(path and Path(path).is_file())}
+    report["local_asr_tools"]["note"] = "legacy CLI compatibility only; managed ASR does not require these tools"
+    for name, variable in (("ffmpeg", "VIDEO_BRIEFING_FFMPEG"), ("ffprobe", "VIDEO_BRIEFING_FFPROBE"),
+                           ("transcribe_cli", "VIDEO_BRIEFING_TRANSCRIBE"), ("model", "VIDEO_BRIEFING_ASR_MODEL")):
+        path = os.environ.get(variable, name if name in {"ffmpeg", "ffprobe"} else "")
+        available = bool(shutil.which(path) or (path and Path(path).expanduser().is_file()))
+        report["local_asr_tools"][name] = {"configured": bool(os.environ.get(variable)), "available": available}
+    try:
+        packages_available = find_spec("av") is not None and find_spec("transcribe_cpp") is not None
+        runtime_version = package_version("transcribe-cpp")
+        native_version = package_version("transcribe-cpp-native")
+        decoder_version = package_version("av")
+    except (ModuleNotFoundError, PackageNotFoundError, ValueError) as exc:
+        packages_available = False
+        runtime_version = native_version = decoder_version = None
+        runtime_problem = type(exc).__name__
+    else:
+        runtime_problem = None if packages_available else "module_not_found"
+    if packages_available:
+        asr_runtime = {
+            "available": True,
+            "transcribe_cpp_version": runtime_version,
+            "native_provider_version": native_version,
+            "pyav_version": decoder_version,
+            "setup_command": None,
+        }
+    else:
+        asr_runtime = {
+            "available": False,
+            "problem": runtime_problem,
+            "setup_command": "uv sync --frozen --extra asr",
+        }
+    models = installed_models(_default_data_home())
+    report["managed_asr"] = {
+        "runtime": asr_runtime,
+        "models": models,
+        "ready_languages": sorted({model["language"] for model in models if model["installed"]}),
+        "setup_command": "uv run --frozen --extra asr video-briefing setup-asr --languages ru|en|ru,en",
+    }
     print(json.dumps(report, ensure_ascii=False, indent=2))
     return 0 if required_dependency_available else 1
+
+
+def _locale_language() -> str | None:
+    candidates = [locale.getlocale()[0]]
+    candidates.extend(os.environ.get(name) for name in ("LC_ALL", "LC_MESSAGES", "LANG"))
+    for value in candidates:
+        if not value:
+            continue
+        language = value.split("_", maxsplit=1)[0].split("-", maxsplit=1)[0].casefold()
+        if language in {"ru", "en"}:
+            return language
+    return None
+
+
+def _asr_runtime_available() -> bool:
+    try:
+        return (
+            find_spec("av") is not None
+            and find_spec("transcribe_cpp") is not None
+            and bool(package_version("transcribe-cpp"))
+            and bool(package_version("transcribe-cpp-native"))
+        )
+    except (ModuleNotFoundError, PackageNotFoundError, ValueError):
+        return False
+
+
+def _setup_asr(args: argparse.Namespace) -> int:
+    if not _asr_runtime_available():
+        raise ASRSetupError(
+            "local ASR runtime is missing; run `uv sync --frozen --extra asr` "
+            "or invoke setup through `uv run --frozen --extra asr video-briefing setup-asr`"
+        )
+    selected = args.languages
+    if selected is None:
+        if not sys.stdin.isatty():
+            raise ASRSetupError("specify --languages ru, en, or ru,en in non-interactive use")
+        suggested = _locale_language()
+        prompt = "Choose source languages to install (ru, en, ru,en)"
+        if suggested:
+            prompt += f" [default {suggested}]"
+        entered = input(prompt + ": ").strip()
+        selected = entered or suggested
+        if not selected:
+            raise ASRSetupError("choose at least one source language: ru, en, or ru,en")
+    languages = parse_languages(selected)
+    manifest = load_model_manifest()
+    models = {model["language"]: model for model in manifest["models"]}
+    destinations = {model["language"]: str(_default_data_home() / "asr" / "models" / model["filename"])
+                    for model in manifest["models"]}
+    plans = [models[language] for language in languages]
+    current = {item["language"]: item for item in installed_models(_default_data_home())}
+    pending = [model for model in plans if not current[model["language"]]["installed"]]
+    if pending:
+        print("Local ASR models selected:", file=sys.stderr)
+        for model in plans:
+            print(
+                f"- {model['language_name']}: {model['display_name']} "
+                f"({model['size_bytes'] / 1_000_000:.0f} MB, {model['license']})\n"
+                f"  Attribution: {model['attribution']}\n"
+                f"  License: {model['license_url']}\n"
+                f"  Destination: {destinations[model['language']]}",
+                file=sys.stderr,
+            )
+        if not args.yes:
+            if not sys.stdin.isatty():
+                raise ASRSetupError("rerun with --yes after approving the displayed model downloads")
+            if input("Download these public model files? [y/N]: ").strip().casefold() not in {"y", "yes"}:
+                raise ASRSetupError("ASR setup cancelled; no model files were changed")
+
+    last_progress: dict[str, int] = {}
+
+    def show_progress(model: dict[str, Any], downloaded: int, total: int) -> None:
+        percent = int(downloaded * 100 / total)
+        progress_bucket = min(100, percent // 10 * 10)
+        if progress_bucket != last_progress.get(model["id"]):
+            last_progress[model["id"]] = progress_bucket
+            print(f"Downloading {model['language']} model: {progress_bucket}%", file=sys.stderr)
+
+    result = install_models(languages, _default_data_home(), progress=show_progress)
+    print(json.dumps({"status": "ready", "languages": languages, "models": result}, ensure_ascii=False, indent=2))
+    return 0
 
 
 def _extract_command(args: argparse.Namespace) -> int:
@@ -238,18 +357,20 @@ def _ingest(args: argparse.Namespace) -> int:
     else:
         if not args.local_asr:
             raise PermissionError("local MP4 ingestion requires explicit --local-asr opt-in")
-        if not args.transcribe_cli or not args.model:
-            raise ValueError("local ASR requires --transcribe-cli and --model local file paths")
+        if bool(args.transcribe_cli) != bool(args.model):
+            raise ValueError("legacy ASR mode requires both --transcribe-cli and --model")
         from .local_asr import ingest_local_video
         bundle = ingest_local_video(source, ffmpeg=args.ffmpeg, ffprobe=args.ffprobe,
-                                    transcribe_cli=args.transcribe_cli, model_path=args.model,
+                                    transcribe_cli=args.transcribe_cli or None,
+                                    model_path=args.model or None, language=args.source_language,
                                     work_root=_default_data_home() / "work",
                                     timeout_seconds=args.timeout_seconds, threads=args.threads)
         bundle = store.save(bundle)
         report = {"status": "saved", "platform": bundle.platform, "video_id": bundle.video_id,
-                  "variant": bundle.variant, "source_type": bundle.source_type,
+                  "language": bundle.language, "variant": bundle.variant, "source_type": bundle.source_type,
                   "source_sha256": bundle.raw_sha256, "media_sha256": bundle.metadata["media_sha256"],
                   "audio_duration_seconds": bundle.metadata["audio_duration_seconds"],
+                  "asr_model": bundle.metadata["asr_model"],
                   "processed_audio_seconds": bundle.metadata["processed_audio_seconds"],
                   "chunk_count": bundle.metadata["chunk_count"],
                   "nonempty_transcript_chunks": bundle.metadata["nonempty_transcript_chunks"],

@@ -5,15 +5,19 @@ import hashlib
 import json
 import math
 import os
+import sys
 import subprocess
 import tempfile
 import time
+import array
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .file_permissions import set_private_file_mode
 from .models import EvidenceBundle, TranscriptSegment
 from .validation import validate_bundle
+from .asr_setup import ASRSetupError, default_data_home, resolve_installed_model, sha256_file
 
 MAX_MEDIA_BYTES = 2 * 1024 * 1024 * 1024
 MAX_DURATION_SECONDS = 4 * 60 * 60
@@ -90,7 +94,7 @@ def _persist_asr_run(root: Path, media_hash: str, command: list[str], stdout_pat
         fd, temporary = tempfile.mkstemp(prefix=f".{name}.", dir=log_dir)
         try:
             with os.fdopen(fd, "wb") as handle:
-                os.fchmod(handle.fileno(), 0o600)
+                set_private_file_mode(handle.fileno(), path)
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
@@ -105,7 +109,7 @@ def _persist_asr_run(root: Path, media_hash: str, command: list[str], stdout_pat
     fd, temporary = tempfile.mkstemp(prefix=".manifest.", dir=log_dir)
     try:
         with os.fdopen(fd, "wb") as handle:
-            os.fchmod(handle.fileno(), 0o600)
+            set_private_file_mode(handle.fileno(), Path(temporary))
             handle.write(manifest_bytes)
             handle.flush()
             os.fsync(handle.fileno())
@@ -116,7 +120,7 @@ def _persist_asr_run(root: Path, media_hash: str, command: list[str], stdout_pat
     return {**manifest, "directory": str(log_dir)}
 
 
-def ingest_local_video(
+def _ingest_external_cli(
     source_path: str | Path,
     *,
     ffmpeg: str | Path,
@@ -124,6 +128,7 @@ def ingest_local_video(
     transcribe_cli: str | Path,
     model_path: str | Path,
     work_root: str | Path,
+    language: str,
     timeout_seconds: float = MAX_ASR_SECONDS,
     threads: int | None = None,
 ) -> EvidenceBundle:
@@ -133,6 +138,8 @@ def ingest_local_video(
         raise LocalASRError("local source must be an existing MP4 file")
     if source.stat().st_size <= 0 or source.stat().st_size > MAX_MEDIA_BYTES:
         raise LocalASRError(f"MP4 size must be between 1 byte and {MAX_MEDIA_BYTES} bytes")
+    if language not in {"ru", "en"}:
+        raise LocalASRError("source language must be 'ru' or 'en'")
     ffmpeg_path, ffprobe_path = str(Path(ffmpeg).expanduser()), str(Path(ffprobe).expanduser())
     cli_path, model = Path(transcribe_cli).expanduser().resolve(), Path(model_path).expanduser().resolve()
     if not cli_path.is_file() or not model.is_file():
@@ -169,7 +176,7 @@ def ingest_local_video(
         batch_file = work / "batch.list"
         batch_file.write_text("".join(str(chunk) + "\n" for chunk in chunks), encoding="utf-8")
         jsonl_path = work / "asr.jsonl"
-        asr_command = [str(cli_path), "-m", str(model), "--language", "ru", "--backend", "cpu",
+        asr_command = [str(cli_path), "-m", str(model), "--language", language, "--backend", "cpu",
                        "--threads", str(worker_threads), "--timestamps", "none", "--batch",
                        str(batch_file), "--batch-size", "1", "--batch-jsonl"]
         run_log: dict[str, Any]
@@ -223,7 +230,7 @@ def ingest_local_video(
                               ensure_ascii=False, separators=(",", ":"))
         bundle = EvidenceBundle(
             platform="local-file", video_id=video_id, url=f"local-file://sha256/{media_hash}",
-            language="ru", variant="local_asr", source_type="local-asr-chunk-transcript",
+            language=language, variant="local_asr", source_type="local-asr-chunk-transcript",
             extractor_version="transcribe.cpp-user-provided-binary",
             segments=segments, raw_sha256=hashlib.sha256(raw_text.encode("utf-8")).hexdigest(),
             fetched_at=datetime.now(timezone.utc).isoformat(),
@@ -233,6 +240,8 @@ def ingest_local_video(
                       "nonempty_transcript_chunks": len(segments),
                       "timing_precision": "24-second chunk bounds; not word alignment",
                       "binary_sha256": _sha256_file(cli_path), "model_sha256": _sha256_file(model),
+                      "asr_model": {"id": model.stem, "language": language,
+                                    "sha256": _sha256_file(model), "source": "user-configured"},
                       "ffmpeg": Path(ffmpeg_path).name, **media_info,
                       "privacy": {"network_used": False, "cloud_asr": False, "cloud_llm": False,
                                   "transcript_uploaded": False},
@@ -241,3 +250,224 @@ def ingest_local_video(
                       "ASR transcript is not a verbatim/independently verified transcript."], raw_text=raw_text)
         validate_bundle(bundle)
         return bundle
+
+
+def _ingest_managed_model(
+    source_path: str | Path,
+    *,
+    work_root: str | Path,
+    language: str | None,
+    timeout_seconds: float,
+    threads: int | None,
+    data_home: str | Path,
+) -> EvidenceBundle:
+    try:
+        model_info, model_path = resolve_installed_model(language, data_home)
+    except ASRSetupError as exc:
+        raise LocalASRError(str(exc)) from exc
+    language = model_info["language"]
+    source = Path(source_path).expanduser().resolve(strict=True)
+    if not source.is_file() or source.suffix.casefold() != ".mp4":
+        raise LocalASRError("local source must be an existing MP4 file")
+    if source.stat().st_size <= 0 or source.stat().st_size > MAX_MEDIA_BYTES:
+        raise LocalASRError(f"MP4 size must be between 1 byte and {MAX_MEDIA_BYTES} bytes")
+    if timeout_seconds <= 0 or timeout_seconds > MAX_ASR_SECONDS:
+        raise LocalASRError(f"timeout_seconds must be in (0, {MAX_ASR_SECONDS}]")
+    worker_threads = threads or max(1, min(os.cpu_count() or 1, 12))
+    if not 1 <= worker_threads <= 64:
+        raise LocalASRError("threads must be between 1 and 64")
+    try:
+        import av
+        import transcribe_cpp
+    except (ImportError, OSError) as exc:
+        raise LocalASRError("managed local ASR runtime is missing; install the project with its 'asr' extra") from exc
+
+    media_hash = _sha256_file(source)
+    root = Path(work_root).expanduser().resolve()
+    root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    try:
+        root.chmod(0o700)
+    except OSError:
+        pass
+    started = time.monotonic()
+    try:
+        container = av.open(str(source), mode="r", options={"protocol_whitelist": "file"})
+    except Exception as exc:
+        raise LocalASRError(f"cannot open local MP4 audio ({type(exc).__name__})") from exc
+
+    session = None
+    try:
+        audio_streams = list(container.streams.audio)
+        if not audio_streams:
+            raise LocalASRError("input has no audio stream")
+        audio_stream = audio_streams[0]
+        reported_duration: float | None = None
+        if audio_stream.duration is not None and audio_stream.time_base is not None:
+            reported_duration = float(audio_stream.duration * audio_stream.time_base)
+        elif container.duration is not None:
+            reported_duration = float(container.duration) / 1_000_000
+        if reported_duration is not None and (
+            not math.isfinite(reported_duration) or reported_duration <= 0
+            or reported_duration > MAX_DURATION_SECONDS
+        ):
+            raise LocalASRError(f"audio duration must be between 0 and {MAX_DURATION_SECONDS} seconds")
+
+        try:
+            asr_model = transcribe_cpp.Model(model_path, backend="auto")
+            session = asr_model.session(n_threads=worker_threads)
+            resampler = av.AudioResampler(format="flt", layout="mono", rate=16000)
+        except Exception as exc:
+            raise LocalASRError(f"cannot initialize local ASR runtime ({type(exc).__name__})") from exc
+
+        samples_per_chunk = CHUNK_SECONDS * 16000
+        bytes_per_chunk = samples_per_chunk * 4
+        pending = bytearray()
+        decoded_samples = 0
+        transcribed_samples = 0
+        chunk_index = 0
+        segments: list[TranscriptSegment] = []
+
+        def transcribe_chunk(raw_pcm: bytes) -> None:
+            nonlocal transcribed_samples, chunk_index
+            chunk = array.array("f")
+            chunk.frombytes(raw_pcm)
+            if sys.byteorder != "little":
+                chunk.byteswap()
+            if len(chunk) == 0:
+                return
+            if chunk_index >= MAX_SEGMENTS:
+                raise LocalASRError(f"local audio exceeds the {MAX_SEGMENTS}-chunk processing limit")
+            if time.monotonic() - started >= timeout_seconds:
+                raise LocalASRError(f"local ASR timed out after {timeout_seconds:g}s")
+            start = transcribed_samples / 16000
+            try:
+                result = session.run(chunk, language=language, timestamps="none")
+            except Exception as exc:
+                raise LocalASRError(f"local ASR inference failed ({type(exc).__name__})") from exc
+            text = getattr(result, "text", None)
+            if not isinstance(text, str):
+                raise LocalASRError("local ASR returned malformed transcript output")
+            text = text.strip()
+            duration = len(chunk) / 16000
+            if text:
+                segments.append(TranscriptSegment(
+                    f"a{chunk_index + 1:06d}", text, start, duration,
+                ))
+            chunk_index += 1
+            transcribed_samples += len(chunk)
+            if time.monotonic() - started > timeout_seconds:
+                raise LocalASRError(f"local ASR timed out after {timeout_seconds:g}s")
+
+        def append_frame(frame: Any) -> None:
+            nonlocal decoded_samples
+            expected_bytes = frame.samples * 4
+            try:
+                frame_bytes = bytes(frame.planes[0])[:expected_bytes]
+            except (IndexError, TypeError, ValueError) as exc:
+                raise LocalASRError("audio decoder returned an unsupported PCM frame") from exc
+            if len(frame_bytes) != expected_bytes:
+                raise LocalASRError("audio decoder returned an incomplete PCM frame")
+            decoded_samples += frame.samples
+            if decoded_samples > MAX_DURATION_SECONDS * 16000:
+                raise LocalASRError(f"audio duration exceeds {MAX_DURATION_SECONDS} seconds")
+            pending.extend(frame_bytes)
+            while len(pending) >= bytes_per_chunk:
+                transcribe_chunk(bytes(pending[:bytes_per_chunk]))
+                del pending[:bytes_per_chunk]
+
+        try:
+            for frame in container.decode(audio=0):
+                for converted in resampler.resample(frame):
+                    append_frame(converted)
+                if time.monotonic() - started > timeout_seconds:
+                    raise LocalASRError(f"local ASR timed out after {timeout_seconds:g}s")
+            for converted in resampler.resample(None):
+                append_frame(converted)
+        except LocalASRError:
+            raise
+        except Exception as exc:
+            raise LocalASRError(f"cannot decode local MP4 audio ({type(exc).__name__})") from exc
+
+        if pending:
+            transcribe_chunk(bytes(pending))
+        if decoded_samples == 0 or chunk_index == 0:
+            raise LocalASRError("local MP4 contains no decodable audio samples")
+        if not segments:
+            raise LocalASRError("local ASR returned no text for the full source")
+        if _sha256_file(source) != media_hash:
+            raise LocalASRError("input MP4 changed during local ASR; refusing to cache unverified provenance")
+        if sha256_file(model_path) != model_info["sha256"]:
+            raise LocalASRError("the selected local ASR model changed during transcription")
+
+        duration = decoded_samples / 16000
+        raw_text = json.dumps([{"id": segment.id, "text": segment.text,
+                                "start_seconds": segment.start_seconds,
+                                "duration_seconds": segment.duration_seconds} for segment in segments],
+                              ensure_ascii=False, separators=(",", ":"))
+        runtime_version = transcribe_cpp.__version__
+        bundle = EvidenceBundle(
+            platform="local-file", video_id=media_hash, url=f"local-file://sha256/{media_hash}",
+            language=language, variant="local_asr", source_type="local-asr-chunk-transcript",
+            extractor_version=f"transcribe.cpp-python/{runtime_version}", segments=segments,
+            raw_sha256=hashlib.sha256(raw_text.encode("utf-8")).hexdigest(),
+            fetched_at=datetime.now(timezone.utc).isoformat(),
+            metadata={
+                "media_sha256": media_hash, "media_bytes": source.stat().st_size,
+                "audio_duration_seconds": duration, "processed_audio_seconds": duration,
+                "audio_stream_count": len(audio_streams), "selected_audio_stream": 0,
+                "chunk_seconds": CHUNK_SECONDS, "chunk_count": chunk_index,
+                "nonempty_transcript_chunks": len(segments),
+                "timing_precision": "24-second chunk bounds; not word alignment",
+                "asr_model": {
+                    "id": model_info["id"], "language": language,
+                    "revision": model_info["revision"], "quantization": model_info["quantization"],
+                    "sha256": model_info["sha256"], "license": model_info["license"],
+                },
+                "decoder": {"name": "PyAV", "version": av.__version__},
+                "runtime": {"name": "transcribe.cpp Python binding", "version": runtime_version,
+                            "backend": "auto", "threads": worker_threads},
+                "privacy": {"network_used": False, "cloud_asr": False, "cloud_llm": False,
+                            "transcript_uploaded": False},
+                "elapsed_seconds": time.monotonic() - started,
+            },
+            warnings=["Local ASR word-level alignment unavailable; citation times identify 24-second chunks.",
+                      "ASR transcript is not a verbatim/independently verified transcript."],
+            raw_text=raw_text,
+        )
+        validate_bundle(bundle)
+        return bundle
+    finally:
+        if session is not None:
+            try:
+                session.close()
+            except Exception:
+                pass
+        container.close()
+
+
+def ingest_local_video(
+    source_path: str | Path,
+    *,
+    work_root: str | Path,
+    language: str | None = None,
+    data_home: str | Path | None = None,
+    ffmpeg: str | Path = "ffmpeg",
+    ffprobe: str | Path = "ffprobe",
+    transcribe_cli: str | Path | None = None,
+    model_path: str | Path | None = None,
+    timeout_seconds: float = MAX_ASR_SECONDS,
+    threads: int | None = None,
+) -> EvidenceBundle:
+    """Transcribe an explicitly selected local language with managed ASR or a legacy CLI."""
+    if bool(transcribe_cli) != bool(model_path):
+        raise LocalASRError("legacy ASR mode requires both a transcribe-cli path and a model path")
+    if transcribe_cli and model_path:
+        return _ingest_external_cli(
+            source_path, ffmpeg=ffmpeg, ffprobe=ffprobe, transcribe_cli=transcribe_cli,
+            model_path=model_path, work_root=work_root, language=language or "ru",
+            timeout_seconds=timeout_seconds, threads=threads,
+        )
+    return _ingest_managed_model(
+        source_path, work_root=work_root, language=language, timeout_seconds=timeout_seconds,
+        threads=threads, data_home=data_home or default_data_home(),
+    )
